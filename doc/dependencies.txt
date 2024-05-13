@@ -1,0 +1,2 @@
+postgresql python3-psycopg2 python3-flask python3-dotenv
+nodejs npm 

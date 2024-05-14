@@ -2,6 +2,9 @@ import os
 from dotenv import load_dotenv
 import psycopg2
 import re
+import string
+import random
+import hashlib
 
 class db:
     def __init__(self):
@@ -27,19 +30,20 @@ class db:
 
     def __create_auth(self):
         try:
+            # use salt to store random characters to further randomize the encrypted password stored in bcrypt
             self.cur.execute('CREATE TABLE IF NOT EXISTS auth ('
                                         'uid        integer NOT NULL UNIQUE,'
                                         'username   text    NOT NULL UNIQUE,'
-                                        #'salt       text    NOT NULL,'
-                                        #'bcrypt     text    NOT NULL,'
+                                        'salt       text    NOT NULL,'
+                                        'bcrypt     text    NOT NULL,'
                                         'session_id text,'
                                         'session_expiration timestamp (0) with time zone);')
         finally:
             self.conn.commit()
 
-    def __insert_auth(self, uid, username):
+    def __insert_auth(self, uid, username, salt, bcrypt):
         try:
-            self.cur.execute('INSERT INTO auth VALUES (%s, %s)', (uid, username))
+            self.cur.execute('INSERT INTO auth VALUES (%s, %s, %s, %s)', (uid, username, salt, bcrypt))
         finally:
             self.conn.commit()
 
@@ -62,17 +66,38 @@ class db:
 
         username = username.lower()
 
-        #TODO generate random salt & hash passwords
+        randomLetter1 = random.choice(string.ascii_letters)
+        randomLetter2 = random.choice(string.ascii_letters)
+        salt = randomLetter1 + randomLetter2
+
+        password2 = salt + password
+        bcrypt = hashlib.sha256(password2.encode("utf-8")).hexdigest()
+
 
         self.cur.execute('SELECT MAX(uid) FROM auth')
         uid = self.cur.fetchone()[0] + 1
 
         try:
-            self.__insert_auth(uid, username)
+            self.__insert_auth(uid, username, salt, bcrypt)
         except psycopg2.errors.UniqueViolation:
             raise Exception("username taken")
 
         return
+
+    def check_password(self, username, password):
+        self.cur.execute('SELECT salt, bcrypt FROM auth WHERE username=%s', (username,))
+        record = self.cur.fetchone()
+        if not record:
+            raise Exception("user doesn't exist")
+        salt = record[0]
+        bcrypt = record[1]
+
+        password2 = salt + password
+        bcrypt2 = hashlib.sha256(password2.encode("utf-8")).hexdigest()
+        if bcrypt == bcrypt2:
+            return True
+        else:
+            return False
 
     def delete_user(self, username, password):
         self.cur.execute('SELECT uid FROM auth WHERE username=%s', (username,))
@@ -84,10 +109,13 @@ class db:
         if uid == 0:
             raise Exception("can't delete admin")
 
-        #TODO check password
-
-        self.__delete_auth(uid)
+        if self.check_password(username, password):
+            self.__delete_auth(uid)
+        else:
+            raise Exception("no")
 
     def login(self, username, password):
-        pass
-        #TODO check password
+        if self.check_password(username, password):
+            pass
+        else:
+            raise Exception("wrong password")

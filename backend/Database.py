@@ -20,6 +20,7 @@ class db:
 
     def init(self):
         self.__create_auth_table()
+        self.__create_users_table()
         self.__create_admin("admin", "12345678")
 
     def close(self):
@@ -42,6 +43,17 @@ class db:
         self.cur.execute('SELECT uid FROM auth WHERE uid=0')
         if self.cur.fetchone() is None:
             self.create_user(username, password)
+
+    def __create_users_table(self):
+        try:
+            self.cur.execute('CREATE TABLE IF NOT EXISTS users ('
+                             'uid        integer NOT NULL UNIQUE,'
+                             'forums     integer[],'
+                             'first_name text,'
+                             'last_name  text,'
+                             'alias      text);')
+        finally:
+            self.conn.commit()
 
     def create_user(self, username, password):
         if not username.isascii():
@@ -72,6 +84,7 @@ class db:
 
         try:
             self.cur.execute('INSERT INTO auth VALUES (%s, %s, %s)', (uid, username, hash))
+            self.cur.execute('INSERT INTO users VALUES (%s)', (uid,))
         except psycopg2.errors.UniqueViolation:
             raise Exception("username taken")
         finally:
@@ -121,13 +134,14 @@ class db:
         if uid == 0:
             raise Exception("can't delete admin")
 
-        if self.check_password(username, password):
-            try:
-                self.cur.execute('DELETE FROM auth WHERE uid=%s', (uid,))
-            finally:
-                self.conn.commit()
-        else:
+        if not self.check_password(username, password):
             raise Exception("wrong password")
+
+        try:
+            self.cur.execute('DELETE FROM auth WHERE uid=%s', (uid,))
+            self.cur.execute('DELETE FROM users WHERE uid=%s', (uid,))
+        finally:
+            self.conn.commit()
 
     def login(self, username, password, timeout):
         if not self.check_password(username, password):

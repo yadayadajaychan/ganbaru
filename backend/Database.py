@@ -1,8 +1,10 @@
-import os
+import os, time
+from datetime import datetime
 from dotenv import load_dotenv
 import psycopg2
 import re
 from argon2 import PasswordHasher
+import base64
 
 class db:
     def __init__(self):
@@ -108,8 +110,19 @@ class db:
         else:
             raise Exception("wrong password")
 
-    def login(self, username, password):
-        if self.check_password(username, password):
-            pass
-        else:
+    def login(self, username, password, timeout=2592000):
+        if not self.check_password(username, password):
             raise Exception("wrong password")
+
+        session_id = base64.b64encode(os.urandom(36)).decode()
+        exp_date = datetime.utcfromtimestamp(time.time() + timeout).isoformat()
+        try:
+            # TODO support multiple sessions
+            self.cur.execute('UPDATE auth SET session_id = %s, '
+                             'session_expiration = %s '
+                             'WHERE username = %s',
+                             (session_id, exp_date, username))
+        finally:
+            self.conn.commit()
+
+        return session_id

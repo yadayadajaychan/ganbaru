@@ -57,5 +57,31 @@ def delete_user():
 
     return "", 200
 
+@app.route("/user/login", methods=["POST"])
+def login():
+    global db
+
+    try:
+        data = request.get_json()
+    except:
+        return jsonify({"error": "invalid json"}), 400
+
+    try:
+        data["username"]
+    except:
+        return jsonify({"error": "missing username"}), 400
+
+    try:
+        data["password"]
+    except:
+        return jsonify({"error": "missing password"}), 400
+
+    try:
+        session_id = db.login(data["username"], data["password"])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify({"session_id": session_id}), 200
+
 if __name__ == "__main__":
     app.run(debug=True)

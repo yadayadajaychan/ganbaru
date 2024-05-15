@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request, abort, make_response
 import Database
 
 app = Flask(__name__)
@@ -79,30 +79,56 @@ def login():
     try:
         timeout = data["timeout"]
     except:
-        # 30 days default
-        timeout = 2592000
+        # defaults to 1 day
+        timeout = 86400
 
     try:
         session_id = db.login(data["username"], data["password"], timeout)
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return jsonify({"session_id": session_id}), 200
+    resp = make_response({"session_id": session_id})
+    resp.set_cookie("session_id",
+                    value=session_id,
+                    max_age=timeout,
+                    domain="nijika.org,localhost",
+                    secure=True)
+    return resp, 200
 
 @app.route("/user/check_session", methods=["POST"])
 def check_session():
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        db.check_session(session_id)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return "", 200
+
+@app.route("/forums/create", methods=["POST"])
+def create_forum():
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
     try:
         data = request.get_json()
     except:
         return jsonify({"error": "invalid json"}), 400
 
-    try:
-        data["session_id"]
-    except:
-        return jsonify({"error": "missing session_id"}), 400
+    name = data.get("name")
+    if name is None:
+        return jsonify({"error": "name is required to create forum"}), 400
+
+    description = data.get("description")
 
     try:
-        db.check_session(data["session_id"])
+        db.create_forum(session_id, name, description)
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 

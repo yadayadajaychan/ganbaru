@@ -22,6 +22,7 @@ class db:
         self.__create_auth_table()
         self.__create_users_table()
         self.__create_admin("admin", "12345678")
+        self.__create_forums_table()
 
     def close(self):
         self.cur.close()
@@ -52,6 +53,16 @@ class db:
                              'first_name text,'
                              'last_name  text,'
                              'alias      text);')
+        finally:
+            self.conn.commit()
+
+    def __create_forums_table(self):
+        try:
+            self.cur.execute('CREATE TABLE IF NOT EXISTS forums ('
+                             'fid        integer NOT NULL UNIQUE,'
+                             'owner      integer NOT NULL,'
+                             'name       text NOT NULL,'
+                             'description text);')
         finally:
             self.conn.commit()
 
@@ -92,6 +103,8 @@ class db:
 
         return
 
+    # returns True if password correct
+    # raises exception if incorrect
     def check_password(self, username, password):
         self.cur.execute('SELECT hash FROM auth WHERE username=%s', (username,))
         record = self.cur.fetchone()
@@ -103,7 +116,7 @@ class db:
             self.ph.verify(hash, password)
             return True
         except:
-            return False
+            raise Exception("wrong password")
 
     # returns uid if session exists and is valid
     # raises exception if session not found or expired
@@ -134,8 +147,7 @@ class db:
         if uid == 0:
             raise Exception("can't delete admin")
 
-        if not self.check_password(username, password):
-            raise Exception("wrong password")
+        self.check_password(username, password)
 
         try:
             self.cur.execute('DELETE FROM auth WHERE uid=%s', (uid,))
@@ -144,8 +156,7 @@ class db:
             self.conn.commit()
 
     def login(self, username, password, timeout):
-        if not self.check_password(username, password):
-            raise Exception("wrong password")
+        self.check_password(username, password)
 
         session_id = base64.b64encode(os.urandom(36)).decode()
         exp_date = datetime.utcfromtimestamp(time.time() + timeout).isoformat()
@@ -159,3 +170,25 @@ class db:
             self.conn.commit()
 
         return session_id
+
+    def create_forum(self, session_id, name, description=None):
+        self.cur.execute('SELECT MAX(fid) FROM forums')
+        max_fid = self.cur.fetchone()[0]
+        if max_fid is None:
+            fid = 0
+        else:
+            fid = max_fid + 1
+
+        uid = self.check_session(session_id)
+
+        try:
+            self.cur.execute('INSERT INTO forums VALUES '
+                             '(%s, %s, %s, %s);',
+                             (fid, uid, name, description))
+            self.cur.execute('UPDATE users '
+                             'SET forums = forums || %s '
+                             'WHERE uid = %s', (fid, uid))
+        finally:
+            self.conn.commit()
+
+        return

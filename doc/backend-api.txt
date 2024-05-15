@@ -28,7 +28,8 @@ Delete User
 Login
 - POST /user/login
 - authenticate user
-- timeout is optional (defaults to 30 days)
+- timeout is optional
+- sets session_id cookie
 - JSON Params
 
     field      type
@@ -54,21 +55,23 @@ Logout
 Check Session
 - POST /user/check_session
 - check if session is valid
+- session_id cookie required
+
+Create Forum
+- POST /forums/create
+- create a forum
+- session_id cookie required
 - JSON Params
 
-     field       type
-  ------------ --------
-   session_id   string
+     field       type          description         
+ ------------- -------- -------------------------- 
+  name          string   name of the forum         
+  description   string   description of the forum  
 
 Get Forums (classes)
 - GET /forums
 - get a list of all the forums the user is a part of
-- cookie
-
-     field       type
-  ------------ --------
-   session_id   string
-
+- session_id cookie required
 - JSON Response
 
    field             type                         description

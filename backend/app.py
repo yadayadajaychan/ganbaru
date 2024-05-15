@@ -10,7 +10,7 @@ def create_user():
     global db;
 
     try:
-        data = request.get_json()
+        data = request.get_json(force=True)
     except:
         return jsonify({"error": "invalid json"}), 400
 
@@ -36,7 +36,7 @@ def delete_user():
     global db;
 
     try:
-        data = request.get_json()
+        data = request.get_json(force=True)
     except:
         return jsonify({"error": "invalid json"}), 400
 
@@ -62,7 +62,7 @@ def login():
     global db
 
     try:
-        data = request.get_json()
+        data = request.get_json(force=True)
     except:
         return jsonify({"error": "invalid json"}), 400
 
@@ -117,7 +117,7 @@ def create_forum():
         return jsonify({"error": "missing session_id cookie"}), 400
 
     try:
-        data = request.get_json()
+        data = request.get_json(force=True)
     except:
         return jsonify({"error": "invalid json"}), 400
 

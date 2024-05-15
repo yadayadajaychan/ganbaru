@@ -176,6 +176,9 @@ class db:
         return session_id
 
     def create_forum(self, session_id, name, description=None):
+        if len(name) <= 0:
+            raise Exception("empty forum name not allowed")
+
         self.cur.execute('SELECT MAX(fid) FROM forums')
         max_fid = self.cur.fetchone()[0]
         if max_fid is None:

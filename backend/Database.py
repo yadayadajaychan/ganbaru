@@ -199,3 +199,32 @@ class db:
             self.conn.commit()
 
         return
+
+    # returns list of forum dicts
+    def get_forums(self, session_id):
+        uid = self.check_session(session_id)
+
+        self.cur.execute('SELECT forums '
+                         'FROM users '
+                         'WHERE uid = %s', (uid,))
+        forum_ids = self.cur.fetchone()[0]
+        if forum_ids is None:
+            forum_ids = []
+
+        output = list()
+        for fid in forum_ids:
+            # get forum info from db
+            self.cur.execute('SELECT * '
+                             'FROM forums '
+                             'WHERE fid = %s', (fid,))
+            record = self.cur.fetchone()
+
+            forum = dict()
+            forum['forum_id']    = record[0]
+            forum['owner']       = record[1]
+            forum['name']        = record[2]
+            forum['description'] = record[3]
+
+            output.append(forum)
+
+        return output

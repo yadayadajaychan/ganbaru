@@ -2,9 +2,7 @@ import os
 from dotenv import load_dotenv
 import psycopg2
 import re
-import string
-import random
-import hashlib
+from argon2 import PasswordHasher
 
 class db:
     def __init__(self):
@@ -14,12 +12,13 @@ class db:
                 database = "ganbaru",
                 user     = os.getenv('DB_USERNAME'),
                 password = os.getenv('DB_PASSWORD'))
-
         self.cur = self.conn.cursor();
+
+        self.ph = PasswordHasher()
 
     def init(self):
         self.__create_auth_table()
-        self.__create_admin("admin", "admin")
+        self.__create_admin("admin", "12345678")
 
     def close(self):
         self.cur.close()
@@ -27,12 +26,11 @@ class db:
 
     def __create_auth_table(self):
         try:
-            # use salt to store random characters to further randomize the encrypted password stored in bcrypt
+            # passwords are salted and hashed using argon2id
             self.cur.execute('CREATE TABLE IF NOT EXISTS auth ('
                                         'uid        integer NOT NULL UNIQUE,'
                                         'username   text    NOT NULL UNIQUE,'
-                                        'salt       text    NOT NULL,'
-                                        'bcrypt     text    NOT NULL,'
+                                        'hash       text    NOT NULL,'
                                         'session_id text,'
                                         'session_expiration timestamp (0) with time zone);')
         finally:
@@ -58,14 +56,10 @@ class db:
 
         if len(password) < 8:
             raise Exception("password must be at least 8 characters")
+        elif len(password) > 1024:
+            raise Exception("password must be at most 1024 characters")
 
-        randomLetter1 = random.choice(string.ascii_letters)
-        randomLetter2 = random.choice(string.ascii_letters)
-        salt = randomLetter1 + randomLetter2
-
-        password2 = salt + password
-        bcrypt = hashlib.sha256(password2.encode("utf-8")).hexdigest()
-
+        hash = self.ph.hash(password)
 
         self.cur.execute('SELECT MAX(uid) FROM auth')
         max_uid = self.cur.fetchone()[0]
@@ -75,7 +69,7 @@ class db:
             uid = max_uid + 1
 
         try:
-            self.cur.execute('INSERT INTO auth VALUES (%s, %s, %s, %s)', (uid, username, salt, bcrypt))
+            self.cur.execute('INSERT INTO auth VALUES (%s, %s, %s)', (uid, username, hash))
         except psycopg2.errors.UniqueViolation:
             raise Exception("username taken")
         finally:
@@ -84,18 +78,16 @@ class db:
         return
 
     def check_password(self, username, password):
-        self.cur.execute('SELECT salt, bcrypt FROM auth WHERE username=%s', (username,))
+        self.cur.execute('SELECT hash FROM auth WHERE username=%s', (username,))
         record = self.cur.fetchone()
         if not record:
             raise Exception("user doesn't exist")
-        salt = record[0]
-        bcrypt = record[1]
+        hash = record[0]
 
-        password2 = salt + password
-        bcrypt2 = hashlib.sha256(password2.encode("utf-8")).hexdigest()
-        if bcrypt == bcrypt2:
+        try:
+            self.ph.verify(hash, password)
             return True
-        else:
+        except:
             return False
 
     def delete_user(self, username, password):

@@ -62,7 +62,7 @@ class db:
 
         r = re.compile('[^A-Za-z0-9_]')
         if r.search(username):
-            raise Exception("only alphanumeric characters and underscore allowed")
+            raise Exception("only alphanumeric characters and underscore allowed in username")
 
         username = username.lower()
 

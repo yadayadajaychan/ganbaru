@@ -18,17 +18,14 @@ class db:
         self.cur = self.conn.cursor();
 
     def init(self):
-        self.__create_auth()
-        try:
-            self.__insert_auth(0, "admin")
-        except psycopg2.errors.UniqueViolation:
-            None # admin already exists
+        self.__create_auth_table()
+        self.__create_admin("admin", "admin")
 
     def close(self):
         self.cur.close()
         self.conn.close()
 
-    def __create_auth(self):
+    def __create_auth_table(self):
         try:
             # use salt to store random characters to further randomize the encrypted password stored in bcrypt
             self.cur.execute('CREATE TABLE IF NOT EXISTS auth ('
@@ -41,17 +38,10 @@ class db:
         finally:
             self.conn.commit()
 
-    def __insert_auth(self, uid, username, salt, bcrypt):
-        try:
-            self.cur.execute('INSERT INTO auth VALUES (%s, %s, %s, %s)', (uid, username, salt, bcrypt))
-        finally:
-            self.conn.commit()
-
-    def __delete_auth(self, uid):
-        try:
-            self.cur.execute('DELETE FROM auth WHERE uid=%s', (uid,))
-        finally:
-            self.conn.commit()
+    def __create_admin(self, username, password):
+        self.cur.execute('SELECT uid FROM auth WHERE uid=0')
+        if self.cur.fetchone() is None:
+            self.create_user(username, password)
 
     def create_user(self, username, password):
         if not username.isascii():
@@ -75,12 +65,18 @@ class db:
 
 
         self.cur.execute('SELECT MAX(uid) FROM auth')
-        uid = self.cur.fetchone()[0] + 1
+        max_uid = self.cur.fetchone()[0]
+        if max_uid is None:
+            uid = 0
+        else:
+            uid = max_uid + 1
 
         try:
-            self.__insert_auth(uid, username, salt, bcrypt)
+            self.cur.execute('INSERT INTO auth VALUES (%s, %s, %s, %s)', (uid, username, salt, bcrypt))
         except psycopg2.errors.UniqueViolation:
             raise Exception("username taken")
+        finally:
+            self.conn.commit()
 
         return
 
@@ -110,9 +106,12 @@ class db:
             raise Exception("can't delete admin")
 
         if self.check_password(username, password):
-            self.__delete_auth(uid)
+            try:
+                self.cur.execute('DELETE FROM auth WHERE uid=%s', (uid,))
+            finally:
+                self.conn.commit()
         else:
-            raise Exception("no")
+            raise Exception("wrong password")
 
     def login(self, username, password):
         if self.check_password(username, password):

@@ -56,6 +56,9 @@ class db:
 
         username = username.lower()
 
+        if len(password) < 8:
+            raise Exception("password must be at least 8 characters")
+
         randomLetter1 = random.choice(string.ascii_letters)
         randomLetter2 = random.choice(string.ascii_letters)
         salt = randomLetter1 + randomLetter2

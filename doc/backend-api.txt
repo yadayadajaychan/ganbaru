@@ -28,6 +28,7 @@ Delete User
 Login
 - POST /user/login
 - authenticate user
+- timeout is optional (defaults to 30 days)
 - JSON Params
 
     field      type

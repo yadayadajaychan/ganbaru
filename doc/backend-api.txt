@@ -34,8 +34,26 @@ Login
   ---------- --------
    username   string
    password   string
+   timeout    int
 
 - JSON Response
+
+     field       type
+  ------------ --------
+   session_id   string
+
+Logout
+- POST /user/logout
+- JSON Params
+
+     field       type
+  ------------ --------
+   session_id   string
+
+Check Session
+- POST /user/check_session
+- check if session is valid
+- JSON Params
 
      field       type
   ------------ --------

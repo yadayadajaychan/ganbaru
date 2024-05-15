@@ -77,11 +77,36 @@ def login():
         return jsonify({"error": "missing password"}), 400
 
     try:
-        session_id = db.login(data["username"], data["password"])
+        timeout = data["timeout"]
+    except:
+        # 30 days default
+        timeout = 2592000
+
+    try:
+        session_id = db.login(data["username"], data["password"], timeout)
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
     return jsonify({"session_id": session_id}), 200
+
+@app.route("/user/check_session", methods=["POST"])
+def check_session():
+    try:
+        data = request.get_json()
+    except:
+        return jsonify({"error": "invalid json"}), 400
+
+    try:
+        data["session_id"]
+    except:
+        return jsonify({"error": "missing session_id"}), 400
+
+    try:
+        db.check_session(data["session_id"])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return "", 200
 
 if __name__ == "__main__":
     app.run(debug=True)

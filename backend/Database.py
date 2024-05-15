@@ -92,6 +92,25 @@ class db:
         except:
             return False
 
+    # returns uid if session exists and is valid
+    # raises exception if session not found or expired
+    def check_session(self, session_id):
+        self.cur.execute('SELECT uid, session_expiration '
+                         'FROM auth WHERE session_id = %s', (session_id,))
+        record = self.cur.fetchone()
+        if not record:
+            raise Exception("session does not exist")
+        uid = record[0]
+        exp_date = record[1]
+
+        # check expiration
+        exp = exp_date.timestamp()
+        curr_time = time.time()
+        if curr_time > exp:
+            raise Exception("session expired")
+
+        return uid
+
     def delete_user(self, username, password):
         self.cur.execute('SELECT uid FROM auth WHERE username=%s', (username,))
         record = self.cur.fetchone()
@@ -110,7 +129,7 @@ class db:
         else:
             raise Exception("wrong password")
 
-    def login(self, username, password, timeout=2592000):
+    def login(self, username, password, timeout):
         if not self.check_password(username, password):
             raise Exception("wrong password")
 

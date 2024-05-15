@@ -138,6 +138,8 @@ class db:
         return uid
 
     def delete_user(self, username, password):
+        username = username.lower()
+
         self.cur.execute('SELECT uid FROM auth WHERE username=%s', (username,))
         record = self.cur.fetchone()
         if not record:
@@ -156,6 +158,8 @@ class db:
             self.conn.commit()
 
     def login(self, username, password, timeout):
+        username = username.lower()
+
         self.check_password(username, password)
 
         session_id = base64.b64encode(os.urandom(36)).decode()

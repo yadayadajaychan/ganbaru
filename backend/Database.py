@@ -151,6 +151,19 @@ class db:
 
         self.check_password(username, password)
 
+        #change owner of forums to admin
+        self.cur.execute('SELECT fid '
+                         'FROM forums '
+                         'WHERE owner = %s', (uid,))
+        for record in self.cur.fetchall():
+            fid = record[0]
+            try:
+                self.cur.execute('UPDATE forums '
+                                 'SET owner = 0 '
+                                 'WHERE fid = %s', (fid,))
+            finally:
+                self.conn.commit()
+
         try:
             self.cur.execute('DELETE FROM auth WHERE uid=%s', (uid,))
             self.cur.execute('DELETE FROM users WHERE uid=%s', (uid,))

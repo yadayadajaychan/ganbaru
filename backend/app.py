@@ -150,5 +150,34 @@ def get_forums():
 
     return jsonify({"forums": forums}), 200
 
+@app.route("/forums/<forum_id>/create", methods=["POST"])
+def create_subforum(forum_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        data = request.get_json(force=True)
+    except:
+        return jsonify({"error": "invalid json"}), 400
+
+    category = data.get("category")
+    if category is None:
+        return jsonify({"error": "category is required to create subforum"}), 400
+
+    name = data.get("name")
+    if name is None:
+        return jsonify({"error": "name is required to create subforum"}), 400
+
+    description = data.get("description")
+
+    try:
+        db.create_subforum(session_id, forum_id, category, name, description)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return "", 200
+
 if __name__ == "__main__":
     app.run(debug=True)

@@ -70,7 +70,7 @@ class db:
     def __create_subforums_table(self):
         try:
             self.cur.execute('CREATE TABLE IF NOT EXISTS subforums ('
-                             'fid         integer NOT NULL UNIQUE,'
+                             'fid         integer NOT NULL,'
                              'sid         integer NOT NULL,'
                              'category    text NOT NULL,'
                              'name        text NOT NULL,'
@@ -201,6 +201,9 @@ class db:
         return session_id
 
     def create_forum(self, session_id, name, description=None):
+        uid = self.check_session(session_id)
+        #TODO check if allowed to create forum
+
         if len(name) <= 0:
             raise Exception("empty forum name not allowed")
 
@@ -210,10 +213,6 @@ class db:
             fid = 0
         else:
             fid = max_fid + 1
-
-        uid = self.check_session(session_id)
-
-        #TODO check if allowed to create forum
 
         try:
             self.cur.execute('INSERT INTO forums VALUES '
@@ -255,3 +254,35 @@ class db:
             output.append(forum)
 
         return output
+
+    def create_subforum(self, session_id, forum_id, category, name, description=None):
+        uid = self.check_session(session_id)
+
+        # TODO check if authorized to create subforum
+        self.cur.execute('SELECT fid '
+                         'FROM forums '
+                         'WHERE fid = %s', (forum_id,))
+        if self.cur.fetchone() is None:
+            raise Exception("forum does not exist")
+
+        if len(category) <= 0:
+            raise Exception("empty subforum category not allowed")
+        if len(name) <= 0:
+            raise Exception("empty subforum name not allowed")
+
+        self.cur.execute('SELECT MAX(sid) '
+                         'FROM subforums '
+                         'WHERE fid = %s', (forum_id,))
+        max_sid = self.cur.fetchone()[0]
+        if max_sid is None:
+            max_sid = 0
+
+        sid = max_sid + 1
+
+        try:
+            self.cur.execute('INSERT INTO subforums '
+                             '(fid, sid, category, name, description) '
+                             'VALUES (%s, %s, %s, %s, %s)',
+                             (forum_id, sid, category, name, description))
+        finally:
+            self.conn.commit()

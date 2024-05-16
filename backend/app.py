@@ -148,7 +148,7 @@ def get_forums():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return jsonify({"forums": forums}), 200
+    return jsonify(forums), 200
 
 @app.route("/forums/<forum_id>/create", methods=["POST"])
 def create_subforum(forum_id):

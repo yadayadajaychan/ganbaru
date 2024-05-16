@@ -226,7 +226,7 @@ class db:
 
         return
 
-    # returns list of forum dicts
+    # check doc/backend-api.txt for output format
     def get_forums(self, session_id):
         uid = self.check_session(session_id)
 
@@ -253,7 +253,7 @@ class db:
 
             output.append(forum)
 
-        return output
+        return {"forums": output}
 
     def create_subforum(self, session_id, forum_id, category, name, description=None):
         uid = self.check_session(session_id)

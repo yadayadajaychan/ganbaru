@@ -149,6 +149,28 @@ class db:
 
         return uid
 
+    # checks if uid exists
+    # raises exception if not found
+    def check_uid(self, uid):
+        self.cur.execute('SELECT uid '
+                         'FROM users '
+                         'WHERE uid = %s', (uid,))
+        if self.cur.fetchone() is None:
+            raise Exception(f"uid {uid} does not exist")
+
+        return
+
+    # checks if forum exists
+    # raises exception if not found
+    def check_forum(self, forum_id):
+        self.cur.execute('SELECT fid '
+                         'FROM forums '
+                         'WHERE fid = %s', (forum_id,))
+        if self.cur.fetchone() is None:
+            raise Exception(f"forum {forum_id} does not exist")
+
+        return
+
     def delete_user(self, username, password):
         username = username.lower()
 
@@ -226,16 +248,56 @@ class db:
 
         return
 
-    # check doc/backend-api.txt for output format
-    def get_forums(self, session_id):
+    def __add_to_forum(self, uid, fid):
+        forum_ids = self.__get_forums(uid)
+        if fid not in forum_ids:
+            try:
+                self.cur.execute('UPDATE users '
+                                 'SET forums = forums || %s '
+                                 'WHERE uid = %s', (fid, uid))
+            finally:
+                self.conn.commit()
+
+        return
+
+    # add users to a forum
+    def add_to_forum(self, session_id, uids, fid):
         uid = self.check_session(session_id)
 
+        self.check_forum(fid)
+        # TODO check if authorized to add users to the forum
+
+        for uid in uids:
+            self.check_uid(uid)
+            self.__add_to_forum(uid, fid)
+
+        return
+
+    def __get_forums(self, uid):
         self.cur.execute('SELECT forums '
                          'FROM users '
                          'WHERE uid = %s', (uid,))
         forum_ids = self.cur.fetchone()[0]
         if forum_ids is None:
             forum_ids = []
+
+        return forum_ids
+
+    def __get_forum_users(self, fid):
+        self.cur.execute('SELECT uid '
+                         'FROM users '
+                         'WHERE %s = ANY (forums)', (fid,))
+        output = list()
+        for record in self.cur.fetchall():
+            output.append(record[0])
+
+        return output
+
+    # check doc/backend-api.txt for output format
+    def get_forums(self, session_id):
+        uid = self.check_session(session_id)
+
+        forum_ids = self.__get_forums(uid)
 
         output = list()
         for fid in forum_ids:
@@ -259,11 +321,7 @@ class db:
         uid = self.check_session(session_id)
 
         # TODO check if authorized to create subforum
-        self.cur.execute('SELECT fid '
-                         'FROM forums '
-                         'WHERE fid = %s', (forum_id,))
-        if self.cur.fetchone() is None:
-            raise Exception("forum does not exist")
+        self.check_forum(forum_id)
 
         if len(category) <= 0:
             raise Exception("empty subforum category not allowed")

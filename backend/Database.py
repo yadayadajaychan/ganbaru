@@ -195,6 +195,7 @@ class db:
                 self.cur.execute('UPDATE forums '
                                  'SET owner = 0 '
                                  'WHERE fid = %s', (fid,))
+                self.__add_to_forum(0, fid)
             finally:
                 self.conn.commit()
 

@@ -23,6 +23,7 @@ class db:
         self.__create_users_table()
         self.__create_admin("admin", "12345678")
         self.__create_forums_table()
+        self.__create_subforums_table()
 
     def close(self):
         self.cur.close()
@@ -59,9 +60,20 @@ class db:
     def __create_forums_table(self):
         try:
             self.cur.execute('CREATE TABLE IF NOT EXISTS forums ('
-                             'fid        integer NOT NULL UNIQUE,'
-                             'owner      integer NOT NULL,'
-                             'name       text NOT NULL,'
+                             'fid         integer NOT NULL UNIQUE,'
+                             'owner       integer NOT NULL,'
+                             'name        text NOT NULL,'
+                             'description text);')
+        finally:
+            self.conn.commit()
+
+    def __create_subforums_table(self):
+        try:
+            self.cur.execute('CREATE TABLE IF NOT EXISTS subforums ('
+                             'fid         integer NOT NULL UNIQUE,'
+                             'sid         integer NOT NULL,'
+                             'category    text NOT NULL,'
+                             'name        text NOT NULL,'
                              'description text);')
         finally:
             self.conn.commit()
@@ -200,6 +212,8 @@ class db:
             fid = max_fid + 1
 
         uid = self.check_session(session_id)
+
+        #TODO check if allowed to create forum
 
         try:
             self.cur.execute('INSERT INTO forums VALUES '

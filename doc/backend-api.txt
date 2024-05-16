@@ -28,15 +28,14 @@ Delete User
 Login
 - POST /user/login
 - authenticate user
-- timeout is optional
 - sets session_id cookie
 - JSON Params
 
-    field      type
-  ---------- --------
-   username   string
-   password   string
-   timeout    int
+    field      type    optional  
+  ---------- -------- ---------- 
+   username   string   n         
+   password   string   n         
+   timeout    int      y         
 
 Logout
 - POST /user/logout
@@ -80,14 +79,21 @@ Get Forums (classes)
    unread        int      # of unread posts
    unanswered    int      # of unanswered questions
 
-Get Subforums
-- GET /forums/:forum_id
-- get a list of all the subforums in a forum
-- cookie
+Create Subforum
+- POST /forums/<forum_id>/create
+- session_id cookie required
+- JSON Parameters
 
-     field       type
-  ------------ --------
-   session_id   string
+     field       type          description          optional  
+ ------------- -------- -------------------------- ---------- 
+  category      string   category of the subforum   n         
+  name          string   name of the subforum       n         
+  description   string   description                y         
+
+Get Subforums
+- GET /forums/<forum_id>
+- get a list of all the subforums in a forum
+- session_id cookie required
 
 - JSON Response
 

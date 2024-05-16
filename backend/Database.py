@@ -106,8 +106,11 @@ class db:
             uid = max_uid + 1
 
         try:
-            self.cur.execute('INSERT INTO auth VALUES (%s, %s, %s)', (uid, username, hash))
-            self.cur.execute('INSERT INTO users VALUES (%s)', (uid,))
+            self.cur.execute('INSERT INTO auth '
+                             '(uid, username, hash) '
+                             'VALUES (%s, %s, %s)',
+                             (uid, username, hash))
+            self.cur.execute('INSERT INTO users (uid) VALUES (%s)', (uid,))
         except psycopg2.errors.UniqueViolation:
             raise Exception("username taken")
         finally:
@@ -238,8 +241,9 @@ class db:
             fid = max_fid + 1
 
         try:
-            self.cur.execute('INSERT INTO forums VALUES '
-                             '(%s, %s, %s, %s);',
+            self.cur.execute('INSERT INTO forums '
+                             '(fid, owner, name, description)'
+                             'VALUES (%s, %s, %s, %s);',
                              (fid, uid, name, description))
             self.cur.execute('UPDATE users '
                              'SET forums = forums || %s '

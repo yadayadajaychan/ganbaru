@@ -78,24 +78,26 @@ def login():
 
     try:
         timeout = data["timeout"]
+        cookie_timeout = timeout
     except:
         # defaults to 1 day
         timeout = 86400
+        cookie_timeout = None
 
     try:
         session_id = db.login(data["username"], data["password"], timeout)
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    resp = make_response({"session_id": session_id})
+    resp = make_response()
     resp.set_cookie("session_id",
                     value=session_id,
-                    max_age=timeout,
-                    domain="nijika.org,localhost",
+                    max_age=cookie_timeout,
+                    #domain=".nijika.org",
                     secure=True)
     return resp, 200
 
-@app.route("/user/check_session", methods=["POST"])
+@app.route("/user/check_session", methods=["GET"])
 def check_session():
     try:
         session_id = request.cookies['session_id']

@@ -38,22 +38,12 @@ Login
    password   string
    timeout    int
 
-- JSON Response
-
-     field       type
-  ------------ --------
-   session_id   string
-
 Logout
 - POST /user/logout
-- JSON Params
-
-     field       type
-  ------------ --------
-   session_id   string
+- session_id cookie required
 
 Check Session
-- POST /user/check_session
+- GET /user/check_session
 - check if session is valid
 - session_id cookie required
 

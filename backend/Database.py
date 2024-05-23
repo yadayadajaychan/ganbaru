@@ -24,6 +24,7 @@ class db:
         self.__create_admin("admin", "12345678")
         self.__create_forums_table()
         self.__create_subforums_table()
+        self.__create_posts_table()
 
     def close(self):
         self.cur.close()
@@ -75,6 +76,23 @@ class db:
                              'category    text NOT NULL,'
                              'name        text NOT NULL,'
                              'description text);')
+        finally:
+            self.conn.commit()
+
+    def __create_posts_table(self):
+        try:
+            self.cur.execute('CREATE TABLE IF NOT EXISTS posts ('
+                             'fid     integer NOT NULL,'
+                             'sid     integer NOT NULL,'
+                             'pid     integer NOT NULL,'
+                             'uid     integer NOT NULL,'
+                             'title   text NOT NULL,'
+                             'date    timestamp (0) with time zone NOT NULL,'
+                             'views   integer NOT NULL,'
+                             'answers integer NOT NULL,'
+                             'instructor_answered boolean NOT NULL,'
+                             'tags text[],'
+                             'full_text text NOT NULL);')
         finally:
             self.conn.commit()
 

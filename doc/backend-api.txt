@@ -126,19 +126,17 @@ Get Subforums
                   ]}
 
 Get Posts
-- GET /forums/:forum_id/:subforum_id/posts
+- GET /forums/<forum_id>/<subforum_id>
 - get a list of posts in a subforum
+- session_id cookie required
 - Query String Params
 
-      field       type          description         optional    default
-  ------------- -------- ------------------------- ---------- -----------
-   session_id    string                             n
-   forum_id      int                                n
-   subforum_id   int                                n
-   count         int      how many posts to fetch   y          50
-   page          int      page # to fetch           y          1
-   ascending     bool     ascending order           y          false
-   sortby        string   post date, activity       y          post date
+      field       type            description          optional    default
+  ------------- -------- ---------------------------- ---------- -----------
+   count         int      how many posts to fetch      y          50
+   page          int      page # to fetch              y          1
+   ascending     bool     ascending order              y          false
+   sortby        string   post date, activity, votes   y          post date
 
 - JSON Response
 
@@ -150,6 +148,7 @@ Get Posts
 
           field                type              description
   --------------------- ------------------ -----------------------
+   subforum_id           int                subforum id
    post_id               int                post id
    user_id               int                user who created post
    title                 string             title of post
@@ -159,19 +158,26 @@ Get Posts
    instructor_answered   bool               instructor answered
    tags                  array of strings   tags
 
+Create Post
+- POST /forums/<forum_id>/<subforum_id>/create
+- create a post
+- session_id cookie required
+- JSON Parameters
+
+    field           type              description        optional  
+ ----------- ------------------ ----------------------- ---------- 
+  title       string             title of the post       n         
+  full_text   string             full text of the post   n         
+  tags        array of strings   tags                    y         
+
 View Post
-- GET /forums/:forum_id/:subforum_id/:post_id
+- GET /forums/<forum_id>/<subforum_id>/<post_id>
 - view a post
-- cookie
-
-     field       type
-  ------------ --------
-   session_id   string
-
+- session_id cookie required
 - JSON Response
 
-          field                   type                    description
-  --------------------- ------------------------- ---------------------------
+          field                   type                   description
+  --------------------- ------------------------- ------------------------
    user_id               int                       user who created post
    title                 string                    title of post
    date                  string                    iso8601 timestamp
@@ -180,7 +186,7 @@ View Post
    instructor_answered   bool                      instructor answered
    tags                  array of strings          tags
 
-   question              string                    full text of the question
+   full_text             string                    full text of the post
    instructor_answer     answer object
    student_answers       array of answer objects
 
@@ -193,3 +199,6 @@ View Post
    date        string   iso8601 timestamp
    answer      string   full text of the answer
    score       int      sum of votes by users
+
+Search Posts
+- GET /forums/<forum_id>/search

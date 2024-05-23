@@ -338,7 +338,7 @@ class db:
                          'WHERE fid = %s', (forum_id,))
         max_sid = self.cur.fetchone()[0]
         if max_sid is None:
-            max_sid = 0
+            max_sid = -1
 
         sid = max_sid + 1
 
@@ -349,3 +349,35 @@ class db:
                              (forum_id, sid, category, name, description))
         finally:
             self.conn.commit()
+
+        return
+
+    # check doc/backend-api.txt for format
+    def get_subforums(self, session_id, forum_id):
+        uid = self.check_session(session_id)
+
+        self.check_forum(forum_id)
+        # TODO check if authorized to view subforums
+
+        self.cur.execute('SELECT category, sid, name, description '
+                         'FROM subforums '
+                         'WHERE fid = %s', (forum_id,))
+        records = self.cur.fetchall()
+
+        categories = dict()
+        for record in records:
+            subforum = {"subforum_id": record[1],
+                        "name": record[2],
+                        "description": record[3]}
+
+            if categories.get(record[0], None) == None:
+                categories[record[0]] = list()
+
+            categories[record[0]].append(subforum)
+
+        response = list()
+        for category in categories:
+            response.append({"name": category,
+                             "subforums": categories[category]})
+
+        return {"categories": response}

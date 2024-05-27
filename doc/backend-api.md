@@ -138,11 +138,12 @@ Get Subforums
    unanswered  | int    | # of unanswered questions
 
 - E.g.
+  ```
   {"categories": [{"name": CATEGORY_NAME, "subforums": [SUBFORUM_OBJ, SUBFORUM_OBJ, ...]},
                   {"name": CATEGORY_NAME, "subforums": [SUBFORUM_OBJ, SUBFORUM_OBJ, ...]},
                   ...
                   ]}
-
+  ```
 
 Get Posts
 =========================

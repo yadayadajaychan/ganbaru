@@ -3,5 +3,7 @@ export default function LoginLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return { children };
+  // TODO: check if user is already logged in
+
+  return <>{children}</>;
 }

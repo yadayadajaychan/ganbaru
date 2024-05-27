@@ -12,7 +12,12 @@ import {
 } from '@radix-ui/themes';
 import { useState } from 'react';
 
-export default function LoginCard() {
+export interface LoginProps {
+  onSignIn: (email: string, password: string) => void;
+  onCreateAccount: (email: string, password: string) => void;
+}
+
+export default function LoginCard({ onSignIn, onCreateAccount }: LoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 

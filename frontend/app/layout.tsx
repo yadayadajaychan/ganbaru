@@ -3,6 +3,8 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import '@radix-ui/themes/styles.css';
 
+import ReactQueryProvider from '@/providers/reactQuery';
+
 import { Theme } from '@radix-ui/themes';
 import { ThemeProvider } from 'next-themes';
 
@@ -21,13 +23,15 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body className={inter.className}>
-        <ThemeProvider
-          attribute='class'
-          defaultTheme='dark'
-          value={{ light: 'light', dark: 'dark' }}
-        >
-          <Theme>{children}</Theme>
-        </ThemeProvider>
+        <ReactQueryProvider>
+          <ThemeProvider
+            attribute='class'
+            defaultTheme='dark'
+            value={{ light: 'light', dark: 'dark' }}
+          >
+            <Theme accentColor='purple'>{children}</Theme>
+          </ThemeProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );

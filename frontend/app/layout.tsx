@@ -6,6 +6,7 @@ import ReactQueryProvider from '@/providers/reactQuery';
 
 import { Theme } from '@radix-ui/themes';
 import { ThemeProvider } from 'next-themes';
+import NavBar from '@/components/nav/navbar';
 
 const inter = Inter({ subsets: ['latin'] });
 

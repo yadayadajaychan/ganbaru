@@ -5,6 +5,8 @@ import {
   ChatBubbleIcon,
 } from '@radix-ui/react-icons';
 
+import './post.css';
+
 interface Post {
   title: string;
   description: string;
@@ -74,12 +76,12 @@ export default function PostCard({
             >
               <Flex gap='3' justify='start' align='center'>
                 <Flex direction='row' justify='start' align='center' gap='1'>
-                  <ThickArrowUpIcon />
+                  <ThickArrowUpIcon className='hover:cursor-pointer icon-hover' />
                   <Text as='label' size='2'>
                     {likes}
                   </Text>
                 </Flex>
-                <ThickArrowDownIcon />
+                <ThickArrowDownIcon className='hover:cursor-pointer icon-hover' />
               </Flex>
             </Box>
             <Box
@@ -88,11 +90,17 @@ export default function PostCard({
                 background: 'var(--gray-a3)',
                 borderRadius: 'var(--radius-3)',
               }}
-              className='py-1 px-2'
+              className='py-1 px-2 hover:cursor-pointe'
             >
-              <Flex gap='2' direction='row' justify='start' align='center'>
-                <ChatBubbleIcon />
-                <Text as='label' size='2'>
+              <Flex
+                gap='2'
+                direction='row'
+                justify='start'
+                align='center'
+                className='hover:cursor-pointer'
+              >
+                <ChatBubbleIcon className='hover:cursor-pointer' />
+                <Text as='label' size='2' className='hover:cursor-pointer'>
                   {comments}
                 </Text>
               </Flex>

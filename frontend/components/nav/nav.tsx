@@ -1,8 +1,7 @@
 'use client';
 
 import { CaretDownIcon } from '@radix-ui/react-icons';
-import * as NavigationMenu from '@radix-ui/react-navigation-menu';
-import { Text, Button, Flex, HoverCard } from '@radix-ui/themes';
+import { Text, Flex, HoverCard } from '@radix-ui/themes';
 import NextLink from 'next/link';
 
 export default function Nav() {

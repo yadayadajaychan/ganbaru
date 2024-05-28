@@ -5,12 +5,12 @@ export default function NavBar() {
   return (
     <Box
       position='fixed'
-      className='w-full border-b border-gray-800 backdrop-blur-xl'
+      className='w-full transition-all border-b border-[#2b2b2b] backdrop-blur-xl'
     >
       <Flex
         justify='between'
         align='center'
-        className='px-4 py-1'
+        className='px-4 py-2'
         direction='row'
       >
         <Box id='logo'></Box>

@@ -14,7 +14,7 @@ export default function Nav() {
         <Text size='2'>Home</Text>
       </NextLink>
       <HoverCard.Root>
-        <HoverCard.Trigger className='hover:bg-purple-300 hover:cursor-pointer hover:bg-opacity-10 group flex select-none items-center justify-between gap-[2px] rounded-[4px] px-3 py-2'>
+        <HoverCard.Trigger className='hover:bg-purple-300 hover:cursor-pointer hover:bg-opacity-10 group flex select-none items-center justify-between gap-[2px] rounded-[4px] px-2 py-2'>
           <Flex>
             <Text size='2'>Classes</Text>
             <CaretDownIcon

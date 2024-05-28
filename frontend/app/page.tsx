@@ -1,5 +1,9 @@
-import LoginCard from '@/components/cards/login';
+import NavBar from '@/components/nav/navbar';
 
 export default function Home() {
-  return <div></div>;
+  return (
+    <>
+      <NavBar />
+    </>
+  );
 }

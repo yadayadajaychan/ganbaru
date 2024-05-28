@@ -1,5 +1,3 @@
-'use client';
-
 import { Box, Flex, TabNav } from '@radix-ui/themes';
 import * as NavigationMenu from '@radix-ui/react-navigation-menu';
 import Nav from './nav';

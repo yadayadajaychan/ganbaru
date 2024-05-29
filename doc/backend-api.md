@@ -164,6 +164,7 @@ Get Posts
      field    |            type
   ------------|----------------------------
    post_infos | array of post_info objects
+   nextPage   | int
 
 - Post_info Object
 

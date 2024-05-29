@@ -115,7 +115,6 @@ Get Posts
   ------------|----------------------------
    post_infos | array of post_info objects
    nextPage   | int
-   lastPage   | int
 
 - Post_info Object
 

@@ -216,6 +216,20 @@ class db:
 
         return
 
+    # check if user is in forum
+    # raises exception if not
+    def check_in_forum(self, uid, forum_id):
+        if uid == 0:
+            return
+
+        self.cur.execute('SELECT forums '
+                         'FROM users '
+                         'WHERE uid = %s', (uid,))
+        if int(forum_id) not in self.cur.fetchone()[0]:
+            raise Exception(f"user is not in forum {forum_id}")
+
+        return
+
     def delete_user(self, username, password):
         username = username.lower()
 
@@ -368,8 +382,7 @@ class db:
 
     def create_post(self, session_id, forum_id, title, full_text, tags):
         uid = self.check_session(session_id)
-        self.check_forum(forum_id)
-        # TODO check if part of forum
+        self.check_in_forum(uid, forum_id)
 
         if len(title) == 0:
             raise Exception("post can't have empty title")
@@ -406,8 +419,7 @@ class db:
 
     def get_posts(self, session_id, forum_id, query):
         uid = self.check_session(session_id)
-        self.check_forum(forum_id)
-        # TODO check if part of forum
+        self.check_in_forum(uid, forum_id)
 
         count = int(query.get("count", 50))
         if count < 0:
@@ -483,9 +495,8 @@ class db:
 
     def view_post(self, session_id, forum_id, post_id):
         uid = self.check_session(session_id)
-        self.check_forum(forum_id)
+        self.check_in_forum(uid, forum_id)
         self.check_post(forum_id, post_id)
-        # TODO check if part of forum
 
         self.cur.execute('SELECT uid, title, date, last_activity, views, '
                          'answers, instructor_answered, tags, full_text, '
@@ -504,8 +515,6 @@ class db:
         finally:
             self.conn.commit()
 
-        # TODO get answers
-
         post = {"user_id" : record[0],
                 "title"   : record[1],
                 "date"    : record[2],
@@ -521,9 +530,8 @@ class db:
 
     def create_answer(self, session_id, forum_id, post_id, answer):
         uid = self.check_session(session_id)
-        self.check_forum(forum_id)
+        self.check_in_forum(uid, forum_id)
         self.check_post(forum_id, post_id)
-        # TODO check if part of forum
 
         if len(answer) == 0:
             raise Exception("answer can not be empty")

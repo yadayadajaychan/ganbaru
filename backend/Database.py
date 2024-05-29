@@ -329,3 +329,39 @@ class db:
             output.append(forum)
 
         return {"forums": output}
+
+    def create_post(self, session_id, forum_id, title, full_text, tags):
+        uid = self.check_session(session_id)
+        self.check_forum(forum_id)
+        # TODO check if part of forum
+
+        if len(title) == 0:
+            raise Exception("post can't have empty title")
+        if len(full_text) == 0:
+            raise Exception("post body can't be empty")
+
+        self.cur.execute('SELECT MAX(pid) '
+                         'FROM posts '
+                         'WHERE fid = %s', (forum_id,))
+        max_pid = self.cur.fetchone()[0]
+        if max_pid is None:
+            pid = 0
+        else:
+            pid = max_pid + 1
+
+        date = datetime.utcfromtimestamp(time.time()).isoformat()
+        last_activity = date
+
+        views = 0
+        answers = 0
+        instructor_answered = False
+
+        try:
+            self.cur.execute('INSERT INTO posts '
+                             '(fid, pid, uid, title, date, last_activity, views, answers, '
+                             'instructor_answered, tags, full_text) '
+                             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);',
+                             (forum_id, pid, uid, title, date, last_activity, views, answers,
+                              instructor_answered, tags, full_text))
+        finally:
+            self.conn.commit()

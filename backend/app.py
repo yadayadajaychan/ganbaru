@@ -150,5 +150,34 @@ def get_forums():
 
     return jsonify(forums), 200
 
+@app.route("/forums/<forum_id>/create", methods=["POST"])
+def create_post(forum_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        data = request.get_json(force=True)
+    except:
+        return jsonify({"error": "invalid json"}), 400
+
+    title = data.get("title")
+    if title is None:
+        return jsonify({"error": "title is required to create post"}), 400
+
+    full_text = data.get("full_text")
+    if full_text is None:
+        return jsonify({"error": "post body can't be empty"}), 400
+
+    tags = data.get("tags")
+
+    try:
+        db.create_post(session_id, forum_id, title, full_text, tags)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return "", 200
+
 if __name__ == "__main__":
     app.run(debug=True)

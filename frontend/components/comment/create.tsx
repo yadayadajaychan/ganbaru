@@ -4,10 +4,8 @@ import {
   FontItalicIcon,
   FontBoldIcon,
   HeadingIcon,
-  QuestionMarkCircledIcon,
   CaretRightIcon,
   CodeIcon,
-  QuoteIcon,
 } from '@radix-ui/react-icons';
 import {
   Box,
@@ -16,11 +14,14 @@ import {
   Heading,
   IconButton,
   TextArea,
-  Text,
   Button,
+  Text,
 } from '@radix-ui/themes';
 import { Label } from '@radix-ui/react-label';
 import { useState } from 'react';
+
+import ReactMarkdown from 'react-markdown';
+import { MarkdownToJsx } from '../markdown';
 
 interface CommentCreateProps {
   postId: string;
@@ -58,69 +59,71 @@ export default function CommentCreate({ postId }: CommentCreateProps) {
         Add a Comment
       </Heading>
       <Flex direction='column' gap='4'>
-        <Box width='416px'>
-          <Card>
-            <Flex direction='column' gap='2'>
-              <Box>
-                <Flex gap='4'>
-                  <Flex gap='1'>
-                    <IconButton
-                      variant='soft'
-                      onClick={() => insertMarkdown('# ', '', 'heading')}
-                    >
-                      <HeadingIcon />
-                    </IconButton>
-                    <IconButton
-                      variant='soft'
-                      onClick={() => insertMarkdown('*', '*', 'italic')}
-                    >
-                      <FontItalicIcon />
-                    </IconButton>
+        <Flex direction='row' gap='4'>
+          <Box>
+            <Card>
+              <Flex direction='column' gap='2' width='416px'>
+                <Box>
+                  <Flex gap='4'>
+                    <Flex gap='1'>
+                      <IconButton
+                        variant='soft'
+                        onClick={() => insertMarkdown('# ', '', 'heading')}
+                      >
+                        <HeadingIcon />
+                      </IconButton>
+                      <IconButton
+                        variant='soft'
+                        onClick={() => insertMarkdown('*', '*', 'italic')}
+                      >
+                        <FontItalicIcon />
+                      </IconButton>
 
-                    <IconButton
-                      variant='soft'
-                      onClick={() => insertMarkdown('**', '**', 'bold')}
-                    >
-                      <FontBoldIcon />
-                    </IconButton>
+                      <IconButton
+                        variant='soft'
+                        onClick={() => insertMarkdown('**', '**', 'bold')}
+                      >
+                        <FontBoldIcon />
+                      </IconButton>
+                    </Flex>
+
+                    <Flex gap='1'>
+                      <IconButton
+                        variant='soft'
+                        onClick={() => insertMarkdown('> ', '', 'blockquote')}
+                      >
+                        <CaretRightIcon />
+                      </IconButton>
+
+                      <IconButton
+                        variant='soft'
+                        onClick={() => insertMarkdown('`', '`', 'code')}
+                      >
+                        <CodeIcon />
+                      </IconButton>
+                    </Flex>
                   </Flex>
-
-                  <Flex gap='1'>
-                    <IconButton
-                      variant='soft'
-                      onClick={() => insertMarkdown('> ', '', 'blockquote')}
-                    >
-                      <CaretRightIcon />
-                    </IconButton>
-
-                    <IconButton
-                      variant='soft'
-                      onClick={() => insertMarkdown('`', '`', 'code')}
-                    >
-                      <CodeIcon />
-                    </IconButton>
-
-                    <IconButton
-                      variant='soft'
-                      onClick={() => insertMarkdown('"', '"', 'quote')}
-                    >
-                      <QuoteIcon />
-                    </IconButton>
-                  </Flex>
-                </Flex>
+                </Box>
+                <TextArea
+                  id='comment-textarea'
+                  spellCheck={false}
+                  variant='classic'
+                  rows={10}
+                  placeholder='Start typing here...'
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                />
+              </Flex>
+            </Card>
+          </Box>
+          {/* <Card>
+            <Flex width='416px' height='400px' maxWidth='416px'>
+              <Box width='416px'>
+                <MarkdownToJsx markdown={text} />
               </Box>
-              <TextArea
-                id='comment-textarea'
-                spellCheck={false}
-                variant='classic'
-                rows={10}
-                placeholder='Start typing here...'
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-              />
             </Flex>
-          </Card>
-        </Box>
+          </Card> */}
+        </Flex>
         <Button variant='soft'>Post Comment</Button>
       </Flex>
     </Card>

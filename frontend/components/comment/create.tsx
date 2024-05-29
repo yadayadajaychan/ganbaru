@@ -63,7 +63,7 @@ export default function CommentCreate({ postId }: CommentCreateProps) {
         <Flex direction='row' gap='4'>
           <Box>
             <Card>
-              <Flex direction='column' gap='2' width='416px'>
+              <Flex direction='column' gap='2' width='616px'>
                 <Box>
                   <Flex gap='4'>
                     <Flex gap='1'>
@@ -102,7 +102,8 @@ export default function CommentCreate({ postId }: CommentCreateProps) {
                   id='comment-textarea'
                   spellCheck={false}
                   variant='classic'
-                  rows={10}
+                  resize='vertical'
+                  rows={5}
                   placeholder='Start typing here...'
                   value={text}
                   onChange={(e) => setText(e.target.value)}

@@ -442,7 +442,7 @@ class db:
         query = sql.SQL('SELECT pid, uid, title, date, last_activity, '
                         'views, answers, instructor_answered, tags '
                          'FROM posts '
-                         'WHERE fid = %s AND (title ~ %s OR full_text ~ %s) '
+                         'WHERE fid = %s AND (title ~* %s OR full_text ~* %s) '
                          'ORDER BY {sortby} {asc} '
                          'LIMIT %s OFFSET %s').format(
                                  sortby=sql.SQL(sortby),

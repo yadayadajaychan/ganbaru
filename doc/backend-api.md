@@ -163,7 +163,7 @@ View Post
  |                     |                         |                        |
  | full_text           | string                  | full text of the post  |
 
-View Answers
+Get Answers
 ============
 - `GET /forums/<forum_id>/<post_id>/answers`
 - view answers for a post

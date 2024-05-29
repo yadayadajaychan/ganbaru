@@ -122,13 +122,17 @@ export default function CommentCreate({ postId }: CommentCreateProps) {
         <Flex className='w-full' gap='4' justify='end'>
           <Dialog.Root>
             <Dialog.Trigger>
-              <Button variant='outline'>Preview</Button>
+              <Button className='hover:cursor-pointer' variant='outline'>
+                Preview
+              </Button>
             </Dialog.Trigger>
             <Dialog.Content size='2'>
               <MarkdownToJsx markdown={text} />
             </Dialog.Content>
           </Dialog.Root>
-          <Button variant='soft'>Post Comment</Button>
+          <Button className='hover:cursor-pointer' variant='soft'>
+            Post Comment
+          </Button>
         </Flex>
       </Flex>
     </Card>

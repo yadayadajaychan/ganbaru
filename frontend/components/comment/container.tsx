@@ -1,7 +1,7 @@
 'use client';
 
 import { Comment as CommentType, Post } from '@/types';
-import { Card } from '@radix-ui/themes';
+import { Card, Flex } from '@radix-ui/themes';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import Comment from './comment';
 import {
@@ -60,35 +60,37 @@ export default function CommentContainer({ postId }: CommentContainerProps) {
 
   return (
     <Card size='5'>
-      <AutoSizer disableHeight={true}>
-        {({ width }) => (
-          <WindowScroller>
-            {({ height, isScrolling, onChildScroll, scrollTop }) => (
-              <InfiniteLoader
-                isRowLoaded={isRowLoaded}
-                loadMoreRows={loadMoreRows}
-                rowCount={1000}
-              >
-                {({ onRowsRendered, registerChild }) => (
-                  <List
-                    autoHeight
-                    onRowsRendered={onRowsRendered}
-                    ref={registerChild}
-                    height={height}
-                    isScrolling={isScrolling}
-                    onScroll={onChildScroll}
-                    rowCount={comments.length}
-                    rowHeight={42}
-                    rowRenderer={rowRenderer}
-                    scrollTop={scrollTop}
-                    width={width}
-                  />
-                )}
-              </InfiniteLoader>
-            )}
-          </WindowScroller>
-        )}
-      </AutoSizer>
+      <Flex>
+        {/* <AutoSizer disableHeight={true} disableWidth={true}>
+          {({ width }) => ( */}
+        <WindowScroller>
+          {({ height, isScrolling, onChildScroll, scrollTop }) => (
+            <InfiniteLoader
+              isRowLoaded={isRowLoaded}
+              loadMoreRows={loadMoreRows}
+              rowCount={1000}
+            >
+              {({ onRowsRendered, registerChild }) => (
+                <List
+                  autoHeight
+                  onRowsRendered={onRowsRendered}
+                  ref={registerChild}
+                  height={height}
+                  isScrolling={isScrolling}
+                  onScroll={onChildScroll}
+                  rowCount={comments.length}
+                  rowHeight={42}
+                  rowRenderer={rowRenderer}
+                  scrollTop={scrollTop}
+                  width={416}
+                />
+              )}
+            </InfiniteLoader>
+          )}
+        </WindowScroller>
+        {/* )}
+        </AutoSizer> */}
+      </Flex>
     </Card>
   );
 }

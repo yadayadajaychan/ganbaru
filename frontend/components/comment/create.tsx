@@ -3,13 +3,11 @@
 import {
   FontItalicIcon,
   FontBoldIcon,
-  StrikethroughIcon,
-  TextAlignLeftIcon,
-  TextAlignCenterIcon,
-  TextAlignRightIcon,
-  MagicWandIcon,
-  ImageIcon,
-  CrumpledPaperIcon,
+  HeadingIcon,
+  QuestionMarkCircledIcon,
+  CaretRightIcon,
+  CodeIcon,
+  QuoteIcon,
 } from '@radix-ui/react-icons';
 import {
   Box,
@@ -68,6 +66,12 @@ export default function CommentCreate({ postId }: CommentCreateProps) {
                   <Flex gap='1'>
                     <IconButton
                       variant='soft'
+                      onClick={() => insertMarkdown('# ', '', 'heading')}
+                    >
+                      <HeadingIcon />
+                    </IconButton>
+                    <IconButton
+                      variant='soft'
                       onClick={() => insertMarkdown('*', '*', 'italic')}
                     >
                       <FontItalicIcon />
@@ -79,14 +83,28 @@ export default function CommentCreate({ postId }: CommentCreateProps) {
                     >
                       <FontBoldIcon />
                     </IconButton>
+                  </Flex>
+
+                  <Flex gap='1'>
+                    <IconButton
+                      variant='soft'
+                      onClick={() => insertMarkdown('> ', '', 'blockquote')}
+                    >
+                      <CaretRightIcon />
+                    </IconButton>
 
                     <IconButton
                       variant='soft'
-                      onClick={() =>
-                        insertMarkdown('~~', '~~', 'strikethrough')
-                      }
+                      onClick={() => insertMarkdown('`', '`', 'code')}
                     >
-                      <StrikethroughIcon />
+                      <CodeIcon />
+                    </IconButton>
+
+                    <IconButton
+                      variant='soft'
+                      onClick={() => insertMarkdown('"', '"', 'quote')}
+                    >
+                      <QuoteIcon />
                     </IconButton>
                   </Flex>
                 </Flex>

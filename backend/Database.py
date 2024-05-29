@@ -378,8 +378,9 @@ class db:
         if count < 0:
             raise Exception("count can't be less than 0")
 
-        page = (int(query.get("page", 1)) - 1) * count
-        if page < 0:
+        page = int(query.get("page", 1))
+        offset = (page - 1) * count
+        if offset < 0:
             raise Exception("page can't be less than 0")
 
         ascending = query.get("ascending", 'false').lower()
@@ -411,7 +412,7 @@ class db:
                                  sortby=sql.SQL(sortby),
                                  asc=sql.SQL(ascending),
                                  )
-        self.cur.execute(query, (forum_id, count, page))
+        self.cur.execute(query, (forum_id, count, offset))
 
         post_infos = list()
         records = self.cur.fetchall()
@@ -428,5 +429,12 @@ class db:
                     }
             post_infos.append(post)
 
-        # TODO nextPage and lastPage
-        return {"post_infos": post_infos}
+        # check if this is the last page
+        self.cur.execute(query, (forum_id, 1, offset+count))
+        records = self.cur.fetchall()
+        if len(records) == 0:
+            nextPage = None
+        else:
+            nextPage = page+1
+
+        return {"post_infos": post_infos, "nextPage": nextPage}

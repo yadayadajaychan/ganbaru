@@ -93,61 +93,9 @@ Get Forums (classes)
    unread      | int    | # of unread posts
    unanswered  | int    | # of unanswered questions
 
-
-Create Subforum
-=========================
-- `POST /forums/<forum_id>/create`
-- `session_id` cookie required
-- JSON Parameters
-
-     field    |  type  |       description        | optional  
- -------------|--------|--------------------------|---------- 
-  category    | string | category of the subforum | n         
-  name        | string | name of the subforum     | n         
-  description | string | description              | y         
-
-
-Get Subforums
-=========================
-- `GET /forums/<forum_id>`
-- get a list of all the subforums in a forum
-- `session_id` cookie required
-
-- JSON Response
-
-     field    |           type            |          description
-  ------------|---------------------------|--------------------------------
-   categories | array of category objects | each subforum is in a category
-
-- Category Object
-
-     field   |           type            |           description
-  -----------|---------------------------|---------------------------------
-   name      | string                    | name of category
-   subforums | array of subforum objects | list of subforums in a category
-
-- Subforum Objects
-
-    field      |  type  |         description
-  -------------|--------|------------------------------
-   subforum_id | int    | subforum id
-   name        | string | name of the subforum
-   description | string | description of the subforum
-   important   | int    | # of unread instructor posts
-   unread      | int    | # of unread posts
-   unanswered  | int    | # of unanswered questions
-
-- E.g.
-  ```
-  {"categories": [{"name": CATEGORY_NAME, "subforums": [SUBFORUM_OBJ, SUBFORUM_OBJ, ...]},
-                  {"name": CATEGORY_NAME, "subforums": [SUBFORUM_OBJ, SUBFORUM_OBJ, ...]},
-                  ...
-                  ]}
-  ```
-
 Get Posts
 =========================
-- `GET /forums/<forum_id>/<subforum_id>`
+- `GET /forums/<forum_id>`
 - get a list of posts in a subforum
 - `session_id` cookie required
 - Query String Params
@@ -156,6 +104,7 @@ Get Posts
   -------------|--------|----------------------------|----------|-----------
    count       | int    | how many posts to fetch    | y        | 50
    page        | int    | page # to fetch            | y        | 1
+   search      | string | regex to search for        | y        | .*
    ascending   | bool   | ascending order            | y        | false
    sortby      | string | post date, activity, votes | y        | post date
 
@@ -170,20 +119,19 @@ Get Posts
 
      field             |       type       |      description
   ---------------------|------------------|-----------------------
-   subforum_id         | int              | subforum id
    post_id             | int              | post id
    user_id             | int              | user who created post
    title               | string           | title of post
    date                | string           | iso8601 timestamp
+   last_activity       | string           | iso8601 timestamp
    views               | int              | # of views
    answers             | int              | # of answers
    instructor_answered | bool             | instructor answered
    tags                | array of strings | tags
 
-
 Create Post
 =========================
-- `POST /forums/<forum_id>/<subforum_id>/create`
+- `POST /forums/<forum_id>/create`
 - create a post
 - `session_id` cookie required
 - JSON Parameters
@@ -194,10 +142,9 @@ Create Post
   full_text | string           | full text of the post | n
   tags      | array of strings | tags                  | y
 
-
 View Post
 =========================
-- `GET /forums/<forum_id>/<subforum_id>/<post_id>`
+- `GET /forums/<forum_id>/<post_id>`
 - view a post
 - `session_id` cookie required
 - JSON Response
@@ -207,6 +154,7 @@ View Post
    user_id             | int                     | user who created post
    title               | string                  | title of post
    date                | string                  | iso8601 timestamp
+   last_activity       | string                  | iso8601 timestamp
    views               | int                     | # of views
    answers             | int                     | # of answers
    instructor_answered | bool                    | instructor answered
@@ -225,8 +173,3 @@ View Post
    date      | string | iso8601 timestamp
    answer    | string | full text of the answer
    score     | int    | sum of votes by users
-
-
-Search Posts
-=========================
-- `GET /forums/<forum_id>/search`

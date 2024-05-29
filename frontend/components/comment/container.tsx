@@ -1,7 +1,7 @@
 'use client';
 
 import { Comment as CommentType, Post } from '@/types';
-import { Card, Flex } from '@radix-ui/themes';
+import { Card, Flex, Separator } from '@radix-ui/themes';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import Comment from './comment';
 import {
@@ -9,6 +9,8 @@ import {
   WindowScroller,
   InfiniteLoader,
   List,
+  CellMeasurerCache,
+  CellMeasurer,
 } from 'react-virtualized';
 import {
   InfiniteData,
@@ -16,10 +18,16 @@ import {
   useInfiniteQuery,
 } from '@tanstack/react-query';
 import { fetchComments } from '@/api/comment';
+import { randomComments } from './randomComments';
 
 interface CommentContainerProps {
   postId: string;
 }
+
+const cache = new CellMeasurerCache({
+  fixedWidth: true,
+  defaultHeight: 100,
+});
 
 // will be the virtualized list that contains all of the comments
 export default function CommentContainer({ postId }: CommentContainerProps) {
@@ -31,7 +39,7 @@ export default function CommentContainer({ postId }: CommentContainerProps) {
   });
 
   const allRecords = data ? data.pages.map((page) => page.records) : [];
-  const comments = allRecords.flat(1);
+  const comments = randomComments; //allRecords.flat();
 
   const [isNextPageLoading, setIsNextPageLoading] = useState(false);
 
@@ -50,47 +58,66 @@ export default function CommentContainer({ postId }: CommentContainerProps) {
   const rowRenderer = ({
     key,
     index,
+    parent,
   }: {
     key: string;
     index: number;
+    parent: any;
     style: any;
   }) => {
-    return <Comment key={key} comment={comments[index]} />;
+    return (
+      <CellMeasurer
+        key={key}
+        cache={cache}
+        parent={parent}
+        columnIndex={0}
+        rowIndex={index}
+      >
+        {({ measure }) => (
+          <div>
+            <Comment comment={comments[index]} />
+            {/* {index < comments.length - 1 && (
+              <Separator orientation='horizontal' size='4' />
+            )} */}
+          </div>
+        )}
+      </CellMeasurer>
+    );
   };
 
   return (
-    <Card size='5'>
-      <Flex>
-        {/* <AutoSizer disableHeight={true} disableWidth={true}>
-          {({ width }) => ( */}
-        <WindowScroller>
-          {({ height, isScrolling, onChildScroll, scrollTop }) => (
-            <InfiniteLoader
-              isRowLoaded={isRowLoaded}
-              loadMoreRows={loadMoreRows}
-              rowCount={1000}
-            >
-              {({ onRowsRendered, registerChild }) => (
-                <List
-                  autoHeight
-                  onRowsRendered={onRowsRendered}
-                  ref={registerChild}
-                  height={height}
-                  isScrolling={isScrolling}
-                  onScroll={onChildScroll}
-                  rowCount={comments.length}
-                  rowHeight={42}
-                  rowRenderer={rowRenderer}
-                  scrollTop={scrollTop}
-                  width={416}
-                />
-              )}
-            </InfiniteLoader>
-          )}
-        </WindowScroller>
-        {/* )}
-        </AutoSizer> */}
-      </Flex>
-    </Card>
+    // <Card size='5'>
+    <Flex width='616px'>
+      <AutoSizer disableHeight={true}>
+        {({ width }) => (
+          <WindowScroller>
+            {({ height, isScrolling, onChildScroll, scrollTop }) => (
+              <InfiniteLoader
+                isRowLoaded={isRowLoaded}
+                loadMoreRows={loadMoreRows}
+                rowCount={1000}
+              >
+                {({ onRowsRendered, registerChild }) => (
+                  <List
+                    autoHeight
+                    onRowsRendered={onRowsRendered}
+                    ref={registerChild}
+                    height={height}
+                    isScrolling={isScrolling}
+                    onScroll={onChildScroll}
+                    rowCount={comments.length}
+                    rowHeight={cache.rowHeight}
+                    rowRenderer={rowRenderer}
+                    scrollTop={scrollTop}
+                    width={width}
+                  />
+                )}
+              </InfiniteLoader>
+            )}
+          </WindowScroller>
+        )}
+      </AutoSizer>
+    </Flex>
+    // </Card>
   );
 }

@@ -5,6 +5,10 @@ export interface Comment {
     content: string;
     postId: string;
     createdAt: Date;
+    user: {
+        id: number;
+        name: string;
+    };
 }
 
 export interface Post {

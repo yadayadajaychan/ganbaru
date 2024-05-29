@@ -209,5 +209,29 @@ def view_post(forum_id, post_id):
 
     return jsonify(post), 200
 
+@app.route("/forums/<forum_id>/<post_id>/create", methods=["POST"])
+def create_answer(forum_id, post_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        data = request.get_json(force=True)
+    except:
+        return jsonify({"error": "invalid json"}), 400
+
+    try:
+        data["answer"]
+    except:
+        return jsonify({"error": "missing answer field"}), 400
+
+    try:
+        db.create_answer(session_id, forum_id, post_id, data["answer"])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return "", 200
+
 if __name__ == "__main__":
     app.run(debug=True)

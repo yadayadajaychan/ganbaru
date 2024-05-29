@@ -25,6 +25,7 @@ class db:
         self.__create_admin("admin", "12345678")
         self.__create_forums_table()
         self.__create_posts_table()
+        self.__create_answers_table()
 
     def close(self):
         self.cur.close()
@@ -91,6 +92,19 @@ class db:
                              'full_text text NOT NULL,'
                              'instructor_aid integer,'
                              'student_aids integer[]);')
+        finally:
+            self.conn.commit()
+
+    def __create_answers_table(self):
+        try:
+            self.cur.execute('CREATE TABLE IF NOT EXISTS answers ('
+                             'fid    integer NOT NULL,'
+                             'pid    integer NOT NULL,'
+                             'aid    integer NOT NULL,'
+                             'uid    integer NOT NULL,'
+                             'date   timestamp (0) with time zone NOT NULL,'
+                             'answer text NOT NULL,'
+                             'score  integer NOT NULL);')
         finally:
             self.conn.commit()
 
@@ -471,6 +485,7 @@ class db:
         uid = self.check_session(session_id)
         self.check_forum(forum_id)
         self.check_post(forum_id, post_id)
+        # TODO check if part of forum
 
         self.cur.execute('SELECT uid, title, date, last_activity, views, '
                          'answers, instructor_answered, tags, full_text, '
@@ -503,3 +518,32 @@ class db:
                 }
 
         return post
+
+    def create_answer(self, session_id, forum_id, post_id, answer):
+        uid = self.check_session(session_id)
+        self.check_forum(forum_id)
+        self.check_post(forum_id, post_id)
+        # TODO check if part of forum
+
+        if len(answer) == 0:
+            raise Exception("answer can not be empty")
+
+        date = datetime.utcfromtimestamp(time.time()).isoformat()
+
+        self.cur.execute('SELECT MAX(aid) '
+                         'FROM answers '
+                         'WHERE fid = %s AND pid = %s',
+                         (forum_id, post_id))
+        max_aid = self.cur.fetchone()[0]
+        if max_aid is None:
+            aid = 0
+        else:
+            aid = max_aid + 1
+
+        try:
+            self.cur.execute('INSERT INTO answers '
+                             '(fid, pid, aid, uid, date, answer, score) '
+                             'VALUES (%s, %s, %s, %s, %s, %s, %s)',
+                             (forum_id, post_id, aid, uid, date, answer, 0))
+        finally:
+            self.conn.commit()

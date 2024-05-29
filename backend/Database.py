@@ -413,7 +413,10 @@ class db:
                                  sortby=sql.SQL(sortby),
                                  asc=sql.SQL(ascending),
                                  )
-        self.cur.execute(query, (forum_id, search, search, count, offset))
+        try:
+            self.cur.execute(query, (forum_id, search, search, count, offset))
+        finally:
+            self.conn.commit()
 
         post_infos = list()
         records = self.cur.fetchall()
@@ -431,7 +434,10 @@ class db:
             post_infos.append(post)
 
         # check if this is the last page
-        self.cur.execute(query, (forum_id, search, search, 1, offset+count))
+        try:
+            self.cur.execute(query, (forum_id, search, search, 1, offset+count))
+        finally:
+            self.conn.commit()
         records = self.cur.fetchall()
         if len(records) == 0:
             nextPage = None

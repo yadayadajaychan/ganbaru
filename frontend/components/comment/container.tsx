@@ -21,6 +21,7 @@ interface CommentContainerProps {
   postId: string;
 }
 
+// will be the virtualized list that contains all of the comments
 export default function CommentContainer({ postId }: CommentContainerProps) {
   const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery({
     queryKey: ['comments', { id: postId }],
@@ -32,7 +33,6 @@ export default function CommentContainer({ postId }: CommentContainerProps) {
   const allRecords = data ? data.pages.map((page) => page.records) : [];
   const comments = allRecords.flat(1);
 
-  // will be the virtualized list that contains all of the comments
   const [isNextPageLoading, setIsNextPageLoading] = useState(false);
 
   const isRowLoaded = ({ index }: { index: number }) => {

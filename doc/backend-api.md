@@ -162,8 +162,28 @@ View Post
  | tags                | array of strings        | tags                   |
  |                     |                         |                        |
  | full_text           | string                  | full text of the post  |
- | instructor_answer   | answer object           |                        |
- | student_answers     | array of answer objects |                        |
+
+View Answers
+============
+- `GET /forums/<forum_id>/<post_id>/answers`
+- view answers for a post
+- `session_id` cookie required
+- Query String Params
+
+ |   field   |  type  |        description        | optional | default |
+ |-----------|--------|---------------------------|----------|---------|
+ | count     | int    | how many answers to fetch | y        | 50      |
+ | page      | int    | page # to fetch           | y        | 1       |
+ | search    | string | regex to search for       | y        | .*      |
+ | ascending | bool   | ascending order           | y        | false   |
+
+- JSON Response
+
+ |       field       |          type           |
+ |-------------------|-------------------------|
+ | instructor_answer | answer object           |
+ | student_answers   | array of answer objects |
+ | nextPage          | int                     |
 
 - Answer Object
 
@@ -176,8 +196,8 @@ View Post
  | score     | int    | sum of votes by users   |
 
 Create Answer
-=========================
-- `POST /forums/<forum_id>/<post_id>/answer`
+=============
+- `POST /forums/<forum_id>/<post_id>/create`
 - answer a post
 - `session_id` cookie required
 - JSON Parameters

@@ -16,6 +16,7 @@ import {
   TextArea,
   Button,
   Text,
+  Dialog,
 } from '@radix-ui/themes';
 import { Label } from '@radix-ui/react-label';
 import { useState } from 'react';
@@ -90,13 +91,6 @@ export default function CommentCreate({ postId }: CommentCreateProps) {
                     <Flex gap='1'>
                       <IconButton
                         variant='soft'
-                        onClick={() => insertMarkdown('> ', '', 'blockquote')}
-                      >
-                        <CaretRightIcon />
-                      </IconButton>
-
-                      <IconButton
-                        variant='soft'
                         onClick={() => insertMarkdown('`', '`', 'code')}
                       >
                         <CodeIcon />
@@ -124,7 +118,17 @@ export default function CommentCreate({ postId }: CommentCreateProps) {
             </Flex>
           </Card> */}
         </Flex>
-        <Button variant='soft'>Post Comment</Button>
+        <Flex className='w-full' gap='4' justify='end'>
+          <Dialog.Root>
+            <Dialog.Trigger>
+              <Button variant='outline'>Preview</Button>
+            </Dialog.Trigger>
+            <Dialog.Content size='2'>
+              <MarkdownToJsx markdown={text} />
+            </Dialog.Content>
+          </Dialog.Root>
+          <Button variant='soft'>Post Comment</Button>
+        </Flex>
       </Flex>
     </Card>
   );

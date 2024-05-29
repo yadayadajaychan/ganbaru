@@ -47,13 +47,20 @@ class db:
         if self.cur.fetchone() is None:
             self.create_user(username, password)
 
+        self.cur.execute('SELECT uid FROM users WHERE uid=-1')
+        if self.cur.fetchone() is None:
+            try:
+                self.cur.execute('INSERT INTO users (uid, full_name) '
+                                 'VALUES (%s, %s)', (-1, "Deleted User"))
+            finally:
+                self.conn.commit()
+
     def __create_users_table(self):
         try:
             self.cur.execute('CREATE TABLE IF NOT EXISTS users ('
                              'uid        integer NOT NULL UNIQUE,'
                              'forums     integer[],'
-                             'first_name text,'
-                             'last_name  text,'
+                             'full_name  text,'
                              'alias      text);')
         finally:
             self.conn.commit()
@@ -197,19 +204,21 @@ class db:
 
         self.check_password(username, password)
 
-        #change owner of forums to admin
-        self.cur.execute('SELECT fid '
-                         'FROM forums '
-                         'WHERE owner = %s', (uid,))
-        for record in self.cur.fetchall():
-            fid = record[0]
-            try:
-                self.cur.execute('UPDATE forums '
-                                 'SET owner = 0 '
-                                 'WHERE fid = %s', (fid,))
-                self.__add_to_forum(0, fid)
-            finally:
-                self.conn.commit()
+        # change owner of forums to 'Deleted User'
+        try:
+            self.cur.execute('UPDATE forums '
+                             'SET owner = -1 '
+                             'WHERE owner = %s', (uid,))
+        finally:
+            self.conn.commit()
+
+        # change owner of posts to 'Deleted User'
+        try:
+            self.cur.execute('UPDATE posts '
+                             'SET uid = -1 '
+                             'WHERE uid = %s', (uid,))
+        finally:
+            self.conn.commit()
 
         try:
             self.cur.execute('DELETE FROM auth WHERE uid=%s', (uid,))

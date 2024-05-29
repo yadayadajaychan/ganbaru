@@ -1,3 +1,5 @@
+'use client';
+
 import { Box, Card, Flex, Separator, Text } from '@radix-ui/themes';
 import {
   ThickArrowUpIcon,

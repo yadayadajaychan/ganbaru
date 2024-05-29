@@ -13,19 +13,25 @@ import {
 import {
   InfiniteData,
   InfiniteQueryObserverResult,
+  useInfiniteQuery,
 } from '@tanstack/react-query';
+import { fetchComments } from '@/api/comment';
 
 interface CommentContainerProps {
-  comments: CommentType[];
-  loadMoreComments: () => Promise<
-    InfiniteQueryObserverResult<InfiniteData<any, unknown>, Error>
-  >;
+  postId: string;
 }
 
-export default function CommentContainer({
-  comments,
-  loadMoreComments,
-}: CommentContainerProps) {
+export default function CommentContainer({ postId }: CommentContainerProps) {
+  const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery({
+    queryKey: ['comments', { id: postId }],
+    queryFn: fetchComments,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    initialPageParam: 1,
+  });
+
+  const allRecords = data ? data.pages.map((page) => page.records) : [];
+  const comments = allRecords.flat(1);
+
   // will be the virtualized list that contains all of the comments
   const [isNextPageLoading, setIsNextPageLoading] = useState(false);
 
@@ -35,7 +41,7 @@ export default function CommentContainer({
 
   const handlePageLoad = async () => {
     setIsNextPageLoading(true);
-    await loadMoreComments();
+    await fetchNextPage();
     setIsNextPageLoading(false);
   };
 

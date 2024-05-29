@@ -407,14 +407,13 @@ class db:
         query = sql.SQL('SELECT pid, uid, title, date, last_activity, '
                         'views, answers, instructor_answered, tags '
                          'FROM posts '
-                         'WHERE fid = %s AND '
-                         'title ~ %s '
+                         'WHERE fid = %s AND (title ~ %s OR full_text ~ %s) '
                          'ORDER BY {sortby} {asc} '
                          'LIMIT %s OFFSET %s').format(
                                  sortby=sql.SQL(sortby),
                                  asc=sql.SQL(ascending),
                                  )
-        self.cur.execute(query, (forum_id, search, count, offset))
+        self.cur.execute(query, (forum_id, search, search, count, offset))
 
         post_infos = list()
         records = self.cur.fetchall()
@@ -432,7 +431,7 @@ class db:
             post_infos.append(post)
 
         # check if this is the last page
-        self.cur.execute(query, (forum_id, search, 1, offset+count))
+        self.cur.execute(query, (forum_id, search, search, 1, offset+count))
         records = self.cur.fetchall()
         if len(records) == 0:
             nextPage = None

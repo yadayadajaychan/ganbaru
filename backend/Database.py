@@ -339,6 +339,8 @@ class db:
             raise Exception("post can't have empty title")
         if len(full_text) == 0:
             raise Exception("post body can't be empty")
+        if tags is None:
+            tags = []
 
         self.cur.execute('SELECT MAX(pid) '
                          'FROM posts '

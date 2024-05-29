@@ -22,12 +22,38 @@ import {
   Button,
 } from '@radix-ui/themes';
 import { Label } from '@radix-ui/react-label';
+import { useState } from 'react';
 
 interface CommentCreateProps {
   postId: string;
 }
 
 export default function CommentCreate({ postId }: CommentCreateProps) {
+  const [text, setText] = useState('');
+
+  const insertMarkdown = (
+    beforeSyntax: string,
+    afterSyntax: string,
+    placeholder: string
+  ) => {
+    const textarea = document.getElementById(
+      'comment-textarea'
+    ) as HTMLTextAreaElement;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const before = text.substring(0, start);
+    const selectedText = text.substring(start, end) || placeholder;
+    const after = text.substring(end, text.length);
+    setText(before + beforeSyntax + selectedText + afterSyntax + after);
+    textarea.focus();
+    textarea.setSelectionRange(
+      start + beforeSyntax.length,
+      end +
+        beforeSyntax.length +
+        (selectedText === placeholder ? placeholder.length : 0)
+    );
+  };
+
   return (
     <Card size='2'>
       <Heading as='h3' size='3' mb='4'>
@@ -40,40 +66,39 @@ export default function CommentCreate({ postId }: CommentCreateProps) {
               <Box>
                 <Flex gap='4'>
                   <Flex gap='1'>
-                    <IconButton variant='soft' highContrast>
+                    <IconButton
+                      variant='soft'
+                      onClick={() => insertMarkdown('*', '*', 'italic')}
+                    >
                       <FontItalicIcon />
                     </IconButton>
 
-                    <IconButton variant='soft' highContrast>
+                    <IconButton
+                      variant='soft'
+                      onClick={() => insertMarkdown('**', '**', 'bold')}
+                    >
                       <FontBoldIcon />
                     </IconButton>
 
-                    <IconButton variant='soft' highContrast>
+                    <IconButton
+                      variant='soft'
+                      onClick={() =>
+                        insertMarkdown('~~', '~~', 'strikethrough')
+                      }
+                    >
                       <StrikethroughIcon />
-                    </IconButton>
-                  </Flex>
-
-                  <Flex gap='1'>
-                    <IconButton variant='soft' highContrast>
-                      <TextAlignLeftIcon />
-                    </IconButton>
-
-                    <IconButton variant='soft' highContrast>
-                      <TextAlignCenterIcon />
-                    </IconButton>
-
-                    <IconButton variant='soft' highContrast>
-                      <TextAlignRightIcon />
                     </IconButton>
                   </Flex>
                 </Flex>
               </Box>
               <TextArea
+                id='comment-textarea'
                 spellCheck={false}
                 variant='classic'
                 rows={10}
                 placeholder='Start typing here...'
-                style={{ border: 0, outline: 0 }}
+                value={text}
+                onChange={(e) => setText(e.target.value)}
               />
             </Flex>
           </Card>

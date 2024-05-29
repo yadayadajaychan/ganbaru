@@ -179,5 +179,21 @@ def create_post(forum_id):
 
     return "", 200
 
+@app.route("/forums/<forum_id>", methods=["GET"])
+def get_posts(forum_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    query = request.args
+
+    try:
+        posts = db.get_posts(session_id, forum_id, query)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify(posts), 200
+
 if __name__ == "__main__":
     app.run(debug=True)

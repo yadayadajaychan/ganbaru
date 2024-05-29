@@ -100,13 +100,14 @@ Get Posts
 - `session_id` cookie required
 - Query String Params
 
-     field     |  type  |         description        | optional |  default
-  -------------|--------|----------------------------|----------|-----------
-   count       | int    | how many posts to fetch    | y        | 50
-   page        | int    | page # to fetch            | y        | 1
-   search      | string | regex to search for        | y        | .*
-   ascending   | bool   | ascending order            | y        | false
-   sortby      | string | post date, activity, votes | y        | post date
+     field     |   type   |         description        | optional |  default
+  -------------|----------|----------------------------|----------|-----------
+   count       | int      | how many posts to fetch    | y        | 50
+   page        | int      | page # to fetch            | y        | 1
+   search      | string   | regex to search for        | y        | .*
+   tags        | string[] | tags to filter by          | y        | []
+   ascending   | bool     | ascending order            | y        | false
+   sortby      | string   | post_date, activity, votes | y        | post_date
 
 - JSON Response
 
@@ -114,6 +115,7 @@ Get Posts
   ------------|----------------------------
    post_infos | array of post_info objects
    nextPage   | int
+   lastPage   | int
 
 - Post_info Object
 

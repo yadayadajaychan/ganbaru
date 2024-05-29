@@ -2,6 +2,7 @@ import os, time
 from datetime import datetime
 from dotenv import load_dotenv
 import psycopg2
+from psycopg2 import sql
 import re
 from argon2 import PasswordHasher
 import base64
@@ -367,3 +368,65 @@ class db:
                               instructor_answered, tags, full_text))
         finally:
             self.conn.commit()
+
+    def get_posts(self, session_id, forum_id, query):
+        uid = self.check_session(session_id)
+        self.check_forum(forum_id)
+        # TODO check if part of forum
+
+        count = int(query.get("count", 50))
+        if count < 0:
+            raise Exception("count can't be less than 0")
+
+        page = (int(query.get("page", 1)) - 1) * count
+        if page < 0:
+            raise Exception("page can't be less than 0")
+
+        ascending = query.get("ascending", 'false').lower()
+        if ascending == 'true':
+            ascending = 'ASC'
+        elif ascending == 'false':
+            ascending = 'DESC'
+        else:
+            raise Exception("'ascending' must be a boolean")
+
+        sortby = query.get("sortby", 'post_date')
+        if sortby == "post_date":
+            sortby = 'date'
+        elif sortby == "activity":
+            sortby = 'last_activity'
+        elif sortby == "votes":
+            raise Exception("sorting by votes not implemented yet") #TODO
+        else:
+            raise Exception("invalid sortby, must be: post_date, activity, votes")
+
+        #TODO search and tags
+
+        query = sql.SQL('SELECT pid, uid, title, date, last_activity, '
+                        'views, answers, instructor_answered, tags '
+                         'FROM posts '
+                         'WHERE fid = %s '
+                         'ORDER BY {sortby} {asc} '
+                         'LIMIT %s OFFSET %s').format(
+                                 sortby=sql.SQL(sortby),
+                                 asc=sql.SQL(ascending),
+                                 )
+        self.cur.execute(query, (forum_id, count, page))
+
+        post_infos = list()
+        records = self.cur.fetchall()
+        for record in records:
+            post = {"post_id"       : record[0],
+                    "user_id"       : record[1],
+                    "title"         : record[2],
+                    "date"          : record[3],
+                    "last_activity" : record[4],
+                    "views"         : record[5],
+                    "answers"       : record[6],
+                    "instructor_answered": record[7],
+                    "tags"          : record[8],
+                    }
+            post_infos.append(post)
+
+        # TODO nextPage and lastPage
+        return {"post_infos": post_infos}

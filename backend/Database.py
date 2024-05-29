@@ -23,7 +23,6 @@ class db:
         self.__create_users_table()
         self.__create_admin("admin", "12345678")
         self.__create_forums_table()
-        self.__create_subforums_table()
         self.__create_posts_table()
 
     def close(self):
@@ -68,31 +67,22 @@ class db:
         finally:
             self.conn.commit()
 
-    def __create_subforums_table(self):
-        try:
-            self.cur.execute('CREATE TABLE IF NOT EXISTS subforums ('
-                             'fid         integer NOT NULL,'
-                             'sid         integer NOT NULL,'
-                             'category    text NOT NULL,'
-                             'name        text NOT NULL,'
-                             'description text);')
-        finally:
-            self.conn.commit()
-
     def __create_posts_table(self):
         try:
             self.cur.execute('CREATE TABLE IF NOT EXISTS posts ('
                              'fid     integer NOT NULL,'
-                             'sid     integer NOT NULL,'
                              'pid     integer NOT NULL,'
                              'uid     integer NOT NULL,'
                              'title   text NOT NULL,'
                              'date    timestamp (0) with time zone NOT NULL,'
+                             'last_activity timestamp(0) with time zone NOT NULL,'
                              'views   integer NOT NULL,'
                              'answers integer NOT NULL,'
                              'instructor_answered boolean NOT NULL,'
                              'tags text[],'
-                             'full_text text NOT NULL);')
+                             'full_text text NOT NULL,'
+                             'instructor_aid integer,'
+                             'student_aids integer[]);')
         finally:
             self.conn.commit()
 
@@ -339,63 +329,3 @@ class db:
             output.append(forum)
 
         return {"forums": output}
-
-    def create_subforum(self, session_id, forum_id, category, name, description=None):
-        uid = self.check_session(session_id)
-
-        # TODO check if authorized to create subforum
-        self.check_forum(forum_id)
-
-        if len(category) <= 0:
-            raise Exception("empty subforum category not allowed")
-        if len(name) <= 0:
-            raise Exception("empty subforum name not allowed")
-
-        self.cur.execute('SELECT MAX(sid) '
-                         'FROM subforums '
-                         'WHERE fid = %s', (forum_id,))
-        max_sid = self.cur.fetchone()[0]
-        if max_sid is None:
-            max_sid = -1
-
-        sid = max_sid + 1
-
-        try:
-            self.cur.execute('INSERT INTO subforums '
-                             '(fid, sid, category, name, description) '
-                             'VALUES (%s, %s, %s, %s, %s)',
-                             (forum_id, sid, category, name, description))
-        finally:
-            self.conn.commit()
-
-        return
-
-    # check doc/backend-api.txt for format
-    def get_subforums(self, session_id, forum_id):
-        uid = self.check_session(session_id)
-
-        self.check_forum(forum_id)
-        # TODO check if authorized to view subforums
-
-        self.cur.execute('SELECT category, sid, name, description '
-                         'FROM subforums '
-                         'WHERE fid = %s', (forum_id,))
-        records = self.cur.fetchall()
-
-        categories = dict()
-        for record in records:
-            subforum = {"subforum_id": record[1],
-                        "name": record[2],
-                        "description": record[3]}
-
-            if categories.get(record[0], None) == None:
-                categories[record[0]] = list()
-
-            categories[record[0]].append(subforum)
-
-        response = list()
-        for category in categories:
-            response.append({"name": category,
-                             "subforums": categories[category]})
-
-        return {"categories": response}

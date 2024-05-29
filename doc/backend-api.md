@@ -12,10 +12,10 @@ Create User
 - creates a new user
 - JSON Params
 
-    field   |  type
-  ----------|--------
-   username | string
-   password | string
+ |  field   |  type  |
+ |----------|--------|
+ | username | string |
+ | password | string |
 
 
 Delete User
@@ -24,10 +24,10 @@ Delete User
 - deletes a user
 - JSON Params
 
-    field   |  type
-  ----------|--------
-   username | string
-   password | string
+ |  field   |  type  |
+ |----------|--------|
+ | username | string |
+ | password | string |
 
 
 Login
@@ -37,11 +37,11 @@ Login
 - sets `session_id` cookie
 - JSON Params
 
-    field   |  type  | optional
-  ----------|--------|----------
-   username | string | n
-   password | string | n
-   timeout  | int    | y
+ |  field   |  type  | optional |
+ |----------|--------|----------|
+ | username | string | n        |
+ | password | string | n        |
+ | timeout  | int    | y        |
 
 
 Logout
@@ -64,10 +64,10 @@ Create Forum
 - `session_id` cookie required
 - JSON Params
 
-     field    |  type  |       description         
- -------------|--------|-------------------------- 
-  name        | string | name of the forum         
-  description | string | description of the forum  
+ |    field    |  type  |       description        |
+ |-------------|--------|--------------------------|
+ | name        | string | name of the forum        |
+ | description | string | description of the forum |
 
 
 Get Forums (classes)
@@ -77,21 +77,21 @@ Get Forums (classes)
 - `session_id` cookie required
 - JSON Response
 
-   field  |          type          |              description
-  --------|------------------------|----------------------------------------
-   forums | array of forum objects | forums (classes) the user is a part of
+ | field  |          type          |              description               |
+ |--------|------------------------|----------------------------------------|
+ | forums | array of forum objects | forums (classes) the user is a part of |
 
 - Forum Objects
 
-   field       |  type  |         description
-  -------------|--------|------------------------------
-   forum_id    | int    | forum id
-   owner       | string | owner of the forum
-   name        | string | name of the forum
-   description | string | description of the forum
-   important   | int    | # of unread instructor posts
-   unread      | int    | # of unread posts
-   unanswered  | int    | # of unanswered questions
+ | field       |  type  |         description          |
+ |-------------|--------|------------------------------|
+ | forum_id    | int    | forum id                     |
+ | owner       | string | owner of the forum           |
+ | name        | string | name of the forum            |
+ | description | string | description of the forum     |
+ | important   | int    | # of unread instructor posts |
+ | unread      | int    | # of unread posts            |
+ | unanswered  | int    | # of unanswered questions    |
 
 Get Posts
 =========================
@@ -100,35 +100,35 @@ Get Posts
 - `session_id` cookie required
 - Query String Params
 
-     field     |   type   |         description        | optional |  default
-  -------------|----------|----------------------------|----------|-----------
-   count       | int      | how many posts to fetch    | y        | 50
-   page        | int      | page # to fetch            | y        | 1
-   search      | string   | regex to search for        | y        | .*
-   tags        | string[] | tags to filter by          | y        | []
-   ascending   | bool     | ascending order            | y        | false
-   sortby      | string   | post_date, activity, votes | y        | post_date
+ |   field     |   type   |         description        | optional |  default  |
+ |-------------|----------|----------------------------|----------|-----------|
+ | count       | int      | how many posts to fetch    | y        | 50        |
+ | page        | int      | page # to fetch            | y        | 1         |
+ | search      | string   | regex to search for        | y        | .*        |
+ | tags        | string[] | tags to filter by          | y        | []        |
+ | ascending   | bool     | ascending order            | y        | false     |
+ | sortby      | string   | post_date, activity, votes | y        | post_date |
 
 - JSON Response
 
-     field    |            type
-  ------------|----------------------------
-   post_infos | array of post_info objects
-   nextPage   | int
+ |   field    |            type            |
+ |------------|----------------------------|
+ | post_infos | array of post_info objects |
+ | nextPage   | int                        |
 
 - Post_info Object
 
-     field             |       type       |      description
-  ---------------------|------------------|-----------------------
-   post_id             | int              | post id
-   user_id             | int              | user who created post
-   title               | string           | title of post
-   date                | string           | iso8601 timestamp
-   last_activity       | string           | iso8601 timestamp
-   views               | int              | # of views
-   answers             | int              | # of answers
-   instructor_answered | bool             | instructor answered
-   tags                | array of strings | tags
+ |   field             |       type       |      description      |
+ |---------------------|------------------|-----------------------|
+ | post_id             | int              | post id               |
+ | user_id             | int              | user who created post |
+ | title               | string           | title of post         |
+ | date                | string           | iso8601 timestamp     |
+ | last_activity       | string           | iso8601 timestamp     |
+ | views               | int              | # of views            |
+ | answers             | int              | # of answers          |
+ | instructor_answered | bool             | instructor answered   |
+ | tags                | array of strings | tags                  |
 
 Create Post
 =========================
@@ -137,11 +137,11 @@ Create Post
 - `session_id` cookie required
 - JSON Parameters
 
-    field   |       type       |      description      | optional
- -----------|------------------|-----------------------|----------
-  title     | string           | title of the post     | n
-  full_text | string           | full text of the post | n
-  tags      | array of strings | tags                  | y
+ |   field   |       type       |      description      | optional |
+ |-----------|------------------|-----------------------|----------|
+ | title     | string           | title of the post     | n        |
+ | full_text | string           | full text of the post | n        |
+ | tags      | array of strings | tags                  | y        |
 
 View Post
 =========================
@@ -150,27 +150,38 @@ View Post
 - `session_id` cookie required
 - JSON Response
 
-    field              |          type           |       description
-  ---------------------|-------------------------|------------------------
-   user_id             | int                     | user who created post
-   title               | string                  | title of post
-   date                | string                  | iso8601 timestamp
-   last_activity       | string                  | iso8601 timestamp
-   views               | int                     | # of views
-   answers             | int                     | # of answers
-   instructor_answered | bool                    | instructor answered
-   tags                | array of strings        | tags
-                       |                         |
-   full_text           | string                  | full text of the post
-   instructor_answer   | answer object           |
-   student_answers     | array of answer objects |
+ |  field              |          type           |       description      |
+ |---------------------|-------------------------|------------------------|
+ | user_id             | int                     | user who created post  |
+ | title               | string                  | title of post          |
+ | date                | string                  | iso8601 timestamp      |
+ | last_activity       | string                  | iso8601 timestamp      |
+ | views               | int                     | # of views             |
+ | answers             | int                     | # of answers           |
+ | instructor_answered | bool                    | instructor answered    |
+ | tags                | array of strings        | tags                   |
+ |                     |                         |                        |
+ | full_text           | string                  | full text of the post  |
+ | instructor_answer   | answer object           |                        |
+ | student_answers     | array of answer objects |                        |
 
 - Answer Object
 
-     field   |  type  |       description
-  -----------|--------|-------------------------
-   answer_id | int    | answer id
-   user_id   | int    | user who answered
-   date      | string | iso8601 timestamp
-   answer    | string | full text of the answer
-   score     | int    | sum of votes by users
+ |   field   |  type  |       description       |
+ |-----------|--------|-------------------------|
+ | answer_id | int    | answer id               |
+ | user_id   | int    | user who answered       |
+ | date      | string | iso8601 timestamp       |
+ | answer    | string | full text of the answer |
+ | score     | int    | sum of votes by users   |
+
+Create Answer
+=========================
+- `POST /forums/<forum_id>/<post_id>/answer`
+- answer a post
+- `session_id` cookie required
+- JSON Parameters
+
+ | field  |  type  |      description       |
+ |--------|--------|------------------------|
+ | answer | string | the text of the answer |

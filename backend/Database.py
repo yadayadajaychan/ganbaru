@@ -190,6 +190,18 @@ class db:
 
         return
 
+    # checks if post exists
+    # raises exception if not found
+    def check_post(self, forum_id, post_id):
+        self.cur.execute('SELECT pid '
+                         'FROM posts '
+                         'WHERE fid = %s AND pid = %s',
+                         (forum_id, post_id))
+        if self.cur.fetchone() is None:
+            raise Exception(f"post {post_id} does not exist")
+
+        return
+
     def delete_user(self, username, password):
         username = username.lower()
 
@@ -454,3 +466,40 @@ class db:
             nextPage = page+1
 
         return {"post_infos": post_infos, "nextPage": nextPage}
+
+    def view_post(self, session_id, forum_id, post_id):
+        uid = self.check_session(session_id)
+        self.check_forum(forum_id)
+        self.check_post(forum_id, post_id)
+
+        self.cur.execute('SELECT uid, title, date, last_activity, views, '
+                         'answers, instructor_answered, tags, full_text, '
+                         'instructor_aid, student_aids '
+                         'FROM posts '
+                         'WHERE fid = %s AND pid = %s',
+                         (forum_id, post_id))
+        record = self.cur.fetchone()
+
+        # increment number of views
+        try:
+            self.cur.execute('UPDATE posts '
+                             'SET views = views + 1 '
+                             'WHERE fid = %s AND pid = %s',
+                             (forum_id, post_id))
+        finally:
+            self.conn.commit()
+
+        # TODO get answers
+
+        post = {"user_id" : record[0],
+                "title"   : record[1],
+                "date"    : record[2],
+                "last_activity": record[3],
+                "views"   : record[4],
+                "answers" : record[5],
+                "instructor_answered": record[6],
+                "tags"    : record[7],
+                "full_text": record[8],
+                }
+
+        return post

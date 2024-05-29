@@ -151,7 +151,7 @@ def get_forums():
     return jsonify(forums), 200
 
 @app.route("/forums/<forum_id>/create", methods=["POST"])
-def create_subforum(forum_id):
+def create_post(forum_id):
     try:
         session_id = request.cookies['session_id']
     except:
@@ -162,36 +162,38 @@ def create_subforum(forum_id):
     except:
         return jsonify({"error": "invalid json"}), 400
 
-    category = data.get("category")
-    if category is None:
-        return jsonify({"error": "category is required to create subforum"}), 400
+    title = data.get("title")
+    if title is None:
+        return jsonify({"error": "title is required to create post"}), 400
 
-    name = data.get("name")
-    if name is None:
-        return jsonify({"error": "name is required to create subforum"}), 400
+    full_text = data.get("full_text")
+    if full_text is None:
+        return jsonify({"error": "post body can't be empty"}), 400
 
-    description = data.get("description")
+    tags = data.get("tags")
 
     try:
-        db.create_subforum(session_id, forum_id, category, name, description)
+        db.create_post(session_id, forum_id, title, full_text, tags)
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
     return "", 200
 
 @app.route("/forums/<forum_id>", methods=["GET"])
-def get_subforums(forum_id):
+def get_posts(forum_id):
     try:
         session_id = request.cookies['session_id']
     except:
         return jsonify({"error": "missing session_id cookie"}), 400
 
+    query = request.args
+
     try:
-        subforums = db.get_subforums(session_id, forum_id)
+        posts = db.get_posts(session_id, forum_id, query)
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return jsonify(subforums), 200
+    return jsonify(posts), 200
 
 if __name__ == "__main__":
     app.run(debug=True)

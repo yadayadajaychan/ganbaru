@@ -2,6 +2,7 @@ import os, time
 from datetime import datetime
 from dotenv import load_dotenv
 import psycopg2
+from psycopg2 import sql
 import re
 from argon2 import PasswordHasher
 import base64
@@ -23,7 +24,6 @@ class db:
         self.__create_users_table()
         self.__create_admin("admin", "12345678")
         self.__create_forums_table()
-        self.__create_subforums_table()
         self.__create_posts_table()
 
     def close(self):
@@ -68,31 +68,22 @@ class db:
         finally:
             self.conn.commit()
 
-    def __create_subforums_table(self):
-        try:
-            self.cur.execute('CREATE TABLE IF NOT EXISTS subforums ('
-                             'fid         integer NOT NULL,'
-                             'sid         integer NOT NULL,'
-                             'category    text NOT NULL,'
-                             'name        text NOT NULL,'
-                             'description text);')
-        finally:
-            self.conn.commit()
-
     def __create_posts_table(self):
         try:
             self.cur.execute('CREATE TABLE IF NOT EXISTS posts ('
                              'fid     integer NOT NULL,'
-                             'sid     integer NOT NULL,'
                              'pid     integer NOT NULL,'
                              'uid     integer NOT NULL,'
                              'title   text NOT NULL,'
                              'date    timestamp (0) with time zone NOT NULL,'
+                             'last_activity timestamp(0) with time zone NOT NULL,'
                              'views   integer NOT NULL,'
                              'answers integer NOT NULL,'
                              'instructor_answered boolean NOT NULL,'
                              'tags text[],'
-                             'full_text text NOT NULL);')
+                             'full_text text NOT NULL,'
+                             'instructor_aid integer,'
+                             'student_aids integer[]);')
         finally:
             self.conn.commit()
 
@@ -340,62 +331,117 @@ class db:
 
         return {"forums": output}
 
-    def create_subforum(self, session_id, forum_id, category, name, description=None):
+    def create_post(self, session_id, forum_id, title, full_text, tags):
         uid = self.check_session(session_id)
-
-        # TODO check if authorized to create subforum
         self.check_forum(forum_id)
+        # TODO check if part of forum
 
-        if len(category) <= 0:
-            raise Exception("empty subforum category not allowed")
-        if len(name) <= 0:
-            raise Exception("empty subforum name not allowed")
+        if len(title) == 0:
+            raise Exception("post can't have empty title")
+        if len(full_text) == 0:
+            raise Exception("post body can't be empty")
+        if tags is None:
+            tags = []
 
-        self.cur.execute('SELECT MAX(sid) '
-                         'FROM subforums '
+        self.cur.execute('SELECT MAX(pid) '
+                         'FROM posts '
                          'WHERE fid = %s', (forum_id,))
-        max_sid = self.cur.fetchone()[0]
-        if max_sid is None:
-            max_sid = -1
+        max_pid = self.cur.fetchone()[0]
+        if max_pid is None:
+            pid = 0
+        else:
+            pid = max_pid + 1
 
-        sid = max_sid + 1
+        date = datetime.utcfromtimestamp(time.time()).isoformat()
+        last_activity = date
+
+        views = 0
+        answers = 0
+        instructor_answered = False
 
         try:
-            self.cur.execute('INSERT INTO subforums '
-                             '(fid, sid, category, name, description) '
-                             'VALUES (%s, %s, %s, %s, %s)',
-                             (forum_id, sid, category, name, description))
+            self.cur.execute('INSERT INTO posts '
+                             '(fid, pid, uid, title, date, last_activity, views, answers, '
+                             'instructor_answered, tags, full_text) '
+                             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);',
+                             (forum_id, pid, uid, title, date, last_activity, views, answers,
+                              instructor_answered, tags, full_text))
         finally:
             self.conn.commit()
 
-        return
-
-    # check doc/backend-api.txt for format
-    def get_subforums(self, session_id, forum_id):
+    def get_posts(self, session_id, forum_id, query):
         uid = self.check_session(session_id)
-
         self.check_forum(forum_id)
-        # TODO check if authorized to view subforums
+        # TODO check if part of forum
 
-        self.cur.execute('SELECT category, sid, name, description '
-                         'FROM subforums '
-                         'WHERE fid = %s', (forum_id,))
+        count = int(query.get("count", 50))
+        if count < 0:
+            raise Exception("count can't be less than 0")
+
+        page = int(query.get("page", 1))
+        offset = (page - 1) * count
+        if offset < 0:
+            raise Exception("page can't be less than 0")
+
+        ascending = query.get("ascending", 'false').lower()
+        if ascending == 'true':
+            ascending = 'ASC'
+        elif ascending == 'false':
+            ascending = 'DESC'
+        else:
+            raise Exception("'ascending' must be a boolean")
+
+        sortby = query.get("sortby", 'post_date')
+        if sortby == "post_date":
+            sortby = 'date'
+        elif sortby == "activity":
+            sortby = 'last_activity'
+        elif sortby == "votes":
+            raise Exception("sorting by votes not implemented yet") #TODO
+        else:
+            raise Exception("invalid sortby, must be: post_date, activity, votes")
+
+        #TODO search and tags
+        search = query.get("search", '.*')
+
+        query = sql.SQL('SELECT pid, uid, title, date, last_activity, '
+                        'views, answers, instructor_answered, tags '
+                         'FROM posts '
+                         'WHERE fid = %s AND (title ~ %s OR full_text ~ %s) '
+                         'ORDER BY {sortby} {asc} '
+                         'LIMIT %s OFFSET %s').format(
+                                 sortby=sql.SQL(sortby),
+                                 asc=sql.SQL(ascending),
+                                 )
+        try:
+            self.cur.execute(query, (forum_id, search, search, count, offset))
+        finally:
+            self.conn.commit()
+
+        post_infos = list()
         records = self.cur.fetchall()
-
-        categories = dict()
         for record in records:
-            subforum = {"subforum_id": record[1],
-                        "name": record[2],
-                        "description": record[3]}
+            post = {"post_id"       : record[0],
+                    "user_id"       : record[1],
+                    "title"         : record[2],
+                    "date"          : record[3],
+                    "last_activity" : record[4],
+                    "views"         : record[5],
+                    "answers"       : record[6],
+                    "instructor_answered": record[7],
+                    "tags"          : record[8],
+                    }
+            post_infos.append(post)
 
-            if categories.get(record[0], None) == None:
-                categories[record[0]] = list()
+        # check if this is the last page
+        try:
+            self.cur.execute(query, (forum_id, search, search, 1, offset+count))
+        finally:
+            self.conn.commit()
+        records = self.cur.fetchall()
+        if len(records) == 0:
+            nextPage = None
+        else:
+            nextPage = page+1
 
-            categories[record[0]].append(subforum)
-
-        response = list()
-        for category in categories:
-            response.append({"name": category,
-                             "subforums": categories[category]})
-
-        return {"categories": response}
+        return {"post_infos": post_infos, "nextPage": nextPage}

@@ -1,13 +1,11 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 
 import ReactQueryProvider from '@/providers/reactQuery';
 
 import { Theme } from '@radix-ui/themes';
 import { ThemeProvider } from 'next-themes';
-
-const inter = Inter({ subsets: ['latin'] });
+import NavBar from '@/components/nav/navbar';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -21,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body className={`${inter.className} min-h-screen`}>
+      <body className={`min-h-screen`}>
         <ReactQueryProvider>
           <ThemeProvider
             attribute='class'

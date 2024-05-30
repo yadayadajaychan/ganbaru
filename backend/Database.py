@@ -321,6 +321,25 @@ class db:
 
         return
 
+    def get_user_obj(self, uid, mod, anonymous, alias):
+            if mod:
+                user_obj = {"uid": uid,
+                            "name": self.get_display_name(uid)}
+            elif anonymous:
+                user_obj = {"uid": -2,
+                            "name": 'Anonymous User'}
+            elif alias:
+                alias = self.get_alias(uid)
+                if alias is None:
+                    alias = 'Unknown User'
+                user_obj = {"uid": -2,
+                            "name": alias}
+            else:
+                user_obj = {"uid": uid,
+                            "name": self.get_display_name(uid)}
+
+            return user_obj
+
     def delete_user(self, username, password):
         username = username.lower()
 
@@ -587,22 +606,7 @@ class db:
         for record in records:
             anonymous = record[9]
             alias = record[10]
-
-            if mod:
-                user_obj = {"uid": record[1],
-                            "name": self.get_display_name(record[1])}
-            elif anonymous:
-                user_obj = {"uid": -2,
-                            "name": 'Anonymous User'}
-            elif alias:
-                alias = self.get_alias(record[1])
-                if alias is None:
-                    alias = 'Unknown User'
-                user_obj = {"uid": -2,
-                            "name": alias}
-            else:
-                user_obj = {"uid": record[1],
-                            "name": self.get_display_name(record[1])}
+            user_obj = self.get_user_obj(record[1], mod, anonymous, alias)
 
             post = {"post_id"       : record[0],
                     "user"          : user_obj,
@@ -659,22 +663,7 @@ class db:
 
         anonymous = record[9]
         alias = record[10]
-
-        if mod:
-            user_obj = {"uid": record[0],
-                        "name": self.get_display_name(record[0])}
-        elif anonymous:
-            user_obj = {"uid": -2,
-                        "name": 'Anonymous User'}
-        elif alias:
-            alias = self.get_alias(record[0])
-            if alias is None:
-                alias = 'Unknown User'
-            user_obj = {"uid": -2,
-                        "name": alias}
-        else:
-            user_obj = {"uid": record[0],
-                        "name": self.get_display_name(record[0])}
+        user_obj = self.get_user_obj(record[0], mod, anonymous, alias)
 
         post = {"user"    : user_obj,
                 "title"   : record[1],
@@ -806,22 +795,7 @@ class db:
         for record in records:
             anonymous = record[5]
             alias = record[6]
-
-            if mod:
-                user_obj = {"uid": record[1],
-                            "name": self.get_display_name(record[1])}
-            elif anonymous:
-                user_obj = {"uid": -2,
-                            "name": 'Anonymous User'}
-            elif alias:
-                alias = self.get_alias(record[1])
-                if alias is None:
-                    alias = 'Unknown User'
-                user_obj = {"uid": -2,
-                            "name": alias}
-            else:
-                user_obj = {"uid": record[1],
-                            "name": self.get_display_name(record[1])}
+            user_obj = self.get_user_obj(record[1], mod, anonymous, alias)
 
             answer = {"answer_id"     : record[0],
                       "user"          : user_obj,

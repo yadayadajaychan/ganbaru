@@ -16,7 +16,7 @@ export default function Comment({ comment }: { comment: Comment }) {
         <Text size='1'>{new Date(comment.createdAt).toLocaleTimeString()}</Text>
       </Flex>
       <Flex
-        direction='row'
+        direction='column'
         gap='2'
         className='border-l-2 border-[var(--gray-5)] pl-4'
       >

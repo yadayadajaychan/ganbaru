@@ -27,6 +27,8 @@ import Comment from './comment';
 
 import ReactMarkdown from 'react-markdown';
 import { MarkdownToJsx } from '../markdown';
+import MDEditor from '@uiw/react-md-editor';
+import { useTheme } from 'next-themes';
 
 interface CommentCreateProps {
   postId: string;
@@ -46,28 +48,29 @@ export default function CommentCreate({
   const text = propText !== undefined ? propText : internalText;
   const setText = propSetText !== undefined ? propSetText : setInternalText;
 
-  const insertMarkdown = (
-    beforeSyntax: string,
-    afterSyntax: string,
-    placeholder: string
-  ) => {
-    const textarea = document.getElementById(
-      'comment-textarea'
-    ) as HTMLTextAreaElement;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const before = text.substring(0, start);
-    const selectedText = text.substring(start, end) || placeholder;
-    const after = text.substring(end, text.length);
-    setText(before + beforeSyntax + selectedText + afterSyntax + after);
-    textarea.focus();
-    textarea.setSelectionRange(
-      start + beforeSyntax.length,
-      end +
-        beforeSyntax.length +
-        (selectedText === placeholder ? placeholder.length : 0)
-    );
-  };
+  // const insertMarkdown = (
+  //   beforeSyntax: string,
+  //   afterSyntax: string,
+  //   placeholder: string
+  // ) => {
+  //   const textarea = document.getElementById(
+  //     'comment-textarea'
+  //   ) as HTMLTextAreaElement;
+  //   const start = textarea.selectionStart;
+  //   const end = textarea.selectionEnd;
+  //   const before = text.substring(0, start);
+  //   const selectedText = text.substring(start, end) || placeholder;
+  //   const after = text.substring(end, text.length);
+  //   setText(before + beforeSyntax + selectedText + afterSyntax + after);
+  //   textarea.focus();
+  //   textarea.setSelectionRange(
+  //     start + beforeSyntax.length,
+  //     end +
+  //       beforeSyntax.length +
+  //       (selectedText === placeholder ? placeholder.length : 0)
+  //   );
+  // };
+  const { theme } = useTheme();
 
   return (
     <Flex direction='column' gap='4' width={`${width}px`}>
@@ -75,7 +78,7 @@ export default function CommentCreate({
         <Box className='w-full'>
           {/* <Card className='w-full'> */}
           <Flex direction='column' gap='2' className='w-full'>
-            <Box>
+            {/* <Box>
               <Flex gap='4'>
                 <Flex gap='1'>
                   <IconButton
@@ -102,14 +105,14 @@ export default function CommentCreate({
                 <Flex gap='1'>
                   <IconButton
                     variant='soft'
-                    onClick={() => insertMarkdown('`', '`', 'code')}
+                    onClick={() => insertMarkdown('```', '```', 'code')}
                   >
                     <CodeIcon />
                   </IconButton>
                 </Flex>
               </Flex>
-            </Box>
-            <TextArea
+            </Box> */}
+            {/* <TextArea
               id='comment-textarea'
               spellCheck={false}
               variant='classic'
@@ -118,7 +121,15 @@ export default function CommentCreate({
               placeholder='Start typing here...'
               value={text}
               onChange={(e) => setText(e.target.value)}
-            />
+            /> */}
+            <div data-color-mode={theme}>
+              <MDEditor
+                value={text}
+                preview='edit'
+                // extraCommands={[codePreview, customButton, commands.fullscreen]}
+                onChange={(e) => setText(e ?? '')}
+              />
+            </div>
           </Flex>
           {/* </Card> */}
         </Box>

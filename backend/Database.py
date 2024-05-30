@@ -564,15 +564,6 @@ class db:
         post_infos = list()
         records = self.cur.fetchall()
         for record in records:
-            self.cur.execute('SELECT full_name '
-                         'FROM users '
-                         'WHERE uid = %s', (record[1],))
-
-            user = {
-                    "id"     : record[1],
-                    "name"   : self.cur.fetchone()[0],
-                    }
-            
             post = {"post_id"       : record[0],
                     "user"          : {"uid": record[1],
                                        "name": self.get_display_name(record[1])},

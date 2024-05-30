@@ -73,14 +73,9 @@ export default function CommentContainer({ postId }: CommentContainerProps) {
         columnIndex={0}
         rowIndex={index}
       >
-        {({ measure }) => (
-          <div>
-            <Comment comment={comments[index]} />
-            {/* {index < comments.length - 1 && (
-              <Separator orientation='horizontal' size='4' />
-            )} */}
-          </div>
-        )}
+        <Flex mb='5'>
+          <Comment comment={comments[index]} />
+        </Flex>
       </CellMeasurer>
     );
   };

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { GetCommentsResponse } from '@/types';
-import { Flex } from '@radix-ui/themes';
+import { Button, Flex, Popover } from '@radix-ui/themes';
 import CommentCreate from '@/components/comment/create';
 
 import {
@@ -10,6 +10,9 @@ import {
 } from '@tanstack/react-query';
 import { fetchComments } from '@/api/comment';
 import CommentContainer from '@/components/comment/container';
+import { ChatBubbleIcon } from '@radix-ui/react-icons';
+import { AutoSizer } from 'react-virtualized';
+import CommentPopover from './popover';
 
 export default async function Post({ params }: { params: { id: string } }) {
   const queryClient = new QueryClient();
@@ -29,8 +32,10 @@ export default async function Post({ params }: { params: { id: string } }) {
         direction='column'
         gap='9'
       >
-        <CommentCreate postId={params.id} />
-        <CommentContainer postId={params.id} />
+        <Flex justify='start' direction='column' gap='4'>
+          <CommentPopover postId={params.id} />
+          <CommentContainer postId={params.id} />
+        </Flex>
       </Flex>
     </HydrationBoundary>
   );

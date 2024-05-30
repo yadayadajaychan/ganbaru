@@ -8,7 +8,7 @@ import { MarkdownToJsx } from '../markdown';
 // the comment itself that is displaye on a post
 export default function Comment({ comment }: { comment: Comment }) {
   return (
-    <Flex direction='column' gap='4' mb='5'>
+    <Flex direction='column' gap='4'>
       <Flex id='user' direction='row' gap='4' justify='start' align='center'>
         <Text size='2' weight='bold'>
           {comment.user.name}
@@ -16,7 +16,7 @@ export default function Comment({ comment }: { comment: Comment }) {
         <Separator orientation='vertical' size='1' />
         <Text>{new Date(comment.createdAt).toLocaleTimeString()}</Text>
       </Flex>
-      <Flex>
+      <Flex direction='row' gap='2'>
         <MarkdownToJsx markdown={comment.content} />
       </Flex>
       <Flex gap='3' justify='start' align='center'>

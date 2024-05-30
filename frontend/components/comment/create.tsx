@@ -6,6 +6,7 @@ import {
   HeadingIcon,
   CaretRightIcon,
   CodeIcon,
+  ChatBubbleIcon,
 } from '@radix-ui/react-icons';
 import {
   Box,
@@ -17,19 +18,33 @@ import {
   Button,
   Text,
   Dialog,
+  Popover,
 } from '@radix-ui/themes';
 import { Label } from '@radix-ui/react-label';
 import { useState } from 'react';
+
+import Comment from './comment';
 
 import ReactMarkdown from 'react-markdown';
 import { MarkdownToJsx } from '../markdown';
 
 interface CommentCreateProps {
   postId: string;
+  width: number;
+
+  text?: string;
+  setText?: (text: string) => void;
 }
 
-export default function CommentCreate({ postId }: CommentCreateProps) {
-  const [text, setText] = useState('');
+export default function CommentCreate({
+  postId,
+  width,
+  text: propText,
+  setText: propSetText,
+}: CommentCreateProps) {
+  const [internalText, setInternalText] = useState('');
+  const text = propText !== undefined ? propText : internalText;
+  const setText = propSetText !== undefined ? propSetText : setInternalText;
 
   const insertMarkdown = (
     beforeSyntax: string,
@@ -55,15 +70,15 @@ export default function CommentCreate({ postId }: CommentCreateProps) {
   };
 
   return (
-    <Card size='2'>
+    <Flex direction='column' width={`${width}px`}>
       <Heading as='h3' size='3' mb='4'>
         Add a Comment
       </Heading>
-      <Flex direction='column' gap='4'>
-        <Flex direction='row' gap='4'>
-          <Box>
-            <Card>
-              <Flex direction='column' gap='2' width='616px'>
+      <Flex direction='column' gap='4' className='w-full'>
+        <Flex direction='row' gap='4' className='w-full'>
+          <Box className='w-full'>
+            <Card className='w-full'>
+              <Flex direction='column' gap='2' className='w-full'>
                 <Box>
                   <Flex gap='4'>
                     <Flex gap='1'>
@@ -111,13 +126,6 @@ export default function CommentCreate({ postId }: CommentCreateProps) {
               </Flex>
             </Card>
           </Box>
-          {/* <Card>
-            <Flex width='416px' height='400px' maxWidth='416px'>
-              <Box width='416px'>
-                <MarkdownToJsx markdown={text} />
-              </Box>
-            </Flex>
-          </Card> */}
         </Flex>
         <Flex className='w-full' gap='4' justify='end'>
           <Dialog.Root>
@@ -127,7 +135,19 @@ export default function CommentCreate({ postId }: CommentCreateProps) {
               </Button>
             </Dialog.Trigger>
             <Dialog.Content size='2'>
-              <MarkdownToJsx markdown={text} />
+              <Comment
+                comment={{
+                  id: '1',
+                  content: text,
+                  postId: postId,
+                  createdAt: new Date(),
+                  likeCount: 1,
+                  user: {
+                    id: 1,
+                    name: 'test',
+                  },
+                }}
+              />
             </Dialog.Content>
           </Dialog.Root>
           <Button className='hover:cursor-pointer' variant='soft'>
@@ -135,6 +155,6 @@ export default function CommentCreate({ postId }: CommentCreateProps) {
           </Button>
         </Flex>
       </Flex>
-    </Card>
+    </Flex>
   );
 }

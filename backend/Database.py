@@ -235,6 +235,28 @@ class db:
 
         return
 
+    # check if user is owner or moderator of a forum
+    # raises exception if no
+    def check_mod_in_forum(self, uid, forum_id):
+        if uid == 0:
+            return
+
+        # check if user is owner
+        self.cur.execute('SELECT owner '
+                         'FROM forums '
+                         'WHERE fid = %s', (forum_id,))
+        if int(uid) == self.cur.fetchone()[0]:
+            return
+
+        # check if user is a moderator
+        self.cur.execute('SELECT moderators '
+                         'FROM forums '
+                         'WHERE fid = %s', (forum_id,))
+        if int(uid) in self.cur.fetchone()[0]:
+            return
+
+        raise Exception(f"not an owner or moderator of forum {forum_id}")
+
     # return display name given a user id
     # full name > alias > 'Anonymous User'
     def get_display_name(self, uid):
@@ -401,7 +423,7 @@ class db:
         uid = self.check_session(session_id)
 
         self.check_forum(fid)
-        # TODO check if authorized to add users to the forum
+        self.check_mod_in_forum(uid, fid)
 
         for uid in uids:
             self.check_uid(uid)
@@ -625,10 +647,21 @@ class db:
             aid = max_aid + 1
 
         try:
+            self.check_mod_in_forum(uid, forum_id)
+            mod = True
+        except:
+            mod = False
+
+        try:
             self.cur.execute('INSERT INTO answers '
                              '(fid, pid, aid, uid, date, answer, score) '
                              'VALUES (%s, %s, %s, %s, %s, %s, %s)',
                              (forum_id, post_id, aid, uid, date, answer, 0))
+            if mod:
+                self.cur.execute('UPDATE posts '
+                                 'SET instructor_answered = true, instructor_aid = %s '
+                                 'WHERE fid = %s AND pid = %s',
+                                 (aid, forum_id, post_id))
         finally:
             self.conn.commit()
 
@@ -667,20 +700,34 @@ class db:
         instructor_answered = records[0]
         instructor_aid = records[1]
 
+        instructor_answer = None
+        if instructor_answered:
+            self.cur.execute('SELECT aid, uid, date, answer, score '
+                             'FROM answers '
+                             'WHERE fid = %s AND pid = %s AND aid = %s',
+                             (forum_id, post_id, instructor_aid))
+            record = self.cur.fetchone()
+            instructor_answer = {"answer_id" : record[0],
+                                 "user"      : {"uid" : record[1],
+                                                "name": self.get_display_name(record[1])},
+                                 "date"      : record[2],
+                                 "answer"    : record[3],
+                                 "score"     : record[4],
+                                 }
+
         query = sql.SQL('SELECT aid, uid, date, answer, score '
                          'FROM answers '
-                         'WHERE fid = %s AND pid = %s AND answer ~* %s '
+                         'WHERE fid = %s AND pid = %s AND aid != %s AND answer ~* %s '
                          'ORDER BY score {asc} '
                          'LIMIT %s OFFSET %s').format(
                                  asc=sql.SQL(ascending),
                                  )
         try:
-            self.cur.execute(query, (forum_id, post_id, search, count, offset))
+            self.cur.execute(query, (forum_id, post_id, instructor_aid, search, count, offset))
         finally:
             self.conn.commit()
 
         answer_infos = list()
-        instructor_answer = None
         records = self.cur.fetchall()
         for record in records:
             answer = {"answer_id"     : record[0],
@@ -690,14 +737,11 @@ class db:
                       "answer"        : record[3],
                       "score"         : record[4],
                      }
-            if instructor_answered and instructor_aid == record[0]:
-                instructor_answer = answer
-            else:
-                answer_infos.append(answer)
+            answer_infos.append(answer)
 
         # check if this is the last page
         try:
-            self.cur.execute(query, (forum_id, post_id, search, 1, offset+count))
+            self.cur.execute(query, (forum_id, post_id, instructor_aid, search, 1, offset+count))
         finally:
             self.conn.commit()
         records = self.cur.fetchall()

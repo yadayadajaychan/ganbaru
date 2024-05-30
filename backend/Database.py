@@ -274,7 +274,7 @@ class db:
         if alias is not None:
             return alias
 
-        return 'Anonymous User'
+        return 'Unknown User'
 
     # return full name given a user id
     # if not found, returns None
@@ -484,6 +484,17 @@ class db:
         uid = self.check_session(session_id)
         self.check_in_forum(uid, forum_id)
 
+        try:
+            self.check_mod_in_forum(uid, forum_id)
+            mod = True
+        except:
+            mod = False
+
+        # moderators can't make anonymous posts
+        if mod:
+            anonymous = False
+            alias = False
+
         if len(title) == 0:
             raise Exception("post can't have empty title")
         if len(full_text) == 0:
@@ -521,6 +532,12 @@ class db:
         uid = self.check_session(session_id)
         self.check_in_forum(uid, forum_id)
 
+        try:
+            self.check_mod_in_forum(uid, forum_id)
+            mod = True
+        except:
+            mod = False
+
         count = int(query.get("count", 50))
         if count < 0:
             raise Exception("count can't be less than 0")
@@ -548,11 +565,11 @@ class db:
         else:
             raise Exception("invalid sortby, must be: post_date, activity, votes")
 
-        #TODO search and tags
+        #TODO filter by tags
         search = query.get("search", '.*')
 
         query = sql.SQL('SELECT pid, uid, title, date, last_activity, '
-                        'views, answers, instructor_answered, tags '
+                        'views, answers, instructor_answered, tags, anonymous, alias '
                          'FROM posts '
                          'WHERE fid = %s AND (title ~* %s OR full_text ~* %s) '
                          'ORDER BY {sortby} {asc} '
@@ -568,9 +585,27 @@ class db:
         post_infos = list()
         records = self.cur.fetchall()
         for record in records:
+            anonymous = record[9]
+            alias = record[10]
+
+            if mod:
+                user_obj = {"uid": record[1],
+                            "name": self.get_display_name(record[1])}
+            elif anonymous:
+                user_obj = {"uid": -2,
+                            "name": 'Anonymous User'}
+            elif alias:
+                alias = self.get_alias(record[1])
+                if alias is None:
+                    alias = 'Unknown User'
+                user_obj = {"uid": -2,
+                            "name": alias}
+            else:
+                user_obj = {"uid": record[1],
+                            "name": self.get_display_name(record[1])}
+
             post = {"post_id"       : record[0],
-                    "user"          : {"uid": record[1],
-                                       "name": self.get_display_name(record[1])},
+                    "user"          : user_obj,
                     "title"         : record[2],
                     "date"          : record[3],
                     "last_activity" : record[4],
@@ -599,9 +634,15 @@ class db:
         self.check_in_forum(uid, forum_id)
         self.check_post(forum_id, post_id)
 
+        try:
+            self.check_mod_in_forum(uid, forum_id)
+            mod = True
+        except:
+            mod = False
+
         self.cur.execute('SELECT uid, title, date, last_activity, views, '
                          'answers, instructor_answered, tags, full_text, '
-                         'instructor_aid, student_aids '
+                         'anonymous, alias '
                          'FROM posts '
                          'WHERE fid = %s AND pid = %s',
                          (forum_id, post_id))
@@ -616,8 +657,26 @@ class db:
         finally:
             self.conn.commit()
 
-        post = {"user"    : {"uid": record[0],
-                             "name": self.get_display_name(record[0])},
+        anonymous = record[9]
+        alias = record[10]
+
+        if mod:
+            user_obj = {"uid": record[0],
+                        "name": self.get_display_name(record[0])}
+        elif anonymous:
+            user_obj = {"uid": -2,
+                        "name": 'Anonymous User'}
+        elif alias:
+            alias = self.get_alias(record[0])
+            if alias is None:
+                alias = 'Unknown User'
+            user_obj = {"uid": -2,
+                        "name": alias}
+        else:
+            user_obj = {"uid": record[0],
+                        "name": self.get_display_name(record[0])}
+
+        post = {"user"    : user_obj,
                 "title"   : record[1],
                 "date"    : record[2],
                 "last_activity": record[3],
@@ -656,6 +715,11 @@ class db:
         except:
             mod = False
 
+        # moderators can't make anonymous answers
+        if mod:
+            anonymous = False
+            alias = False
+
         try:
             self.cur.execute('INSERT INTO answers '
                              '(fid, pid, aid, uid, date, answer, score, anonymous, alias) '
@@ -673,6 +737,12 @@ class db:
         uid = self.check_session(session_id)
         self.check_in_forum(uid, forum_id)
         self.check_post(forum_id, post_id)
+
+        try:
+            self.check_mod_in_forum(uid, forum_id)
+            mod = True
+        except:
+            mod = False
 
         count = int(query.get("count", 50))
         if count < 0:
@@ -719,7 +789,7 @@ class db:
                                  "score"     : record[4],
                                  }
 
-        query = sql.SQL('SELECT aid, uid, date, answer, score '
+        query = sql.SQL('SELECT aid, uid, date, answer, score, anonymous, alias '
                          'FROM answers '
                          'WHERE fid = %s AND pid = %s AND aid != %s AND answer ~* %s '
                          'ORDER BY score {asc} '
@@ -734,9 +804,27 @@ class db:
         answer_infos = list()
         records = self.cur.fetchall()
         for record in records:
+            anonymous = record[5]
+            alias = record[6]
+
+            if mod:
+                user_obj = {"uid": record[1],
+                            "name": self.get_display_name(record[1])}
+            elif anonymous:
+                user_obj = {"uid": -2,
+                            "name": 'Anonymous User'}
+            elif alias:
+                alias = self.get_alias(record[1])
+                if alias is None:
+                    alias = 'Unknown User'
+                user_obj = {"uid": -2,
+                            "name": alias}
+            else:
+                user_obj = {"uid": record[1],
+                            "name": self.get_display_name(record[1])}
+
             answer = {"answer_id"     : record[0],
-                      "user"          : {"uid" : record[1],
-                                         "name": self.get_display_name(record[1])},
+                      "user"          : user_obj,
                       "date"          : record[2],
                       "answer"        : record[3],
                       "score"         : record[4],

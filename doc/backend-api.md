@@ -83,15 +83,22 @@ Get Forums (classes)
 
 - Forum Objects
 
- | field       |  type  |         description          |
- |-------------|--------|------------------------------|
- | forum_id    | int    | forum id                     |
- | owner       | string | owner of the forum           |
- | name        | string | name of the forum            |
- | description | string | description of the forum     |
- | important   | int    | # of unread instructor posts |
- | unread      | int    | # of unread posts            |
- | unanswered  | int    | # of unanswered questions    |
+ | field       |   type   |         description          |
+ |-------------|----------|------------------------------|
+ | forum_id    | int      | forum id                     |
+ | owner       | user_obj | owner of the forum           |
+ | name        | string   | name of the forum            |
+ | description | string   | description of the forum     |
+ | important   | int      | # of unread instructor posts |
+ | unread      | int      | # of unread posts            |
+ | unanswered  | int      | # of unanswered questions    |
+
+- user_obj
+
+ | field |  type  | description  |
+ |-------|--------|--------------|
+ | uid   | int    | user id      |
+ | name  | string | display name |
 
 Get Posts
 =========================
@@ -121,7 +128,7 @@ Get Posts
  |   field             |       type       |      description      |
  |---------------------|------------------|-----------------------|
  | post_id             | int              | post id               |
- | user_id             | int              | user who created post |
+ | user                | user_obj         | user who created post |
  | title               | string           | title of post         |
  | date                | string           | iso8601 timestamp     |
  | last_activity       | string           | iso8601 timestamp     |
@@ -129,6 +136,15 @@ Get Posts
  | answers             | int              | # of answers          |
  | instructor_answered | bool             | instructor answered   |
  | tags                | array of strings | tags                  |
+ | score               | int              | sum of votes by users |
+ | vote                | int              | user's own vote       |
+
+- user_obj
+
+ | field |  type  | description  |
+ |-------|--------|--------------|
+ | uid   | int    | user id      |
+ | name  | string | display name |
 
 Create Post
 =========================
@@ -152,7 +168,7 @@ View Post
 
  |  field              |          type           |       description      |
  |---------------------|-------------------------|------------------------|
- | user_id             | int                     | user who created post  |
+ | user                | user_obj                | user who created post  |
  | title               | string                  | title of post          |
  | date                | string                  | iso8601 timestamp      |
  | last_activity       | string                  | iso8601 timestamp      |
@@ -160,8 +176,17 @@ View Post
  | answers             | int                     | # of answers           |
  | instructor_answered | bool                    | instructor answered    |
  | tags                | array of strings        | tags                   |
+ | score               | int                     | sum of votes by users  |
+ | vote                | int                     | user's own vote        |
  |                     |                         |                        |
  | full_text           | string                  | full text of the post  |
+
+- user_obj
+
+ | field |  type  | description  |
+ |-------|--------|--------------|
+ | uid   | int    | user id      |
+ | name  | string | display name |
 
 Get Answers
 ============
@@ -187,13 +212,21 @@ Get Answers
 
 - Answer Object
 
- |   field   |  type  |       description       |
- |-----------|--------|-------------------------|
- | answer_id | int    | answer id               |
- | user_id   | int    | user who answered       |
- | date      | string | iso8601 timestamp       |
- | answer    | string | full text of the answer |
- | score     | int    | sum of votes by users   |
+ |   field   |   type   |       description       |
+ |-----------|----------|-------------------------|
+ | answer_id | int      | answer id               |
+ | user      | user_obj | user who answered       |
+ | date      | string   | iso8601 timestamp       |
+ | answer    | string   | full text of the answer |
+ | score     | int      | sum of votes by users   |
+ | vote      | int      | user's own vote         |
+
+- user_obj
+
+ | field |  type  | description  |
+ |-------|--------|--------------|
+ | uid   | int    | user id      |
+ | name  | string | display name |
 
 Create Answer
 =============
@@ -205,3 +238,25 @@ Create Answer
  | field  |  type  |      description       |
  |--------|--------|------------------------|
  | answer | string | the text of the answer |
+
+Vote on Post
+============
+- `POST /forums/<forum_id>/<post_id>/vote`
+- vote on a post
+- `session_id` cookie required
+- JSON Parameters
+
+ | field | type |      description       |
+ |-------|------|------------------------|
+ | vote  | int  | valid values: -1, 0, 1 |
+
+Vote on Answer
+==============
+- `POST /forums/<forum_id>/<post_id>/<answer_id>/vote`
+- vote on an answer
+- `session_id` cookie required
+- JSON Parameters
+
+ | field | type |      description       |
+ |-------|------|------------------------|
+ | vote  | int  | valid values: -1, 0, 1 |

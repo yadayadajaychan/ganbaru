@@ -233,5 +233,21 @@ def create_answer(forum_id, post_id):
 
     return "", 200
 
+@app.route("/forums/<forum_id>/<post_id>/answers", methods=["GET"])
+def get_answers(forum_id, post_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    query = request.args
+
+    try:
+        answers = db.get_answers(session_id, forum_id, post_id, query)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify(answers), 200
+
 if __name__ == "__main__":
     app.run(debug=True)

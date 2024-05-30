@@ -96,7 +96,9 @@ class db:
                              'tags text[],'
                              'full_text text NOT NULL,'
                              'instructor_aid integer,'
-                             'student_aids integer[]);')
+                             'score     integer NOT NULL,'
+                             'anonymous bool NOT NULL,'
+                             'alias     bool NOT NULL);')
         finally:
             self.conn.commit()
 
@@ -109,7 +111,9 @@ class db:
                              'uid    integer NOT NULL,'
                              'date   timestamp (0) with time zone NOT NULL,'
                              'answer text NOT NULL,'
-                             'score  integer NOT NULL);')
+                             'score  integer NOT NULL,'
+                             'anonymous bool NOT NULL,'
+                             'alias     bool NOT NULL);')
         finally:
             self.conn.commit()
 
@@ -476,7 +480,7 @@ class db:
 
         return {"forums": output}
 
-    def create_post(self, session_id, forum_id, title, full_text, tags):
+    def create_post(self, session_id, forum_id, title, full_text, tags, anonymous=False, alias=False):
         uid = self.check_session(session_id)
         self.check_in_forum(uid, forum_id)
 
@@ -506,10 +510,10 @@ class db:
         try:
             self.cur.execute('INSERT INTO posts '
                              '(fid, pid, uid, title, date, last_activity, views, answers, '
-                             'instructor_answered, tags, full_text) '
-                             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);',
+                             'instructor_answered, tags, full_text, score, anonymous, alias) '
+                             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);',
                              (forum_id, pid, uid, title, date, last_activity, views, answers,
-                              instructor_answered, tags, full_text))
+                              instructor_answered, tags, full_text, 0, anonymous, alias))
         finally:
             self.conn.commit()
 
@@ -626,7 +630,7 @@ class db:
 
         return post
 
-    def create_answer(self, session_id, forum_id, post_id, answer):
+    def create_answer(self, session_id, forum_id, post_id, answer, anonymous=False, alias=False):
         uid = self.check_session(session_id)
         self.check_in_forum(uid, forum_id)
         self.check_post(forum_id, post_id)
@@ -654,9 +658,9 @@ class db:
 
         try:
             self.cur.execute('INSERT INTO answers '
-                             '(fid, pid, aid, uid, date, answer, score) '
-                             'VALUES (%s, %s, %s, %s, %s, %s, %s)',
-                             (forum_id, post_id, aid, uid, date, answer, 0))
+                             '(fid, pid, aid, uid, date, answer, score, anonymous, alias) '
+                             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                             (forum_id, post_id, aid, uid, date, answer, 0, anonymous, alias))
             if mod:
                 self.cur.execute('UPDATE posts '
                                  'SET instructor_answered = true, instructor_aid = %s '

@@ -153,11 +153,13 @@ Create Post
 - `session_id` cookie required
 - JSON Parameters
 
- |   field   |       type       |      description      | optional |
- |-----------|------------------|-----------------------|----------|
- | title     | string           | title of the post     | n        |
- | full_text | string           | full text of the post | n        |
- | tags      | array of strings | tags                  | y        |
+ |   field   |       type       |      description      | optional | default |
+ |-----------|------------------|-----------------------|----------|---------|
+ | title     | string           | title of the post     | n        |         |
+ | full_text | string           | full text of the post | n        |         |
+ | tags      | array of strings | tags                  | y        | []      |
+ | anonymous | bool             | if post is anonymous  | y        | false   |
+ | alias     | bool             | if post uses alias    | y        | false   |
 
 View Post
 =========================
@@ -235,9 +237,11 @@ Create Answer
 - `session_id` cookie required
 - JSON Parameters
 
- | field  |  type  |      description       |
- |--------|--------|------------------------|
- | answer | string | the text of the answer |
+ |   field   |  type  |      description       | optional | default |
+ |-----------|--------|------------------------|----------|---------|
+ | answer    | string | the text of the answer | n        |         |
+ | anonymous | bool   | if post is anonymous   | y        | false   |
+ | alias     | bool   | if post uses alias     | y        | false   |
 
 Vote on Post
 ============

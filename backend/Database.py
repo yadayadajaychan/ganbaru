@@ -468,8 +468,17 @@ class db:
         post_infos = list()
         records = self.cur.fetchall()
         for record in records:
+            self.cur.execute('SELECT full_name '
+                         'FROM users '
+                         'WHERE uid = %s', (record[1],))
+
+            user = {
+                    "id"     : record[1],
+                    "name"   : self.cur.fetchone()[0],
+                    }
+            
             post = {"post_id"       : record[0],
-                    "user_id"       : record[1],
+                    "user"          : user,
                     "title"         : record[2],
                     "date"          : record[3],
                     "last_activity" : record[4],
@@ -515,7 +524,15 @@ class db:
         finally:
             self.conn.commit()
 
-        post = {"user_id" : record[0],
+        self.cur.execute('SELECT full_name '
+                         'FROM users '
+                         'WHERE uid = %s', (record[1],))
+        
+        user = { "id" : record[0],
+                "name" : self.cur.fetchone()[0],
+        }
+
+        post = {"user"    : user,
                 "title"   : record[1],
                 "date"    : record[2],
                 "last_activity": record[3],
@@ -609,8 +626,15 @@ class db:
         instructor_answer = list()
         records = self.cur.fetchall()
         for record in records:
+            self.cur.execute('SELECT full_name '
+                         'FROM users '
+                         'WHERE uid = %s', (record[1],))
+        
+            user = { "id" : record[0],
+                    "name" : self.cur.fetchone()[0],
+            }
             answer = {"answer_id"       : record[0],
-                    "user_id"       : record[1],
+                    "user"       : user,
                     "date"          : record[2],
                     "answer"        : record[3],
                     "score"         : record[4],

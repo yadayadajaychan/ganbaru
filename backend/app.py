@@ -172,10 +172,8 @@ def create_post(forum_id):
 
     tags = data.get("tags")
 
-    alias = data.get("alias")
-
     try:
-        db.create_post(session_id, forum_id, title, full_text, tags, alias)
+        db.create_post(session_id, forum_id, title, full_text, tags)
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
@@ -229,7 +227,7 @@ def create_answer(forum_id, post_id):
         return jsonify({"error": "missing answer field"}), 400
 
     try:
-        db.create_answer(session_id, forum_id, post_id, data["answer"], data["alias"])
+        db.create_answer(session_id, forum_id, post_id, data["answer"])
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 

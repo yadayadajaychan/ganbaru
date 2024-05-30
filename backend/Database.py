@@ -87,7 +87,6 @@ class db:
                              'fid     integer NOT NULL,'
                              'pid     integer NOT NULL,'
                              'uid     integer NOT NULL,'
-                             'display_name  text NOT NULL,'
                              'title   text NOT NULL,'
                              'date    timestamp (0) with time zone NOT NULL,'
                              'last_activity timestamp(0) with time zone NOT NULL,'
@@ -108,7 +107,6 @@ class db:
                              'pid    integer NOT NULL,'
                              'aid    integer NOT NULL,'
                              'uid    integer NOT NULL,'
-                             'display_name  text NOT NULL,'
                              'date   timestamp (0) with time zone NOT NULL,'
                              'answer text NOT NULL,'
                              'score  integer NOT NULL);')
@@ -262,28 +260,16 @@ class db:
     # return display name given a user id
     # full name > alias > 'Anonymous User'
     def get_display_name(self, uid):
-         # try getting full name
-         full_name = self.get_full_name(uid)
-         if full_name is not None:
-             return full_name
+        # try getting full name
+        full_name = self.get_full_name(uid)
+        if full_name is not None:
+            return full_name
 
-         # try getting alias
-         alias = self.get_alias(uid)
-         if alias is not None:
-             return alias
+        # try getting alias
+        alias = self.get_alias(uid)
+        if alias is not None:
+            return alias
 
-         return 'Anonymous User'
-
-    def get_display_name(self, uid, alias):
-        if alias == None:
-            return self.get_full_name(uid) 
-        # the reason I did this is because it will always have a full name I think
-        if alias == False: 
-            # try getting alias/pseudonym
-            pseudo = self.get_alias(uid)
-            if pseudo is not None:
-                return pseudo
-        # if pseudo doesn't exist or if alias is True, return Anonymous User
         return 'Anonymous User'
 
     # return full name given a user id
@@ -490,7 +476,7 @@ class db:
 
         return {"forums": output}
 
-    def create_post(self, session_id, forum_id, title, full_text, tags, alias):
+    def create_post(self, session_id, forum_id, title, full_text, tags):
         uid = self.check_session(session_id)
         self.check_in_forum(uid, forum_id)
 
@@ -510,21 +496,20 @@ class db:
         else:
             pid = max_pid + 1
 
-        display_name = self.get_display_name(uid, alias)
-
         date = datetime.utcfromtimestamp(time.time()).isoformat()
         last_activity = date
 
         views = 0
         answers = 0
         instructor_answered = False
+
         try:
             self.cur.execute('INSERT INTO posts '
-                             '(fid, pid, uid, display_name, title, date, last_activity, '
-                             'views, answers, instructor_answered, tags, full_text, ) '
-                             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);',
-                             (forum_id, pid, uid, display_name, title, date, last_activity, 
-                              views, answers, instructor_answered, tags, full_text, ))
+                             '(fid, pid, uid, title, date, last_activity, views, answers, '
+                             'instructor_answered, tags, full_text) '
+                             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);',
+                             (forum_id, pid, uid, title, date, last_activity, views, answers,
+                              instructor_answered, tags, full_text))
         finally:
             self.conn.commit()
 
@@ -562,7 +547,7 @@ class db:
         #TODO search and tags
         search = query.get("search", '.*')
 
-        query = sql.SQL('SELECT pid, uid, display_name, title, date, last_activity, '
+        query = sql.SQL('SELECT pid, uid, title, date, last_activity, '
                         'views, answers, instructor_answered, tags '
                          'FROM posts '
                          'WHERE fid = %s AND (title ~* %s OR full_text ~* %s) '
@@ -582,17 +567,22 @@ class db:
             self.cur.execute('SELECT full_name '
                          'FROM users '
                          'WHERE uid = %s', (record[1],))
+
+            user = {
+                    "id"     : record[1],
+                    "name"   : self.cur.fetchone()[0],
+                    }
             
             post = {"post_id"       : record[0],
                     "user"          : {"uid": record[1],
-                                       "name": record[2], },
-                    "title"         : record[3],
-                    "date"          : record[4],
-                    "last_activity" : record[5],
-                    "views"         : record[6],
-                    "answers"       : record[7],
-                    "instructor_answered": record[8],
-                    "tags"          : record[9],
+                                       "name": self.get_display_name(record[1])},
+                    "title"         : record[2],
+                    "date"          : record[3],
+                    "last_activity" : record[4],
+                    "views"         : record[5],
+                    "answers"       : record[6],
+                    "instructor_answered": record[7],
+                    "tags"          : record[8],
                     }
             post_infos.append(post)
 
@@ -614,7 +604,7 @@ class db:
         self.check_in_forum(uid, forum_id)
         self.check_post(forum_id, post_id)
 
-        self.cur.execute('SELECT uid, display_name, title, date, last_activity, views, '
+        self.cur.execute('SELECT uid, title, date, last_activity, views, '
                          'answers, instructor_answered, tags, full_text, '
                          'instructor_aid, student_aids '
                          'FROM posts '
@@ -632,20 +622,20 @@ class db:
             self.conn.commit()
 
         post = {"user"    : {"uid": record[0],
-                             "name": record[1], },
-                "title"   : record[2],
-                "date"    : record[3],
-                "last_activity": record[4],
-                "views"   : record[5],
-                "answers" : record[6],
-                "instructor_answered": record[7],
-                "tags"    : record[8],
-                "full_text": record[9],
+                             "name": self.get_display_name(record[0])},
+                "title"   : record[1],
+                "date"    : record[2],
+                "last_activity": record[3],
+                "views"   : record[4],
+                "answers" : record[5],
+                "instructor_answered": record[6],
+                "tags"    : record[7],
+                "full_text": record[8],
                 }
 
         return post
 
-    def create_answer(self, session_id, forum_id, post_id, answer, alias):
+    def create_answer(self, session_id, forum_id, post_id, answer):
         uid = self.check_session(session_id)
         self.check_in_forum(uid, forum_id)
         self.check_post(forum_id, post_id)
@@ -673,9 +663,9 @@ class db:
 
         try:
             self.cur.execute('INSERT INTO answers '
-                             '(fid, pid, aid, uid, display_name, date, answer, score) '
-                             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                             (forum_id, post_id, aid, uid, self.get_display_name(uid, alias), date, answer, 0))
+                             '(fid, pid, aid, uid, date, answer, score) '
+                             'VALUES (%s, %s, %s, %s, %s, %s, %s)',
+                             (forum_id, post_id, aid, uid, date, answer, 0))
             if mod:
                 self.cur.execute('UPDATE posts '
                                  'SET instructor_answered = true, instructor_aid = %s '
@@ -721,20 +711,20 @@ class db:
 
         instructor_answer = None
         if instructor_answered:
-            self.cur.execute('SELECT aid, uid, display_name, date, answer, score '
+            self.cur.execute('SELECT aid, uid, date, answer, score '
                              'FROM answers '
                              'WHERE fid = %s AND pid = %s AND aid = %s',
                              (forum_id, post_id, instructor_aid))
             record = self.cur.fetchone()
             instructor_answer = {"answer_id" : record[0],
                                  "user"      : {"uid" : record[1],
-                                                "name": record[2], },
-                                 "date"      : record[3],
-                                 "answer"    : record[4],
-                                 "score"     : record[5],
+                                                "name": self.get_display_name(record[1])},
+                                 "date"      : record[2],
+                                 "answer"    : record[3],
+                                 "score"     : record[4],
                                  }
 
-        query = sql.SQL('SELECT aid, uid, display_name, date, answer, score '
+        query = sql.SQL('SELECT aid, uid, date, answer, score '
                          'FROM answers '
                          'WHERE fid = %s AND pid = %s AND aid != %s AND answer ~* %s '
                          'ORDER BY score {asc} '
@@ -751,10 +741,10 @@ class db:
         for record in records:
             answer = {"answer_id"     : record[0],
                       "user"          : {"uid" : record[1],
-                                         "name": record[2], },
-                      "date"          : record[3],
-                      "answer"        : record[4],
-                      "score"         : record[5],
+                                         "name": self.get_display_name(record[1])},
+                      "date"          : record[2],
+                      "answer"        : record[3],
+                      "score"         : record[4],
                      }
             answer_infos.append(answer)
 

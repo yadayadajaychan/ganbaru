@@ -16,7 +16,7 @@ export default function NavBar() {
       top='0'
       left='0'
       right='0'
-      className='w-full transition-all border-b border-[#2b2b2b] bg-[var(--gray-1)] z-40'
+      className='w-full transition-all border-b border-[var(--gray-5)] bg-[var(--gray-1)] z-40'
     >
       <Flex
         justify='between'

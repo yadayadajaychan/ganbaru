@@ -18,7 +18,7 @@ export default function Comment({ comment }: { comment: Comment }) {
       <Flex
         direction='row'
         gap='2'
-        className='border-l-2 border-[#2b2b2b] pl-4'
+        className='border-l-2 border-[var(--gray-5)] pl-4'
       >
         <MarkdownToJsx markdown={comment.content} />
       </Flex>

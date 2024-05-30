@@ -430,14 +430,15 @@ class db:
         output = list()
         for fid in forum_ids:
             # get forum info from db
-            self.cur.execute('SELECT * '
+            self.cur.execute('SELECT fid, owner, name, description '
                              'FROM forums '
                              'WHERE fid = %s', (fid,))
             record = self.cur.fetchone()
 
             forum = dict()
             forum['forum_id']    = record[0]
-            forum['owner']       = record[1]
+            forum['owner']       = {"uid": record[1],
+                                    "name": self.get_display_name(record[1])}
             forum['name']        = record[2]
             forum['description'] = record[3]
 

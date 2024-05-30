@@ -77,54 +77,54 @@ export default function CommentCreate({
       <Flex direction='column' gap='4' className='w-full'>
         <Flex direction='row' gap='4' className='w-full'>
           <Box className='w-full'>
-            <Card className='w-full'>
-              <Flex direction='column' gap='2' className='w-full'>
-                <Box>
-                  <Flex gap='4'>
-                    <Flex gap='1'>
-                      <IconButton
-                        variant='soft'
-                        onClick={() => insertMarkdown('# ', '', 'heading')}
-                      >
-                        <HeadingIcon />
-                      </IconButton>
-                      <IconButton
-                        variant='soft'
-                        onClick={() => insertMarkdown('*', '*', 'italic')}
-                      >
-                        <FontItalicIcon />
-                      </IconButton>
+            {/* <Card className='w-full'> */}
+            <Flex direction='column' gap='2' className='w-full'>
+              <Box>
+                <Flex gap='4'>
+                  <Flex gap='1'>
+                    <IconButton
+                      variant='soft'
+                      onClick={() => insertMarkdown('# ', '', 'heading')}
+                    >
+                      <HeadingIcon />
+                    </IconButton>
+                    <IconButton
+                      variant='soft'
+                      onClick={() => insertMarkdown('*', '*', 'italic')}
+                    >
+                      <FontItalicIcon />
+                    </IconButton>
 
-                      <IconButton
-                        variant='soft'
-                        onClick={() => insertMarkdown('**', '**', 'bold')}
-                      >
-                        <FontBoldIcon />
-                      </IconButton>
-                    </Flex>
-
-                    <Flex gap='1'>
-                      <IconButton
-                        variant='soft'
-                        onClick={() => insertMarkdown('`', '`', 'code')}
-                      >
-                        <CodeIcon />
-                      </IconButton>
-                    </Flex>
+                    <IconButton
+                      variant='soft'
+                      onClick={() => insertMarkdown('**', '**', 'bold')}
+                    >
+                      <FontBoldIcon />
+                    </IconButton>
                   </Flex>
-                </Box>
-                <TextArea
-                  id='comment-textarea'
-                  spellCheck={false}
-                  variant='classic'
-                  resize='vertical'
-                  rows={10}
-                  placeholder='Start typing here...'
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                />
-              </Flex>
-            </Card>
+
+                  <Flex gap='1'>
+                    <IconButton
+                      variant='soft'
+                      onClick={() => insertMarkdown('`', '`', 'code')}
+                    >
+                      <CodeIcon />
+                    </IconButton>
+                  </Flex>
+                </Flex>
+              </Box>
+              <TextArea
+                id='comment-textarea'
+                spellCheck={false}
+                variant='classic'
+                resize='vertical'
+                rows={10}
+                placeholder='Start typing here...'
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+              />
+            </Flex>
+            {/* </Card> */}
           </Box>
         </Flex>
         <Flex className='w-full' gap='4' justify='end'>

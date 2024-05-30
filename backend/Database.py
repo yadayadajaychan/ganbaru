@@ -714,6 +714,10 @@ class db:
                              '(fid, pid, aid, uid, date, answer, score, anonymous, alias) '
                              'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
                              (forum_id, post_id, aid, uid, date, answer, 0, anonymous, alias))
+            self.cur.execute('UPDATE posts '
+                             'SET answers = answers + 1, last_activity = %s '
+                             'WHERE fid = %s AND pid = %s',
+                             (date, forum_id, post_id))
             if mod:
                 self.cur.execute('UPDATE posts '
                                  'SET instructor_answered = true, instructor_aid = %s '

@@ -25,6 +25,7 @@ class db:
         self.__create_admin("admin", "12345678")
         self.__create_forums_table()
         self.__create_posts_table()
+        self.__create_answers_table()
 
     def close(self):
         self.cur.close()
@@ -46,14 +47,25 @@ class db:
         self.cur.execute('SELECT uid FROM auth WHERE uid=0')
         if self.cur.fetchone() is None:
             self.create_user(username, password)
+            try:
+                self.cur.execute("UPDATE users SET alias = 'admin' WHERE uid = 0")
+            finally:
+                self.conn.commit()
+
+        self.cur.execute('SELECT uid FROM users WHERE uid=-1')
+        if self.cur.fetchone() is None:
+            try:
+                self.cur.execute('INSERT INTO users (uid, full_name) '
+                                 'VALUES (%s, %s)', (-1, "Deleted User"))
+            finally:
+                self.conn.commit()
 
     def __create_users_table(self):
         try:
             self.cur.execute('CREATE TABLE IF NOT EXISTS users ('
                              'uid        integer NOT NULL UNIQUE,'
                              'forums     integer[],'
-                             'first_name text,'
-                             'last_name  text,'
+                             'full_name  text,'
                              'alias      text);')
         finally:
             self.conn.commit()
@@ -64,7 +76,8 @@ class db:
                              'fid         integer NOT NULL UNIQUE,'
                              'owner       integer NOT NULL,'
                              'name        text NOT NULL,'
-                             'description text);')
+                             'description text,'
+                             'moderators  integer[]);')
         finally:
             self.conn.commit()
 
@@ -84,6 +97,19 @@ class db:
                              'full_text text NOT NULL,'
                              'instructor_aid integer,'
                              'student_aids integer[]);')
+        finally:
+            self.conn.commit()
+
+    def __create_answers_table(self):
+        try:
+            self.cur.execute('CREATE TABLE IF NOT EXISTS answers ('
+                             'fid    integer NOT NULL,'
+                             'pid    integer NOT NULL,'
+                             'aid    integer NOT NULL,'
+                             'uid    integer NOT NULL,'
+                             'date   timestamp (0) with time zone NOT NULL,'
+                             'answer text NOT NULL,'
+                             'score  integer NOT NULL);')
         finally:
             self.conn.commit()
 
@@ -183,6 +209,114 @@ class db:
 
         return
 
+    # checks if post exists
+    # raises exception if not found
+    def check_post(self, forum_id, post_id):
+        self.cur.execute('SELECT pid '
+                         'FROM posts '
+                         'WHERE fid = %s AND pid = %s',
+                         (forum_id, post_id))
+        if self.cur.fetchone() is None:
+            raise Exception(f"post {post_id} does not exist")
+
+        return
+
+    # check if user is in forum
+    # raises exception if not
+    def check_in_forum(self, uid, forum_id):
+        if uid == 0:
+            return
+
+        self.cur.execute('SELECT forums '
+                         'FROM users '
+                         'WHERE uid = %s', (uid,))
+        if int(forum_id) not in self.cur.fetchone()[0]:
+            raise Exception(f"user is not in forum {forum_id}")
+
+        return
+
+    # check if user is owner or moderator of a forum
+    # raises exception if no
+    def check_mod_in_forum(self, uid, forum_id):
+        if uid == 0:
+            return
+
+        # check if user is owner
+        self.cur.execute('SELECT owner '
+                         'FROM forums '
+                         'WHERE fid = %s', (forum_id,))
+        if int(uid) == self.cur.fetchone()[0]:
+            return
+
+        # check if user is a moderator
+        self.cur.execute('SELECT moderators '
+                         'FROM forums '
+                         'WHERE fid = %s', (forum_id,))
+        if int(uid) in self.cur.fetchone()[0]:
+            return
+
+        raise Exception(f"not an owner or moderator of forum {forum_id}")
+
+    # return display name given a user id
+    # full name > alias > 'Anonymous User'
+    def get_display_name(self, uid):
+        # try getting full name
+        full_name = self.get_full_name(uid)
+        if full_name is not None:
+            return full_name
+
+        # try getting alias
+        alias = self.get_alias(uid)
+        if alias is not None:
+            return alias
+
+        return 'Anonymous User'
+
+    # return full name given a user id
+    # if not found, returns None
+    def get_full_name(self, uid):
+        self.cur.execute('SELECT full_name '
+                         'FROM users '
+                         'WHERE uid = %s', (uid,))
+        return self.cur.fetchone()[0]
+
+    def set_full_name(self, session_id, full_name):
+        uid = self.check_session(session_id)
+
+        if len(full_name) == 0:
+            full_name = None
+
+        try:
+            self.cur.execute('UPDATE users '
+                             'SET full_name = %s '
+                             'WHERE uid = %s', (full_name, uid))
+        finally:
+            self.conn.commit()
+
+        return
+
+    # returns None if not found
+    def get_alias(self, uid):
+        self.cur.execute('SELECT alias '
+                         'FROM users '
+                         'WHERE uid = %s', (uid,))
+        return self.cur.fetchone()[0]
+
+    def set_alias(self, session_id, alias):
+        uid = self.check_session(session_id)
+
+        if len(alias) == 0:
+            alias = None
+
+        try:
+            self.cur.execute('UPDATE users '
+                             'SET alias = %s '
+                             'WHERE uid = %s', (alias, uid))
+        finally:
+            self.conn.commit()
+
+        return
+
     def delete_user(self, username, password):
         username = username.lower()
 
@@ -197,19 +331,29 @@ class db:
 
         self.check_password(username, password)
 
-        #change owner of forums to admin
-        self.cur.execute('SELECT fid '
-                         'FROM forums '
-                         'WHERE owner = %s', (uid,))
-        for record in self.cur.fetchall():
-            fid = record[0]
-            try:
-                self.cur.execute('UPDATE forums '
-                                 'SET owner = 0 '
-                                 'WHERE fid = %s', (fid,))
-                self.__add_to_forum(0, fid)
-            finally:
-                self.conn.commit()
+        # change owner of forums to 'Deleted User'
+        try:
+            self.cur.execute('UPDATE forums '
+                             'SET owner = -1 '
+                             'WHERE owner = %s', (uid,))
+        finally:
+            self.conn.commit()
+
+        # change owner of posts to 'Deleted User'
+        try:
+            self.cur.execute('UPDATE posts '
+                             'SET uid = -1 '
+                             'WHERE uid = %s', (uid,))
+        finally:
+            self.conn.commit()
+
+        # change owner of answers to 'Deleted User'
+        try:
+            self.cur.execute('UPDATE answers '
+                             'SET uid = -1 '
+                             'WHERE uid = %s', (uid,))
+        finally:
+            self.conn.commit()
 
         try:
             self.cur.execute('DELETE FROM auth WHERE uid=%s', (uid,))
@@ -279,7 +423,7 @@ class db:
         uid = self.check_session(session_id)
 
         self.check_forum(fid)
-        # TODO check if authorized to add users to the forum
+        self.check_mod_in_forum(uid, fid)
 
         for uid in uids:
             self.check_uid(uid)
@@ -316,14 +460,15 @@ class db:
         output = list()
         for fid in forum_ids:
             # get forum info from db
-            self.cur.execute('SELECT * '
+            self.cur.execute('SELECT fid, owner, name, description '
                              'FROM forums '
                              'WHERE fid = %s', (fid,))
             record = self.cur.fetchone()
 
             forum = dict()
             forum['forum_id']    = record[0]
-            forum['owner']       = record[1]
+            forum['owner']       = {"uid": record[1],
+                                    "name": self.get_display_name(record[1])}
             forum['name']        = record[2]
             forum['description'] = record[3]
 
@@ -333,8 +478,7 @@ class db:
 
     def create_post(self, session_id, forum_id, title, full_text, tags):
         uid = self.check_session(session_id)
-        self.check_forum(forum_id)
-        # TODO check if part of forum
+        self.check_in_forum(uid, forum_id)
 
         if len(title) == 0:
             raise Exception("post can't have empty title")
@@ -371,8 +515,7 @@ class db:
 
     def get_posts(self, session_id, forum_id, query):
         uid = self.check_session(session_id)
-        self.check_forum(forum_id)
-        # TODO check if part of forum
+        self.check_in_forum(uid, forum_id)
 
         count = int(query.get("count", 50))
         if count < 0:
@@ -407,7 +550,7 @@ class db:
         query = sql.SQL('SELECT pid, uid, title, date, last_activity, '
                         'views, answers, instructor_answered, tags '
                          'FROM posts '
-                         'WHERE fid = %s AND (title ~ %s OR full_text ~ %s) '
+                         'WHERE fid = %s AND (title ~* %s OR full_text ~* %s) '
                          'ORDER BY {sortby} {asc} '
                          'LIMIT %s OFFSET %s').format(
                                  sortby=sql.SQL(sortby),
@@ -421,8 +564,18 @@ class db:
         post_infos = list()
         records = self.cur.fetchall()
         for record in records:
+            self.cur.execute('SELECT full_name '
+                         'FROM users '
+                         'WHERE uid = %s', (record[1],))
+
+            user = {
+                    "id"     : record[1],
+                    "name"   : self.cur.fetchone()[0],
+                    }
+            
             post = {"post_id"       : record[0],
-                    "user_id"       : record[1],
+                    "user"          : {"uid": record[1],
+                                       "name": self.get_display_name(record[1])},
                     "title"         : record[2],
                     "date"          : record[3],
                     "last_activity" : record[4],
@@ -445,3 +598,167 @@ class db:
             nextPage = page+1
 
         return {"post_infos": post_infos, "nextPage": nextPage}
+
+    def view_post(self, session_id, forum_id, post_id):
+        uid = self.check_session(session_id)
+        self.check_in_forum(uid, forum_id)
+        self.check_post(forum_id, post_id)
+
+        self.cur.execute('SELECT uid, title, date, last_activity, views, '
+                         'answers, instructor_answered, tags, full_text, '
+                         'instructor_aid, student_aids '
+                         'FROM posts '
+                         'WHERE fid = %s AND pid = %s',
+                         (forum_id, post_id))
+        record = self.cur.fetchone()
+
+        # increment number of views
+        try:
+            self.cur.execute('UPDATE posts '
+                             'SET views = views + 1 '
+                             'WHERE fid = %s AND pid = %s',
+                             (forum_id, post_id))
+        finally:
+            self.conn.commit()
+
+        post = {"user"    : {"uid": record[0],
+                             "name": self.get_display_name(record[0])},
+                "title"   : record[1],
+                "date"    : record[2],
+                "last_activity": record[3],
+                "views"   : record[4],
+                "answers" : record[5],
+                "instructor_answered": record[6],
+                "tags"    : record[7],
+                "full_text": record[8],
+                }
+
+        return post
+
+    def create_answer(self, session_id, forum_id, post_id, answer):
+        uid = self.check_session(session_id)
+        self.check_in_forum(uid, forum_id)
+        self.check_post(forum_id, post_id)
+
+        if len(answer) == 0:
+            raise Exception("answer can not be empty")
+
+        date = datetime.utcfromtimestamp(time.time()).isoformat()
+
+        self.cur.execute('SELECT MAX(aid) '
+                         'FROM answers '
+                         'WHERE fid = %s AND pid = %s',
+                         (forum_id, post_id))
+        max_aid = self.cur.fetchone()[0]
+        if max_aid is None:
+            aid = 0
+        else:
+            aid = max_aid + 1
+
+        try:
+            self.check_mod_in_forum(uid, forum_id)
+            mod = True
+        except:
+            mod = False
+
+        try:
+            self.cur.execute('INSERT INTO answers '
+                             '(fid, pid, aid, uid, date, answer, score) '
+                             'VALUES (%s, %s, %s, %s, %s, %s, %s)',
+                             (forum_id, post_id, aid, uid, date, answer, 0))
+            if mod:
+                self.cur.execute('UPDATE posts '
+                                 'SET instructor_answered = true, instructor_aid = %s '
+                                 'WHERE fid = %s AND pid = %s',
+                                 (aid, forum_id, post_id))
+        finally:
+            self.conn.commit()
+
+    def get_answers(self, session_id, forum_id, post_id, query):
+        uid = self.check_session(session_id)
+        self.check_in_forum(uid, forum_id)
+        self.check_post(forum_id, post_id)
+
+        count = int(query.get("count", 50))
+        if count < 0:
+            raise Exception("count can't be less than 0")
+
+        page = int(query.get("page", 1))
+        offset = (page - 1) * count
+        if offset < 0:
+            raise Exception("page can't be less than 0")
+
+        ascending = query.get("ascending", 'false').lower()
+        if ascending == 'true':
+            ascending = 'ASC'
+        elif ascending == 'false':
+            ascending = 'DESC'
+        else:
+            raise Exception("'ascending' must be a boolean")
+        
+        search = query.get("search", '.*')
+
+        query = sql.SQL('SELECT instructor_answered, instructor_aid '
+                        'FROM posts '
+                        'WHERE fid = %s AND pid = %s')
+        try:
+            self.cur.execute(query, (forum_id, post_id))
+        finally:
+            self.conn.commit()
+        records = self.cur.fetchone()
+        instructor_answered = records[0]
+        instructor_aid = records[1]
+
+        instructor_answer = None
+        if instructor_answered:
+            self.cur.execute('SELECT aid, uid, date, answer, score '
+                             'FROM answers '
+                             'WHERE fid = %s AND pid = %s AND aid = %s',
+                             (forum_id, post_id, instructor_aid))
+            record = self.cur.fetchone()
+            instructor_answer = {"answer_id" : record[0],
+                                 "user"      : {"uid" : record[1],
+                                                "name": self.get_display_name(record[1])},
+                                 "date"      : record[2],
+                                 "answer"    : record[3],
+                                 "score"     : record[4],
+                                 }
+
+        query = sql.SQL('SELECT aid, uid, date, answer, score '
+                         'FROM answers '
+                         'WHERE fid = %s AND pid = %s AND aid != %s AND answer ~* %s '
+                         'ORDER BY score {asc} '
+                         'LIMIT %s OFFSET %s').format(
+                                 asc=sql.SQL(ascending),
+                                 )
+        try:
+            self.cur.execute(query, (forum_id, post_id, instructor_aid, search, count, offset))
+        finally:
+            self.conn.commit()
+
+        answer_infos = list()
+        records = self.cur.fetchall()
+        for record in records:
+            answer = {"answer_id"     : record[0],
+                      "user"          : {"uid" : record[1],
+                                         "name": self.get_display_name(record[1])},
+                      "date"          : record[2],
+                      "answer"        : record[3],
+                      "score"         : record[4],
+                     }
+            answer_infos.append(answer)
+
+        # check if this is the last page
+        try:
+            self.cur.execute(query, (forum_id, post_id, instructor_aid, search, 1, offset+count))
+        finally:
+            self.conn.commit()
+        records = self.cur.fetchall()
+        if len(records) == 0:
+            nextPage = None
+        else:
+            nextPage = page+1
+
+        return {"instructor_answer": instructor_answer,
+                "student_answers"  : answer_infos,
+                "nextPage"         : nextPage}

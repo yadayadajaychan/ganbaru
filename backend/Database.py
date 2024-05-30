@@ -11,8 +11,9 @@ class db:
     def __init__(self):
         load_dotenv()
         self.conn = psycopg2.connect(
-                host     = "localhost",
-                database = "ganbaru",
+                host     = os.getenv('DB_HOST'),
+                port     = os.getenv('DB_PORT'),
+                dbname   = os.getenv('DB_NAME'),
                 user     = os.getenv('DB_USERNAME'),
                 password = os.getenv('DB_PASSWORD'))
         self.cur = self.conn.cursor();

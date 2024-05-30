@@ -1,13 +1,23 @@
+// navbar.tsx
 'use client';
 
 import { Box, Flex, Text, HoverCard } from '@radix-ui/themes';
 import Nav from './nav';
 import { CaretDownIcon, PersonIcon } from '@radix-ui/react-icons';
-import { Avatar, AvatarImage, AvatarFallback } from '@radix-ui/react-avatar';
-import * as NavigationMenu from '@radix-ui/react-navigation-menu';
 import NextLink from 'next/link';
+import { useTheme } from 'next-themes';
+import { useEffect, useState } from 'react';
 
 export default function NavBar() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   return (
     <Box
       position='fixed'
@@ -56,7 +66,12 @@ export default function NavBar() {
               <HoverCard.Content>
                 <Flex direction='column'>
                   <Text>Settings</Text>
-                  <Text>Change Lighting</Text>
+                  <Text
+                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    className='hover:cursor-pointer'
+                  >
+                    Change Lighting
+                  </Text>
                 </Flex>
               </HoverCard.Content>
             </HoverCard.Root>

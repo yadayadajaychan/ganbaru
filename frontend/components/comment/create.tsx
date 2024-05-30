@@ -71,9 +71,9 @@ export default function CommentCreate({
 
   return (
     <Flex direction='column' width={`${width}px`}>
-      <Heading as='h3' size='3' mb='4'>
+      {/* <Heading as='h3' size='3' mb='4'>
         Add a Comment
-      </Heading>
+      </Heading> */}
       <Flex direction='column' gap='4' className='w-full'>
         <Flex direction='row' gap='4' className='w-full'>
           <Box className='w-full'>
@@ -118,7 +118,7 @@ export default function CommentCreate({
                   spellCheck={false}
                   variant='classic'
                   resize='vertical'
-                  rows={5}
+                  rows={10}
                   placeholder='Start typing here...'
                   value={text}
                   onChange={(e) => setText(e.target.value)}

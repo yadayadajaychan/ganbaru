@@ -239,19 +239,13 @@ class db:
     # full name > alias > 'Anonymous User'
     def get_display_name(self, uid):
         # try getting full name
-        self.cur.execute('SELECT full_name '
-                         'FROM users '
-                         'WHERE uid = %s', (uid,))
-        full_name = self.cur.fetchone()[0]
-        if full_name is not None and len(full_name) > 0:
+        full_name = self.get_full_name(uid)
+        if full_name is not None:
             return full_name
 
         # try getting alias
-        self.cur.execute('SELECT alias '
-                         'FROM users '
-                         'WHERE uid = %s', (uid,))
-        alias = self.cur.fetchone()[0]
-        if alias is not None and len(alias) > 0:
+        alias = self.get_alias(uid)
+        if alias is not None:
             return alias
 
         return 'Anonymous User'
@@ -268,12 +262,34 @@ class db:
         uid = self.check_session(session_id)
 
         if len(full_name) == 0:
-            raise Exception("full name must not be empty")
+            full_name = None
 
         try:
             self.cur.execute('UPDATE users '
                              'SET full_name = %s '
                              'WHERE uid = %s', (full_name, uid))
+        finally:
+            self.conn.commit()
+
+        return
+
+    # returns None if not found
+    def get_alias(self, uid):
+        self.cur.execute('SELECT alias '
+                         'FROM users '
+                         'WHERE uid = %s', (uid,))
+        return self.cur.fetchone()[0]
+
+    def set_alias(self, session_id, alias):
+        uid = self.check_session(session_id)
+
+        if len(alias) == 0:
+            alias = None
+
+        try:
+            self.cur.execute('UPDATE users '
+                             'SET alias = %s '
+                             'WHERE uid = %s', (alias, uid))
         finally:
             self.conn.commit()
 

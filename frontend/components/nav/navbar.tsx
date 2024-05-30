@@ -6,17 +6,9 @@ import Nav from './nav';
 import { CaretDownIcon, PersonIcon } from '@radix-ui/react-icons';
 import NextLink from 'next/link';
 import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
 
 export default function NavBar() {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
 
   return (
     <Box
@@ -67,7 +59,9 @@ export default function NavBar() {
                 <Flex direction='column'>
                   <Text>Settings</Text>
                   <Text
-                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    onClick={() =>
+                      setTheme(theme === 'dark' ? 'light' : 'dark')
+                    }
                     className='hover:cursor-pointer'
                   >
                     Change Lighting

@@ -5,7 +5,6 @@ import ReactQueryProvider from '@/providers/reactQuery';
 import { Theme } from '@radix-ui/themes';
 import { ThemeProvider } from 'next-themes';
 import NavBar from '@/components/nav/navbar';
-import ThemeSwitcher from '@/components/ThemeSwitcher';
 
 export const metadata: Metadata = {
   title: 'Create Next App',

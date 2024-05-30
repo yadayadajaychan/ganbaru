@@ -16,7 +16,11 @@ export default function Comment({ comment }: { comment: Comment }) {
         <Separator orientation='vertical' size='1' />
         <Text>{new Date(comment.createdAt).toLocaleTimeString()}</Text>
       </Flex>
-      <Flex direction='row' gap='2'>
+      <Flex
+        direction='row'
+        gap='2'
+        className='border-l-2 border-[#2b2b2b] pl-4'
+      >
         <MarkdownToJsx markdown={comment.content} />
       </Flex>
       <Flex gap='3' justify='start' align='center'>

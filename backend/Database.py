@@ -47,6 +47,10 @@ class db:
         self.cur.execute('SELECT uid FROM auth WHERE uid=0')
         if self.cur.fetchone() is None:
             self.create_user(username, password)
+            try:
+                self.cur.execute("UPDATE users SET alias = 'admin' WHERE uid = 0")
+            finally:
+                self.conn.commit()
 
         self.cur.execute('SELECT uid FROM users WHERE uid=-1')
         if self.cur.fetchone() is None:
@@ -72,7 +76,8 @@ class db:
                              'fid         integer NOT NULL UNIQUE,'
                              'owner       integer NOT NULL,'
                              'name        text NOT NULL,'
-                             'description text);')
+                             'description text,'
+                             'moderators  integer[]);')
         finally:
             self.conn.commit()
 
@@ -227,6 +232,50 @@ class db:
                          'WHERE uid = %s', (uid,))
         if int(forum_id) not in self.cur.fetchone()[0]:
             raise Exception(f"user is not in forum {forum_id}")
+
+        return
+
+    # return display name given a user id
+    # full name > alias > 'Anonymous User'
+    def get_display_name(self, uid):
+        # try getting full name
+        self.cur.execute('SELECT full_name '
+                         'FROM users '
+                         'WHERE uid = %s', (uid,))
+        full_name = self.cur.fetchone()[0]
+        if full_name is not None and len(full_name) > 0:
+            return full_name
+
+        # try getting alias
+        self.cur.execute('SELECT alias '
+                         'FROM users '
+                         'WHERE uid = %s', (uid,))
+        alias = self.cur.fetchone()[0]
+        if alias is not None and len(alias) > 0:
+            return alias
+
+        return 'Anonymous User'
+
+    # return full name given a user id
+    # if not found, returns None
+    def get_full_name(self, uid):
+        self.cur.execute('SELECT full_name '
+                         'FROM users '
+                         'WHERE uid = %s', (uid,))
+        return self.cur.fetchone()[0]
+
+    def set_full_name(self, session_id, full_name):
+        uid = self.check_session(session_id)
+
+        if len(full_name) == 0:
+            raise Exception("full name must not be empty")
+
+        try:
+            self.cur.execute('UPDATE users '
+                             'SET full_name = %s '
+                             'WHERE uid = %s', (full_name, uid))
+        finally:
+            self.conn.commit()
 
         return
 

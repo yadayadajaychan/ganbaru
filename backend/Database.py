@@ -535,7 +535,8 @@ class db:
         records = self.cur.fetchall()
         for record in records:
             post = {"post_id"       : record[0],
-                    "user_id"       : record[1],
+                    "user"          : {"uid": record[1],
+                                       "name": self.get_display_name(record[1])},
                     "title"         : record[2],
                     "date"          : record[3],
                     "last_activity" : record[4],
@@ -581,7 +582,8 @@ class db:
         finally:
             self.conn.commit()
 
-        post = {"user_id" : record[0],
+        post = {"user"    : {"uid": record[0],
+                             "name": self.get_display_name(record[0])},
                 "title"   : record[1],
                 "date"    : record[2],
                 "last_activity": record[3],

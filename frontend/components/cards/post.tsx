@@ -9,19 +9,8 @@ import {
 } from '@radix-ui/react-icons';
 
 import './post.css';
-
-interface Post {
-  title: string;
-  description: string;
-  user: string;
-  likes: number;
-  comments: number;
-  datePosted: Date;
-
-  // user related
-  isLiked?: boolean;
-  isDisliked?: boolean;
-}
+import { Post } from '@/types';
+import { MarkdownToJsx } from '../markdown';
 
 export default function PostCard({
   title,
@@ -32,6 +21,7 @@ export default function PostCard({
   datePosted,
   isLiked = false,
   isDisliked = false,
+  preview = false,
 }: Post) {
   const [likeStatus, setLikeStatus] = useState<{
     isLiked: boolean;
@@ -61,90 +51,107 @@ export default function PostCard({
   };
 
   return (
-    <Box width="500px">
-      <Card size="2">
-        <Flex id="left" direction="column" justify="start" gap="2">
-          <Flex id="user" direction="row" justify="between">
-            <Text color="gray" size="2">
+    <Box maxWidth='616px' className={preview ? 'hover:cursor-pointer' : ''}>
+      <Card size='2'>
+        <Flex id='left' direction='column' justify='start' gap='2'>
+          <Flex id='user' direction='row' justify='between'>
+            <Text color='gray' size='2'>
               Posted by: {user}
             </Text>
-            <Text color="gray" size="2">
+            <Text color='gray' size='2'>
               {datePosted.toLocaleTimeString()}
             </Text>
           </Flex>
-          <Flex id="content" direction="column" gap="1">
-            <Text as="label" weight="bold" size="3" truncate>
-              {title}
-            </Text>
-            <Flex height="60px" maxHeight="60px">
+          <Flex id='content' direction='column' gap={preview ? '1' : '3'}>
+            <Flex
+              style={{
+                height: preview ? '30px' : undefined,
+                overflow: 'hidden',
+              }}
+            >
               <Text
-                as="p"
-                size="2"
+                as='label'
+                weight='bold'
+                size={preview ? '3' : '5'}
+                truncate={preview ? true : false}
                 style={{
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
+                  whiteSpace: 'normal', // Allows text wrapping
+                  overflow: 'hidden', // Prevents content from spilling out
+                  textOverflow: 'ellipsis', // Adds ellipsis when text overflows
                 }}
+                className={preview ? 'hover:cursor-pointer' : ''}
               >
-                {description}
+                {title}
               </Text>
             </Flex>
+            <Flex
+              style={{
+                height: preview ? '80px' : undefined,
+                overflow: 'hidden', // Ensures content does not expand the box
+              }}
+            >
+              <MarkdownToJsx markdown={description} />
+            </Flex>
           </Flex>
-          <Separator orientation="horizontal" size="4" />
+          <Separator orientation='horizontal' size='4' />
           <Flex
-            id="controls"
-            direction="row"
-            justify="start"
-            align="center"
-            gap="3"
+            id='controls'
+            direction='row'
+            justify='start'
+            align='center'
+            gap='3'
           >
             <Box
-              id="likes"
+              id='likes'
               style={{
                 background: 'var(--gray-a3)',
                 borderRadius: 'var(--radius-3)',
               }}
-              className="py-1 px-2"
+              className='py-1 px-2'
             >
-              <Flex gap="3" justify="start" align="center">
-                <Flex direction="row" justify="start" align="center" gap="1">
+              <Flex gap='3' justify='start' align='center'>
+                <Flex direction='row' justify='start' align='center' gap='1'>
                   <ThickArrowUpIcon
-                    className={`hover:cursor-pointer icon-hover ${likeStatus.isLiked ? 'liked' : ''
-                      }`}
+                    className={`hover:cursor-pointer icon-hover ${
+                      likeStatus.isLiked ? 'liked' : ''
+                    }`}
                     onClick={handleUpvote}
                   />
-                  <Text as="label" size="2">
+                  <Text as='label' size='2'>
                     {likeCount}
                   </Text>
                 </Flex>
                 <ThickArrowDownIcon
-                  className={`hover:cursor-pointer icon-hover ${likeStatus.isDisliked ? 'disliked' : ''
-                    }`}
+                  className={`hover:cursor-pointer icon-hover ${
+                    likeStatus.isDisliked ? 'disliked' : ''
+                  }`}
                   onClick={handleDownvote}
                 />
               </Flex>
             </Box>
-            <Box
-              id="comments"
-              style={{
-                background: 'var(--gray-a3)',
-                borderRadius: 'var(--radius-3)',
-              }}
-              className="py-1 px-2"
-            >
-              <Flex
-                gap="2"
-                direction="row"
-                justify="start"
-                align="center"
-                className="hover:cursor-pointer"
+            {preview && (
+              <Box
+                id='comments'
+                style={{
+                  background: 'var(--gray-a3)',
+                  borderRadius: 'var(--radius-3)',
+                }}
+                className='py-1 px-2'
               >
-                <ChatBubbleIcon className="hover:cursor-pointer" />
-                <Text as="label" size="2" className="hover:cursor-pointer">
-                  {comments}
-                </Text>
-              </Flex>
-            </Box>
+                <Flex
+                  gap='2'
+                  direction='row'
+                  justify='start'
+                  align='center'
+                  className='hover:cursor-pointer'
+                >
+                  <ChatBubbleIcon className='hover:cursor-pointer' />
+                  <Text as='label' size='2' className='hover:cursor-pointer'>
+                    {comments}
+                  </Text>
+                </Flex>
+              </Box>
+            )}
           </Flex>
         </Flex>
       </Card>

@@ -632,15 +632,15 @@ class db:
         finally:
             self.conn.commit()
 
-    def get_answers(self, session_id, forum_id, post_id, query): 
+    def get_answers(self, session_id, forum_id, post_id, query):
         uid = self.check_session(session_id)
-        self.check_forum(forum_id)
+        self.check_in_forum(uid, forum_id)
         self.check_post(forum_id, post_id)
-        
+
         count = int(query.get("count", 50))
         if count < 0:
             raise Exception("count can't be less than 0")
-        
+
         page = int(query.get("page", 1))
         offset = (page - 1) * count
         if offset < 0:
@@ -654,24 +654,22 @@ class db:
         else:
             raise Exception("'ascending' must be a boolean")
         
-        #TODO search and tags
         search = query.get("search", '.*')
 
         query = sql.SQL('SELECT instructor_answered, instructor_aid '
                         'FROM posts '
-                        'WHERE fid = %s AND pid = %s'
-                       )
+                        'WHERE fid = %s AND pid = %s')
         try:
             self.cur.execute(query, (forum_id, post_id))
         finally:
             self.conn.commit()
-        records = self.cur.fetchall()
-        instructor_answered = records[0][0]
-        instructor_aid = records[0][1]
+        records = self.cur.fetchone()
+        instructor_answered = records[0]
+        instructor_aid = records[1]
 
         query = sql.SQL('SELECT aid, uid, date, answer, score '
                          'FROM answers '
-                         'WHERE fid = %s AND pid = %s AND answer ~ %s '
+                         'WHERE fid = %s AND pid = %s AND answer ~* %s '
                          'ORDER BY score {asc} '
                          'LIMIT %s OFFSET %s').format(
                                  asc=sql.SQL(ascending),
@@ -682,17 +680,18 @@ class db:
             self.conn.commit()
 
         answer_infos = list()
-        instructor_answer = list()
+        instructor_answer = None
         records = self.cur.fetchall()
         for record in records:
-            answer = {"answer_id"       : record[0],
-                    "user_id"       : record[1],
-                    "date"          : record[2],
-                    "answer"        : record[3],
-                    "score"         : record[4],
-                    }
+            answer = {"answer_id"     : record[0],
+                      "user"          : {"uid" : record[1],
+                                         "name": self.get_display_name(record[1])},
+                      "date"          : record[2],
+                      "answer"        : record[3],
+                      "score"         : record[4],
+                     }
             if instructor_answered and instructor_aid == record[0]:
-                instructor_answer.append(answer)
+                instructor_answer = answer
             else:
                 answer_infos.append(answer)
 
@@ -707,7 +706,6 @@ class db:
         else:
             nextPage = page+1
 
-        if len(instructor_answer) == 0:
-            return {"instructor_answer": None, "answer_infos": answer_infos, "nextPage": nextPage}
-        else:
-            return {"instructor_answer": instructor_answer[0], "answer_infos": answer_infos, "nextPage": nextPage}
+        return {"instructor_answer": instructor_answer,
+                "student_answers"  : answer_infos,
+                "nextPage"         : nextPage}

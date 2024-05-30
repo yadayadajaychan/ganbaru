@@ -2,7 +2,7 @@
 
 import CommentCreate from '@/components/comment/create';
 import { ChatBubbleIcon } from '@radix-ui/react-icons';
-import { Button, Popover } from '@radix-ui/themes';
+import { Button, Inset, Popover } from '@radix-ui/themes';
 import { AutoSizer } from 'react-virtualized';
 import { useState } from 'react';
 
@@ -22,16 +22,19 @@ export default function CommentPopover({ postId }: CommentPopoverProps) {
         </Button>
       </Popover.Trigger>
       <Popover.Content size='4'>
-        <AutoSizer disableHeight={true}>
-          {({ width }) => (
-            <CommentCreate
-              text={text}
-              setText={setText}
-              postId={postId}
-              width={width}
-            />
-          )}
-        </AutoSizer>
+        {/* small hack to lower the padding */}
+        <Inset className='p-4'>
+          <AutoSizer disableHeight={true}>
+            {({ width }) => (
+              <CommentCreate
+                text={text}
+                setText={setText}
+                postId={postId}
+                width={width}
+              />
+            )}
+          </AutoSizer>
+        </Inset>
       </Popover.Content>
     </Popover.Root>
   );

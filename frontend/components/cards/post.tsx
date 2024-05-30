@@ -8,7 +8,6 @@ import {
   ChatBubbleIcon,
 } from '@radix-ui/react-icons';
 
-import './post.css';
 import { Post } from '@/types';
 import { MarkdownToJsx } from '../markdown';
 
@@ -93,7 +92,11 @@ export default function PostCard({
               <MarkdownToJsx markdown={description} />
             </Flex>
           </Flex>
-          <Separator orientation='horizontal' size='4' />
+          <Separator
+            orientation='horizontal'
+            mt={preview ? '0' : '2'}
+            size='4'
+          />
           <Flex
             id='controls'
             direction='row'

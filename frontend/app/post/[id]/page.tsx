@@ -12,7 +12,7 @@ import { fetchComments } from '@/api/comment';
 import CommentContainer from '@/components/comment/container';
 import { ChatBubbleIcon } from '@radix-ui/react-icons';
 import { AutoSizer } from 'react-virtualized';
-import CommentPopover from './popover';
+import CommentPopover from '@/components/comment/popover';
 import PostCard from '@/components/cards/post';
 
 export default async function Post({ params }: { params: { id: string } }) {

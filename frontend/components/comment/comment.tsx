@@ -1,7 +1,6 @@
-import { Comment } from '@/types';
+import type { Comment } from '@/types';
 import { Flex, Separator, Text } from '@radix-ui/themes';
 
-import './comment.css';
 import { ThickArrowUpIcon, ThickArrowDownIcon } from '@radix-ui/react-icons';
 import { MarkdownToJsx } from '../markdown';
 
@@ -14,7 +13,7 @@ export default function Comment({ comment }: { comment: Comment }) {
           {comment.user.name}
         </Text>
         <Separator orientation='vertical' size='1' />
-        <Text>{new Date(comment.createdAt).toLocaleTimeString()}</Text>
+        <Text size='1'>{new Date(comment.createdAt).toLocaleTimeString()}</Text>
       </Flex>
       <Flex
         direction='row'

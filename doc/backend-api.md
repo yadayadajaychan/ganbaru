@@ -233,3 +233,47 @@ Create Answer
  | field  |  type  |      description       |
  |--------|--------|------------------------|
  | answer | string | the text of the answer |
+
+Vote on Post
+============
+- `POST /forums/<forum_id>/<post_id>/vote`
+- vote on a post
+- `session_id` cookie required
+- JSON Parameters
+
+ | field |  type  |              description               |
+ |-------|--------|----------------------------------------|
+ | vote  | string | valid values: upvote, downvote, novote |
+
+Get Vote on Post
+================
+- `GET /forums/<forum_id>/<post_id>/getvote`
+- get the user's own vote value
+- `session_id` cookie required
+- JSON Response
+
+ | field |  type  |              description               |
+ |-------|--------|----------------------------------------|
+ | vote  | string | valid values: upvote, downvote, novote |
+
+Vote on Answer
+==============
+- `POST /forums/<forum_id>/<post_id>/<answer_id>/vote`
+- vote on an answer
+- `session_id` cookie required
+- JSON Parameters
+
+ | field |  type  |              description               |
+ |-------|--------|----------------------------------------|
+ | vote  | string | valid values: upvote, downvote, novote |
+
+Get Vote on Answer
+================
+- `GET /forums/<forum_id>/<post_id>/<answer_id>/getvote`
+- get the user's own vote value
+- `session_id` cookie required
+- JSON Response
+
+ | field |  type  |              description               |
+ |-------|--------|----------------------------------------|
+ | vote  | string | valid values: upvote, downvote, novote |

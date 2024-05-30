@@ -136,6 +136,8 @@ Get Posts
  | answers             | int              | # of answers          |
  | instructor_answered | bool             | instructor answered   |
  | tags                | array of strings | tags                  |
+ | score               | int              | sum of votes by users |
+ | vote                | int              | user's own vote       |
 
 - user_obj
 
@@ -174,6 +176,8 @@ View Post
  | answers             | int                     | # of answers           |
  | instructor_answered | bool                    | instructor answered    |
  | tags                | array of strings        | tags                   |
+ | score               | int                     | sum of votes by users  |
+ | vote                | int                     | user's own vote        |
  |                     |                         |                        |
  | full_text           | string                  | full text of the post  |
 
@@ -215,6 +219,7 @@ Get Answers
  | date      | string   | iso8601 timestamp       |
  | answer    | string   | full text of the answer |
  | score     | int      | sum of votes by users   |
+ | vote      | int      | user's own vote         |
 
 - user_obj
 
@@ -241,20 +246,9 @@ Vote on Post
 - `session_id` cookie required
 - JSON Parameters
 
- | field |  type  |              description               |
- |-------|--------|----------------------------------------|
- | vote  | string | valid values: upvote, downvote, novote |
-
-Get Vote on Post
-================
-- `GET /forums/<forum_id>/<post_id>/getvote`
-- get the user's own vote value
-- `session_id` cookie required
-- JSON Response
-
- | field |  type  |              description               |
- |-------|--------|----------------------------------------|
- | vote  | string | valid values: upvote, downvote, novote |
+ | field | type |      description       |
+ |-------|------|------------------------|
+ | vote  | int  | valid values: -1, 0, 1 |
 
 Vote on Answer
 ==============
@@ -263,17 +257,6 @@ Vote on Answer
 - `session_id` cookie required
 - JSON Parameters
 
- | field |  type  |              description               |
- |-------|--------|----------------------------------------|
- | vote  | string | valid values: upvote, downvote, novote |
-
-Get Vote on Answer
-================
-- `GET /forums/<forum_id>/<post_id>/<answer_id>/getvote`
-- get the user's own vote value
-- `session_id` cookie required
-- JSON Response
-
- | field |  type  |              description               |
- |-------|--------|----------------------------------------|
- | vote  | string | valid values: upvote, downvote, novote |
+ | field | type |      description       |
+ |-------|------|------------------------|
+ | vote  | int  | valid values: -1, 0, 1 |

@@ -325,6 +325,14 @@ class db:
         finally:
             self.conn.commit()
 
+        # change owner of answers to 'Deleted User'
+        try:
+            self.cur.execute('UPDATE answers '
+                             'SET uid = -1 '
+                             'WHERE uid = %s', (uid,))
+        finally:
+            self.conn.commit()
+
         try:
             self.cur.execute('DELETE FROM auth WHERE uid=%s', (uid,))
             self.cur.execute('DELETE FROM users WHERE uid=%s', (uid,))

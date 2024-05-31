@@ -264,3 +264,46 @@ Vote on Answer
  | field | type |      description       |
  |-------|------|------------------------|
  | vote  | int  | valid values: -1, 0, 1 |
+
+Get Join Code
+=============
+- `GET /forums/<forum_id>/join_code`
+- get the forum's join code
+- `session_id` cookie required
+- JSON Response
+
+ |   field   |  type  |         description          |
+ |-----------|--------|------------------------------|
+ | join_code | string | value required to join forum |
+
+Refresh Join Code
+=================
+- `POST /forums/<forum_id>/refresh_join_code`
+- invalidates previous join code
+- requires moderator privileges
+- `session_id` cookie required
+
+Get Moderator Join Code
+=======================
+- `GET /forums/<forum_id>/mod_join_code`
+- get the forum's moderator join code
+- requires moderator privileges
+- `session_id` cookie required
+- JSON Response
+
+ |     field     |  type  |                description                |
+ |---------------|--------|-------------------------------------------|
+ | mod_join_code | string | value required to join forum as moderator |
+
+Refresh Moderator Join Code
+===========================
+- `POST /forums/<forum_id>/refresh_mod_join_code`
+- invalidates previous moderator join code
+- requires moderator privileges
+- `session_id` cookie required
+
+Join Forum
+==========
+- `POST /forums/join/<join_code>`
+- join a forum using its join code
+- `session_id` cookie required

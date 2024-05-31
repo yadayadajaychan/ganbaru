@@ -445,7 +445,7 @@ class db:
         return
 
     # add users to a forum
-    def add_to_forum(self, session_id, uids, fid):
+    def add_uids_to_forum(self, session_id, uids, fid):
         uid = self.check_session(session_id)
 
         self.check_forum(fid)
@@ -826,3 +826,53 @@ class db:
         return {"instructor_answer": instructor_answer,
                 "student_answers"  : answer_infos,
                 "nextPage"         : nextPage}
+
+    def __refresh_join_code(self, forum_id):
+        join_code = base64.b32encode(os.urandom(5)).decode()
+        try:
+            self.cur.execute('UPDATE forums '
+                             'SET join_code = %s '
+                             'WHERE fid = %s',
+                             (join_code, forum_id))
+        finally:
+            self.conn.commit()
+
+    def get_join_code(self, session_id, forum_id):
+        uid = self.check_session(session_id)
+        self.check_in_forum(uid, forum_id)
+
+        for i in range(10):
+            self.cur.execute('SELECT join_code '
+                             'FROM forums '
+                             'WHERE fid = %s', (forum_id,))
+            join_code = self.cur.fetchone()[0]
+
+            if join_code is not None:
+                break
+
+            self.__refresh_join_code(forum_id)
+
+        return join_code
+
+    def refresh_join_code(self, session_id, forum_id):
+        uid = self.check_session(session_id)
+        self.check_mod_in_forum(uid, forum_id)
+
+        self.__refresh_join_code(forum_id)
+        return
+
+    def join_forum(self, session_id, join_code):
+        uid = self.check_session(session_id)
+
+        if join_code is None or len(join_code) == 0:
+            raise Exception("join code can't be empty")
+
+        self.cur.execute('SELECT fid '
+                         'FROM forums '
+                         'WHERE join_code = %s', (join_code,))
+        fid = self.cur.fetchone()
+        if fid is None:
+            raise Exception("join code is not valid")
+
+        self.__add_to_forum(uid, fid[0])
+        return

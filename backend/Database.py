@@ -828,7 +828,17 @@ class db:
                 "nextPage"         : nextPage}
 
     def __refresh_join_code(self, forum_id):
-        join_code = base64.b32encode(os.urandom(5)).decode()
+        while True:
+            join_code = base64.b32encode(os.urandom(5)).decode()
+
+            # check for collisions
+            self.cur.execute('SELECT fid '
+                             'FROM forums '
+                             'WHERE join_code = %s', (join_code,))
+            record = self.cur.fetchone()
+            if record is None:
+                break
+
         try:
             self.cur.execute('UPDATE forums '
                              'SET join_code = %s '
@@ -841,7 +851,7 @@ class db:
         uid = self.check_session(session_id)
         self.check_in_forum(uid, forum_id)
 
-        for i in range(10):
+        while True:
             self.cur.execute('SELECT join_code '
                              'FROM forums '
                              'WHERE fid = %s', (forum_id,))

@@ -1,0 +1,3 @@
+- update backend api to conform to api spec regarding votes
+- update backend api to conform to api spec regarding join codes
+- update api spec to allow for user info viewing and management

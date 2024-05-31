@@ -5,16 +5,26 @@ export interface Comment {
     content: string;
     postId: string;
     createdAt: Date;
+    likeCount: number;
+    user: {
+        id: number;
+        name: string;
+    };
 }
 
 export interface Post {
-    user_id: number;
     title: string;
-    date: string;
-    views: number;
-    answers: number;
-    instructor_answered: boolean;
-    tags: string[];
+    description: string;
+    user: string;
+    likes: number;
+    comments: number;
+    datePosted: Date;
+  
+    // user related
+    isLiked?: boolean;
+    isDisliked?: boolean;
+  
+    preview?: boolean;
 }
 
 export interface GetPostResponse {

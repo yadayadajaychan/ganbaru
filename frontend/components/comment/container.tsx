@@ -1,7 +1,7 @@
 'use client';
 
 import { Comment as CommentType, Post } from '@/types';
-import { Card } from '@radix-ui/themes';
+import { Card, Flex, Separator } from '@radix-ui/themes';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import Comment from './comment';
 import {
@@ -9,6 +9,8 @@ import {
   WindowScroller,
   InfiniteLoader,
   List,
+  CellMeasurerCache,
+  CellMeasurer,
 } from 'react-virtualized';
 import {
   InfiniteData,
@@ -16,11 +18,18 @@ import {
   useInfiniteQuery,
 } from '@tanstack/react-query';
 import { fetchComments } from '@/api/comment';
+import { randomComments } from './randomComments';
 
 interface CommentContainerProps {
   postId: string;
 }
 
+const cache = new CellMeasurerCache({
+  fixedWidth: true,
+  defaultHeight: 100,
+});
+
+// will be the virtualized list that contains all of the comments
 export default function CommentContainer({ postId }: CommentContainerProps) {
   const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery({
     queryKey: ['comments', { id: postId }],
@@ -30,9 +39,8 @@ export default function CommentContainer({ postId }: CommentContainerProps) {
   });
 
   const allRecords = data ? data.pages.map((page) => page.records) : [];
-  const comments = allRecords.flat(1);
+  const comments = randomComments; //allRecords.flat();
 
-  // will be the virtualized list that contains all of the comments
   const [isNextPageLoading, setIsNextPageLoading] = useState(false);
 
   const isRowLoaded = ({ index }: { index: number }) => {
@@ -50,16 +58,31 @@ export default function CommentContainer({ postId }: CommentContainerProps) {
   const rowRenderer = ({
     key,
     index,
+    parent,
   }: {
     key: string;
     index: number;
+    parent: any;
     style: any;
   }) => {
-    return <Comment key={key} comment={comments[index]} />;
+    return (
+      <CellMeasurer
+        key={key}
+        cache={cache}
+        parent={parent}
+        columnIndex={0}
+        rowIndex={index}
+      >
+        <Flex mb='5'>
+          <Comment comment={comments[index]} />
+        </Flex>
+      </CellMeasurer>
+    );
   };
 
   return (
-    <Card size='5'>
+    // <Card size='5'>
+    <Flex width='616px'>
       <AutoSizer disableHeight={true}>
         {({ width }) => (
           <WindowScroller>
@@ -78,7 +101,7 @@ export default function CommentContainer({ postId }: CommentContainerProps) {
                     isScrolling={isScrolling}
                     onScroll={onChildScroll}
                     rowCount={comments.length}
-                    rowHeight={42}
+                    rowHeight={cache.rowHeight}
                     rowRenderer={rowRenderer}
                     scrollTop={scrollTop}
                     width={width}
@@ -89,6 +112,7 @@ export default function CommentContainer({ postId }: CommentContainerProps) {
           </WindowScroller>
         )}
       </AutoSizer>
-    </Card>
+    </Flex>
+    // </Card>
   );
 }

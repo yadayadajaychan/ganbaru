@@ -33,3 +33,15 @@ body {
   --default-leading-trim-start: 0.42em;
   --default-leading-trim-end: 0.38em;
 }
+
+.icon-hover:hover {
+  color: var(--accent-10);
+}
+
+.icon-hover.active {
+  color: var(--accent-9);
+}
+
+.icon-hover.active:hover {
+  color: var(--accent-9);
+}

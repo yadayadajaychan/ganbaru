@@ -1,8 +1,7 @@
+// layout.tsx
 import type { Metadata } from 'next';
 import './globals.css';
-
 import ReactQueryProvider from '@/providers/reactQuery';
-
 import { Theme } from '@radix-ui/themes';
 import { ThemeProvider } from 'next-themes';
 import NavBar from '@/components/nav/navbar';
@@ -19,14 +18,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body className={`min-h-screen`}>
+      <body className='min-h-screen'>
         <ReactQueryProvider>
           <ThemeProvider
             attribute='class'
             defaultTheme='dark'
             value={{ light: 'light', dark: 'dark' }}
           >
-            <Theme accentColor='purple'>{children}</Theme>
+            <Theme accentColor='purple'>
+              <NavBar />
+              {children}
+            </Theme>
           </ThemeProvider>
         </ReactQueryProvider>
       </body>

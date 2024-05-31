@@ -78,7 +78,9 @@ class db:
                              'owner       integer NOT NULL,'
                              'name        text NOT NULL,'
                              'description text,'
-                             'moderators  integer[]);')
+                             'moderators  integer[],'
+                             'join_code   text,'
+                             'mod_join_code text);')
         finally:
             self.conn.commit()
 

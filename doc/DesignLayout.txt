@@ -1,0 +1,82 @@
+﻿Feel free to change because I don't know what exactly is within our capabilities in two weeks
+
+Homepage
+* Homepage
+   * can take you directly to the classes page or to your profile
+   * shortlist of starred classes so you can directly go to the pages/questions you have starred/followed
+* About Us
+   * not necessary obviously, but it’s probably good to have
+* FAQs
+   * self-explanatory
+   * just explains how to use the different parts of the website
+Classes
+* Classes
+* Starred
+   * list of starred classes
+      * with owner and name listed
+         * you can click on the class name to go to class page
+         * you can click on owner to go to professor’s profile
+   * you can unstar
+* Unstarred
+   * same thing as above
+* Remove 
+   * remove a class once you’re done with it
+   * we need a way to make sure it's not just removed randomly though
+* Edit
+   * edit a class if you have permission to
+      * oh i realized we probably need to figure out what instructors should be able to do
+* Add 
+   * add a class with the class code
+* Starred Class 1
+   * brings you to the class page
+   * Search
+      * look up questions
+   * Filter
+      * put filters on questions
+      * by tag
+      * by human
+      * by date
+      * by subdirectory?
+   * Ask Question
+      * title
+      * body of the question
+      * add tags/subdirectories
+      * oh i forgot to put an option to set pseudonym/ask anonymously in the pictures but I can change that if needed or we can just add it on
+   * Questions
+      * Top of the page should be the question
+         * upvote
+         * follow
+            *          * Edit
+            * should only show up if you asked the question
+         * Comment
+            * will bring up the comments and a button to add your own comment or reply to other comments
+      * Instructor Answer
+         * should show which instructor(s) answered, when it was last edited, etc…
+         * Comment
+            * same as above
+      * Student Answer
+         * Comment
+            * same as above
+         * Upvote
+         * sorted by upvotes
+         * Name
+            * you can click on the pseudonym to go to a profile page with just the list of questions and answers they have asked/answered for that particular class under that pseudonym
+            * you cannot click on anonymous students unless you are an instructor
+            * otherwise it will take you to the regular profile
+      * default sorted by upvotes and date?
+* Other Starred Classes
+   * see above
+Profile
+* Profile
+   * Set name, pseudonym? for each class
+   * View questions/answers
+   * Edit profile
+   * also maybe we need a way to look up other people’s profiles
+* Settings
+   * change password
+   * set notifications
+   * anything else we might think about
+   * delete account
+   * change email 
+* Logout
+   * hopefully self explanatory

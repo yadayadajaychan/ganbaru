@@ -152,6 +152,7 @@ Create Post
 - create a post
 - `session_id` cookie required
 - JSON Parameters
+- `full_text` has a 10k character limit
 
  |   field   |       type       |      description      | optional | default |
  |-----------|------------------|-----------------------|----------|---------|
@@ -236,6 +237,7 @@ Create Answer
 - answer a post
 - `session_id` cookie required
 - JSON Parameters
+- `answer` has a 10k character limit
 
  |   field   |  type  |      description       | optional | default |
  |-----------|--------|------------------------|----------|---------|

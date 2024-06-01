@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { GetCommentsResponse } from '@/types';
 import { Button, Flex, Popover } from '@radix-ui/themes';
-import CommentCreate from '@/components/comment/create';
+import CommentCreate from '@/components/create';
 
 import {
   HydrationBoundary,
@@ -35,12 +35,15 @@ export default async function Post({ params }: { params: { id: string } }) {
       >
         <Flex justify='start' direction='column' gap='4'>
           <PostCard
-            user='anonymous12345'
-            title='When is the final project due? askjdbasid baksdkbja sdbjasd bjkaskjbdas jkbdasjkbd asbjkdabkj d sdfsd fdsf sdfsd dsf'
-            description='testtes msdbgbjksd gkjbskgsjgjdsg bjdsgbjdfgjdjhfg djghd ghdbg dgdfjgh dsfgjhbd fgjhbds gjbdhsfg jdgf djgdf dgk dsbgidgbeigbdsgdsjfg dibgeiugbdfhgdht ksjdgkjlsfkgjn dksfgkdfgkdskgdkgdkfgjnkdf nkjgdfjkg jdgjnkdsfgkj testtes msdbgbjksd gkjbskgsjgjdsg bjdsgbjdfgjdjhfg djghd ghdbg dgdfjgh dsfgjhbd fgjhbds gjbdhsfg jdgf djgdf dgk dsbgidgbeigbdsgdsjfg dibgeiugbdfhgdht ksjdgkjlsfkgjn dksfgkdfgkdskgdkgdkfgjnkdf nkjgdfjkg jdgjnkdsfgkj testtes msdbgbjksd gkjbskgsjgjdsg bjdsgbjdfgjdjhfg djghd ghdbg dgdfjgh dsfgjhbd fgjhbds gjbdhsfg jdgf djgdf dgk dsbgidgbeigbdsgdsjfg dibgeiugbdfhgdht ksjdgkjlsfkgjn dksfgkdfgkdskgdkgdkfgjnkdf nkjgdfjkg jdgjnkdsfgkj testtes msdbgbjksd gkjbskgsjgjdsg bjdsgbjdfgjdjhfg djghd ghdbg dgdfjgh dsfgjhbd fgjhbds gjbdhsfg jdgf djgdf dgk dsbgidgbeigbdsgdsjfg dibgeiugbdfhgdht ksjdgkjlsfkgjn dksfgkdfgkdskgdkgdkfgjnkdf nkjgdfjkg jdgjnkdsfgkj testtes msdbgbjksd gkjbskgsjgjdsg bjdsgbjdfgjdjhfg djghd ghdbg dgdfjgh dsfgjhbd fgjhbds gjbdhsfg jdgf djgdf dgk dsbgidgbeigbdsgdsjfg dibgeiugbdfhgdht ksjdgkjlsfkgjn dksfgkdfgkdskgdkgdkfgjnkdf'
-            likes={10}
-            comments={10}
-            datePosted={new Date()}
+            post={{
+              user: 'anonymous12345',
+              title: 'test',
+              description: 'test',
+              likes: 0,
+              comments: 0,
+              datePosted: new Date(),
+            }}
+            preview={false}
           />
           <CommentPopover postId={params.id} />
           <CommentContainer postId={params.id} />

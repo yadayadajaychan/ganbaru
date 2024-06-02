@@ -8,6 +8,7 @@ import {
   HoverCard,
   ContextMenu,
   DropdownMenu,
+  Dialog,
 } from '@radix-ui/themes';
 import Nav from './nav';
 import { CaretDownIcon, PersonIcon } from '@radix-ui/react-icons';
@@ -55,10 +56,7 @@ export default function NavBar() {
             >
               <Text size='2'>Ben Chen</Text>
             </NextLink>
-            <DropdownMenu.Root
-              open={settingsOpen}
-              onOpenChange={setSettingsOpen}
-            >
+            <DropdownMenu.Root>
               <DropdownMenu.Trigger className='hover:bg-purple-300 hover:cursor-pointer hover:bg-opacity-10 group flex select-none items-center justify-between gap-[2px] rounded-[4px] px-2 py-2'>
                 <Flex>
                   <PersonIcon />
@@ -75,12 +73,27 @@ export default function NavBar() {
                 >
                   Change Lighting
                 </DropdownMenu.Item>
-                <DropdownMenu.Item className='hover:cursor-pointer'>
+                <DropdownMenu.Item
+                  className='hover:cursor-pointer'
+                  onClick={() => setSettingsOpen(true)}
+                >
                   Settings
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Root>
           </Flex>
+          <Dialog.Root open={settingsOpen} onOpenChange={setSettingsOpen}>
+            <Dialog.Content>
+              <Flex direction='column' gap='6'>
+                <Flex direction='column'>
+                  <Dialog.Title>Settings</Dialog.Title>
+                  <Dialog.Description>
+                    Change the settings for the website
+                  </Dialog.Description>
+                </Flex>
+              </Flex>
+            </Dialog.Content>
+          </Dialog.Root>
         </Box>
       </Flex>
     </Box>

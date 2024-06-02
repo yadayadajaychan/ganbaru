@@ -12,6 +12,32 @@ interface CommentPopoverProps {
 
 export default function CommentPopover({ postId }: CommentPopoverProps) {
   const [text, setText] = useState('');
+  const [open, setOpen] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!text.trim()) return;
+
+    // Assuming you have an API endpoint for creating comments
+    const response = await fetch(`/forums/${forumId}/${postId}/create`, { //We do not know where forumID variable is.
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        answer: "answer"
+      }),
+    });
+
+    if (response.ok) {
+      // Handle success (e.g., clear the text and close the popover)
+      setText('');
+      setOpen(false);
+      // Optionally, you could also refresh the comments list or add the new comment to the state
+    } else {
+      // Handle error
+      console.error('Failed to create comment');
+    }
+  };
 
   return (
     <Popover.Root>

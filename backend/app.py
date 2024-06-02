@@ -255,5 +255,29 @@ def get_answers(forum_id, post_id):
 
     return jsonify(answers), 200
 
+@app.route("/forums/<forum_id>/<post_id>/vote", methods=["PUT"]) # patch?
+def vote_on_post(forum_id, post_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        data = request.get_json(force=True)
+    except:
+        return jsonify({"error": "invalid json"}), 400
+
+    try:
+        data["vote"]
+    except:
+        return jsonify({"error": "missing vote field"}), 400
+
+    try:
+        vote = db.vote_on_post(session_id, forum_id, post_id, data["vote"])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify(vote), 200
+
 if __name__ == "__main__":
     app.run(debug=True)

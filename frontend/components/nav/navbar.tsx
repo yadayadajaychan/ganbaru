@@ -1,14 +1,24 @@
 // navbar.tsx
 'use client';
 
-import { Box, Flex, Text, HoverCard } from '@radix-ui/themes';
+import {
+  Box,
+  Flex,
+  Text,
+  HoverCard,
+  ContextMenu,
+  DropdownMenu,
+} from '@radix-ui/themes';
 import Nav from './nav';
 import { CaretDownIcon, PersonIcon } from '@radix-ui/react-icons';
 import NextLink from 'next/link';
 import { useTheme } from 'next-themes';
+import { useState } from 'react';
 
 export default function NavBar() {
   const { theme, setTheme } = useTheme();
+
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <Box
@@ -45,8 +55,11 @@ export default function NavBar() {
             >
               <Text size='2'>Ben Chen</Text>
             </NextLink>
-            <HoverCard.Root>
-              <HoverCard.Trigger className='hover:bg-purple-300 hover:cursor-pointer hover:bg-opacity-10 group flex select-none items-center justify-between gap-[2px] rounded-[4px] px-2 py-2'>
+            <DropdownMenu.Root
+              open={settingsOpen}
+              onOpenChange={setSettingsOpen}
+            >
+              <DropdownMenu.Trigger className='hover:bg-purple-300 hover:cursor-pointer hover:bg-opacity-10 group flex select-none items-center justify-between gap-[2px] rounded-[4px] px-2 py-2'>
                 <Flex>
                   <PersonIcon />
                   <CaretDownIcon
@@ -54,21 +67,19 @@ export default function NavBar() {
                     aria-hidden
                   />
                 </Flex>
-              </HoverCard.Trigger>
-              <HoverCard.Content>
-                <Flex direction='column'>
-                  <Text>Settings</Text>
-                  <Text
-                    onClick={() =>
-                      setTheme(theme === 'dark' ? 'light' : 'dark')
-                    }
-                    className='hover:cursor-pointer'
-                  >
-                    Change Lighting
-                  </Text>
-                </Flex>
-              </HoverCard.Content>
-            </HoverCard.Root>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content size='1'>
+                <DropdownMenu.Item
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  className='hover:cursor-pointer'
+                >
+                  Change Lighting
+                </DropdownMenu.Item>
+                <DropdownMenu.Item className='hover:cursor-pointer'>
+                  Settings
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
           </Flex>
         </Box>
       </Flex>

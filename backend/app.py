@@ -169,6 +169,8 @@ def create_post(forum_id):
     full_text = data.get("full_text")
     if full_text is None:
         return jsonify({"error": "post body can't be empty"}), 400
+    elif len(full_text) > 10000:
+        return jsonify({"error": "post body is over the 10k character limit"}), 400
 
     tags = data.get("tags")
 
@@ -228,6 +230,9 @@ def create_answer(forum_id, post_id):
         data["answer"]
     except:
         return jsonify({"error": "missing answer field"}), 400
+
+    if len(data["answer"]) > 10000:
+        return jsonify({"error": "answer body is over the 10k character limit"}), 400
 
     anonymous = data.get("anonymous", False)
     alias = data.get("alias", False)

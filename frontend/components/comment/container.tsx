@@ -27,6 +27,7 @@ import { fetchComments } from '@/api/comment';
 import InfiniteScroll from 'react-infinite-scroller';
 
 interface CommentContainerProps {
+  forumId: string;
   postId: string;
 }
 
@@ -36,11 +37,18 @@ const cache = new CellMeasurerCache({
 });
 
 // will be the virtualized list that contains all of the comments
-export default function CommentContainer({ postId }: CommentContainerProps) {
+export default function CommentContainer({
+  postId,
+  forumId,
+}: CommentContainerProps) {
   const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery({
     queryKey: ['comments', postId],
     queryFn: ({ pageParam }) =>
-      fetchComments({ pageParam, postId: Number(postId) }),
+      fetchComments({
+        pageParam,
+        classId: Number(forumId),
+        postId: Number(postId),
+      }),
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 1,
   });

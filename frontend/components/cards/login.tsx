@@ -15,6 +15,7 @@ import { useState } from 'react';
 import NextLink from 'next/link';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/router';
+import { login } from '@/api/user';
 
 export default function LoginCard() {
   const router = useRouter();
@@ -27,11 +28,7 @@ export default function LoginCard() {
   const onSubmit = async () => {
     setIsLoading(true);
 
-    const response = await fetch('/user/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-      credentials: 'include',
-    });
+    const response = await login({ email, password });
 
     const resp = await response.json();
 

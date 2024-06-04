@@ -15,13 +15,21 @@ import { AutoSizer } from 'react-virtualized';
 import CommentPopover from '@/components/comment/create';
 import PostCard from '@/components/cards/post';
 
-export default async function Post({ params }: { params: { postId: string } }) {
+export default async function Post({
+  params,
+}: {
+  params: { postId: string; forumId: string };
+}) {
   const queryClient = new QueryClient();
 
   await queryClient.prefetchInfiniteQuery({
     queryKey: ['comments', params.postId],
     queryFn: ({ pageParam }) =>
-      fetchComments({ pageParam, postId: Number(params.postId) }),
+      fetchComments({
+        pageParam,
+        classId: Number(params.forumId),
+        postId: Number(params.postId),
+      }),
     initialPageParam: 1,
   });
 
@@ -52,8 +60,8 @@ export default async function Post({ params }: { params: { postId: string } }) {
             }}
             preview={false}
           />
-          <CommentPopover postId={params.postId} />
-          <CommentContainer postId={params.postId} />
+          <CommentPopover forumId={params.forumId} postId={params.postId} />
+          <CommentContainer forumId={params.forumId} postId={params.postId} />
         </Flex>
       </Flex>
     </HydrationBoundary>

@@ -15,6 +15,7 @@ import { useState } from 'react';
 import NextLink from 'next/link';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/router';
+import { creaetUser } from '@/api/user';
 
 export default function SignupCard() {
   const router = useRouter();
@@ -35,11 +36,7 @@ export default function SignupCard() {
       return;
     }
 
-    const response = await fetch('/user/signup', {
-      method: 'POST',
-      body: JSON.stringify({ email, username, password }),
-      credentials: 'include',
-    });
+    const response = await creaetUser({ email, username, password });
 
     const resp = await response.json();
 

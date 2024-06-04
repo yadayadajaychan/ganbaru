@@ -6,12 +6,17 @@ import { Button, Inset, Popover } from '@radix-ui/themes';
 import { AutoSizer } from 'react-virtualized';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { createComment } from '@/api/comment';
 
 interface CommentPopoverProps {
+  forumId: string;
   postId: string;
 }
 
-export default function CommentPopover({ postId }: CommentPopoverProps) {
+export default function CommentPopover({
+  forumId,
+  postId,
+}: CommentPopoverProps) {
   const [text, setText] = useState('');
   const [anonymous, setAnonymous] = useState(false);
   const [open, setOpen] = useState(false);
@@ -20,15 +25,11 @@ export default function CommentPopover({ postId }: CommentPopoverProps) {
     if (!text.trim()) return;
 
     // Assuming you have an API endpoint for creating comments
-    const response = await fetch(`/forums/${postId}/${postId}/create`, {
-      //We do not know where forumID variable is.
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        answer: 'answer',
-      }),
+    const response = await createComment({
+      classId: Number(forumId),
+      postId: Number(postId),
+      content: text,
+      anonymous,
     });
 
     if (response.ok) {

@@ -1,7 +1,7 @@
 'use client';
 
 import { CaretDownIcon } from '@radix-ui/react-icons';
-import { Text, Flex, HoverCard } from '@radix-ui/themes';
+import { Text, Flex, HoverCard, Popover } from '@radix-ui/themes';
 import NextLink from 'next/link';
 import Classes from '@/components/class/classes';
 
@@ -15,8 +15,8 @@ export default function Nav({ classId }: { classId: string }) {
         >
           <Text size='2'>Home</Text>
         </NextLink>
-        <HoverCard.Root>
-          <HoverCard.Trigger className='hover:bg-purple-300 hover:cursor-pointer hover:bg-opacity-10 group flex select-none items-center justify-between gap-[2px] rounded-[4px] px-2 py-2'>
+        <Popover.Root>
+          <Popover.Trigger className='hover:bg-purple-300 hover:cursor-pointer hover:bg-opacity-10 group flex select-none items-center justify-between gap-[2px] rounded-[4px] px-2 py-2'>
             <Flex>
               <Text size='2'>Classes</Text>
               <CaretDownIcon
@@ -24,11 +24,11 @@ export default function Nav({ classId }: { classId: string }) {
                 aria-hidden
               />
             </Flex>
-          </HoverCard.Trigger>
-          <HoverCard.Content width='200px'>
+          </Popover.Trigger>
+          <Popover.Content width='200px'>
             <Classes />
-          </HoverCard.Content>
-        </HoverCard.Root>
+          </Popover.Content>
+        </Popover.Root>
       </Flex>
     </Flex>
   );

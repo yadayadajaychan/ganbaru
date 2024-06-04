@@ -260,7 +260,21 @@ def get_answers(forum_id, post_id):
 
     return jsonify(answers), 200
 
-@app.route("/forums/<forum_id>/<post_id>/vote", methods=["PUT"]) # patch?
+@app.route("/forums/<forum_id>/<post_id>/get_vote", methods=["GET"])
+def get_post_vote(forum_id, post_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        vote = db.get_post_vote(session_id, forum_id, post_id)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify(vote), 200
+
+@app.route("/forums/<forum_id>/<post_id>/vote", methods=["POST"])
 def vote_on_post(forum_id, post_id):
     try:
         session_id = request.cookies['session_id']
@@ -279,6 +293,44 @@ def vote_on_post(forum_id, post_id):
 
     try:
         vote = db.vote_on_post(session_id, forum_id, post_id, data["vote"])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify(vote), 200
+
+@app.route("/forums/<forum_id>/<post_id>/<answer_id>/get_vote", methods=["GET"])
+def get_answer_vote(forum_id, post_id, answer_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        vote = db.get_answer_vote(session_id, forum_id, post_id, answer_id)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify(vote), 200
+
+@app.route("/forums/<forum_id>/<post_id>/<answer_id>/vote", methods=["POST"])
+def vote_on_answer(forum_id, post_id, answer_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        data = request.get_json(force=True)
+    except:
+        return jsonify({"error": "invalid json"}), 400
+
+    try:
+        data["vote"]
+    except:
+        return jsonify({"error": "missing vote field"}), 400
+
+    try:
+        vote = db.vote_on_answer(session_id, forum_id, post_id, answer_id, data["vote"])
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 

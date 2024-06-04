@@ -5,33 +5,32 @@ when an error occurs, an non 2xx HTTP status code is returned
 along with a JSON Object with an "error" field containing
 the error message
 
-
 Create User
-=========================
+===========
 - `POST /user/create`
 - creates a new user
+- alias is set to username
 - JSON Params
 
  |  field   |  type  |
  |----------|--------|
+ | email    | string |
  | username | string |
  | password | string |
 
-
 Delete User
-=========================
+===========
 - `POST /user/delete`
 - deletes a user
 - JSON Params
 
  |  field   |  type  |
  |----------|--------|
- | username | string |
+ | email    | string |
  | password | string |
 
-
 Login
-=========================
+=====
 - `POST /user/login`
 - authenticate user
 - sets `session_id` cookie
@@ -39,16 +38,14 @@ Login
 
  |  field   |  type  | optional |
  |----------|--------|----------|
- | username | string | n        |
+ | email    | string | n        |
  | password | string | n        |
  | timeout  | int    | y        |
 
-
 Logout
-=========================
+======
 - `POST /user/logout`
 - `session_id` cookie required
-
 
 Check Session
 =========================
@@ -266,6 +263,16 @@ Create Answer
  | anonymous | bool   | if post is anonymous   | y        | false   |
  | alias     | bool   | if post uses alias     | y        | false   |
 
+Get Post Vote
+=============
+- `GET /forums/<forum_id>/<post_id>/get_vote`
+- `session_id` cookie required
+JSON Response
+
+ |   field   |  type  |         description          |
+ |-----------|--------|------------------------------|
+ |    vote   |  int   | value of user vote 1, 0, -1  |
+
 Vote on Post
 ============
 - `POST /forums/<forum_id>/<post_id>/vote`
@@ -276,6 +283,16 @@ Vote on Post
  | field | type |      description       |
  |-------|------|------------------------|
  | vote  | int  | valid values: -1, 0, 1 |
+
+Get Answer Vote
+===============
+- `GET /forums/<forum_id>/<post_id>/<answer_id>/get_vote`
+- `session_id` cookie required
+JSON Response
+
+ |   field   |  type  |         description          |
+ |-----------|--------|------------------------------|
+ |    vote   |  int   | value of user vote 1, 0, -1  |
 
 Vote on Answer
 ==============

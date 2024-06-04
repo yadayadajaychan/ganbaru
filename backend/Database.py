@@ -26,7 +26,9 @@ class db:
         self.__create_admin("admin", "12345678")
         self.__create_forums_table()
         self.__create_posts_table()
+        self.__create_post_votes_table()
         self.__create_answers_table()
+        self.__create_answer_votes_table()
 
     def close(self):
         self.cur.close()
@@ -101,9 +103,18 @@ class db:
                              'instructor_aid integer,'
                              'score     integer NOT NULL,'
                              'anonymous bool NOT NULL,'
-                             'alias     bool NOT NULL,'
-                             'upvoted integer[],'
-                             'downvoted integer[]);')
+                             'alias     bool NOT NULL);')
+
+        finally:
+            self.conn.commit()
+
+    def __create_post_votes_table(self):
+        try:
+            self.cur.execute('CREATE TABLE IF NOT EXISTS post_votes ('
+                             'fid     integer NOT NULL,'
+                             'pid     integer NOT NULL,'
+                             'uid     integer NOT NULL,'
+                             'vote    integer NOT NULL);')
         finally:
             self.conn.commit()
 
@@ -119,6 +130,17 @@ class db:
                              'score  integer NOT NULL,'
                              'anonymous bool NOT NULL,'
                              'alias     bool NOT NULL);')
+        finally:
+            self.conn.commit()
+
+    def __create_answer_votes_table(self):
+        try:
+            self.cur.execute('CREATE TABLE IF NOT EXISTS answer_votes ('
+                             'fid     integer NOT NULL,'
+                             'pid     integer NOT NULL,'
+                             'aid     integer NOT NULL,'
+                             'uid     integer NOT NULL,'
+                             'vote    integer NOT NULL);')
         finally:
             self.conn.commit()
 
@@ -227,6 +249,18 @@ class db:
                          (forum_id, post_id))
         if self.cur.fetchone() is None:
             raise Exception(f"post {post_id} does not exist")
+
+        return
+    
+    # checks if answer exists
+    # raises exception if not found
+    def check_answer(self, forum_id, post_id, answer_id):
+        self.cur.execute('SELECT aid '
+                         'FROM answers '
+                         'WHERE fid = %s AND pid = %s AND aid = %s',
+                         (forum_id, post_id, answer_id))
+        if self.cur.fetchone() is None:
+            raise Exception(f"answer {answer_id} does not exist")
 
         return
 
@@ -525,7 +559,6 @@ class db:
             raise Exception("post body can't be empty")
         if tags is None:
             tags = []
-        
 
         self.cur.execute('SELECT MAX(pid) '
                          'FROM posts '
@@ -542,17 +575,13 @@ class db:
         views = 0
         answers = 0
         instructor_answered = False
-        upvoted = []
-        downvoted = []
-
         try:
             self.cur.execute('INSERT INTO posts '
                              '(fid, pid, uid, title, date, last_activity, views, answers, '
-                             'instructor_answered, tags, full_text, score, anonymous, alias, '
-                             'upvoted, downvoted) '
-                             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);',
+                             'instructor_answered, tags, full_text, score, anonymous, alias) '
+                             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);',
                              (forum_id, pid, uid, title, date, last_activity, views, answers,
-                              instructor_answered, tags, full_text, 0, anonymous, alias, upvoted, downvoted))
+                              instructor_answered, tags, full_text, 0, anonymous, alias))
         finally:
             self.conn.commit()
 
@@ -598,7 +627,7 @@ class db:
 
         query = sql.SQL('SELECT pid, uid, title, date, last_activity, '
                         'views, answers, instructor_answered, tags, '
-                        'anonymous, alias, upvoted, downvoted '
+                        'anonymous, alias, score '
                          'FROM posts '
                          'WHERE fid = %s AND (title ~* %s OR full_text ~* %s) '
                          'ORDER BY {sortby} {asc} '
@@ -617,12 +646,6 @@ class db:
             anonymous = record[9]
             alias = record[10]
             user_obj = self.get_user_obj(record[1], mod, anonymous, alias)
-            if uid in record[11]:
-                vote = 1
-            elif uid in record[12]:
-                vote = -1
-            else:
-                vote = 0
 
             post = {"post_id"       : record[0],
                     "user"          : user_obj,
@@ -633,7 +656,7 @@ class db:
                     "answers"       : record[6],
                     "instructor_answered": record[7],
                     "tags"          : record[8],
-                    "vote"          : vote,
+                    "score"         : record[11],
                     }
             post_infos.append(post)
 
@@ -663,7 +686,7 @@ class db:
 
         self.cur.execute('SELECT uid, title, date, last_activity, views, '
                          'answers, instructor_answered, tags, full_text, '
-                         'anonymous, alias, upvoted, downvoted '
+                         'anonymous, alias, score '
                          'FROM posts '
                          'WHERE fid = %s AND pid = %s',
                          (forum_id, post_id))
@@ -681,12 +704,6 @@ class db:
         anonymous = record[9]
         alias = record[10]
         user_obj = self.get_user_obj(record[0], mod, anonymous, alias)
-        if uid in record[11]:
-            vote = 1
-        elif uid in record[12]:
-            vote = -1
-        else:
-            vote = 0
 
         post = {"user"    : user_obj,
                 "title"   : record[1],
@@ -697,7 +714,7 @@ class db:
                 "instructor_answered": record[6],
                 "tags"    : record[7],
                 "full_text": record[8],
-                "vote": vote,
+                "score"   : record[11],
                 }
 
         return post
@@ -908,45 +925,147 @@ class db:
         self.__add_to_forum(uid, fid[0])
         return
 
-    def vote_on_post(self, session_id, forum_id, post_id, vote):
+    def get_post_vote(self, session_id, forum_id, post_id): 
+        # returns the current user's vote as 1, 0, or -1
         uid = self.check_session(session_id)
         self.check_in_forum(uid, forum_id)
         self.check_post(forum_id, post_id)
-        
-        self.cur.execute('SELECT score, upvoted, downvoted '
-                         'FROM posts '
-                         'WHERE fid = %s AND pid = %s '
-                        )
-        records = self.cur.fetchone()
-        score = records[0]
-        upvoted = records[1]
-        downvoted = records[2]
-        if vote == -1:
-            if uid not in upvoted and uid not in downvoted:
-                score -= 1
-            elif uid in upvoted:
-                score -= 2
-                upvoted.remove(uid)
-            downvoted.append(uid)
-        elif vote == 0:
-            if uid in upvoted:
-                score -= 1
-                upvoted.remove(uid)
-            elif uid in downvoted:
-                score += 1
-                downvoted.remove(uid)
-        elif vote == 1:
-            if uid not in upvoted and uid not in downvoted:
-                score += 1
-            elif uid in downvoted:
-                score += 2
-                downvoted.remove(uid)
-            upvoted.append(uid)
-        else:
-            raise Exception("vote must be -1, 0, or 1")
         try:
-            self.cur.execute('UPDATE posts '
-                                 'SET score = %s, upvoted = %s, downvoted = %s '
-                                 'WHERE pid = %s', (score, upvoted, downvoted, post_id))
-        finally:
-            self.conn.commit()
+            self.cur.execute('SELECT vote '
+                             'FROM post_votes '
+                             'WHERE fid = %s AND pid = %s AND uid = %s ',
+                             (forum_id, post_id, uid))
+            record = self.cur.fetchone()
+            vote = record[0]
+            return {"vote": vote}
+        except:
+            return {"vote": 0}
+
+    def vote_on_post(self, session_id, forum_id, post_id, vote):
+        # update vote on a post
+        # vote = 1 if upvote is pressed unless they have already upvoted
+        # vote = -1 if downvote is pressed unless they have already downvoted
+        # vote = 0 if downvote is pressed and already downvoted
+        # or upvote and already upvoted, they are removing their vote
+        uid = self.check_session(session_id)
+        self.check_in_forum(uid, forum_id)
+        self.check_post(forum_id, post_id)
+        if vote != -1 and vote != 0 and vote != 1:
+            raise Exception("vote must be -1, 0, or 1")
+        self.cur.execute('SELECT score '
+                         'FROM posts '
+                         'WHERE fid = %s AND pid = %s ',
+                        (forum_id, post_id))
+        record = self.cur.fetchone()
+        score = record[0]
+
+        try:
+            self.cur.execute('SELECT vote '
+                             'FROM post_votes '
+                             'WHERE fid = %s AND pid = %s AND uid = %s ',
+                            (forum_id, post_id, uid))
+            record = self.cur.fetchone()
+            existing_vote = record[0]
+        except:
+            self.cur.execute('INSERT INTO post_votes '
+                             '(fid, pid, uid, vote) '
+                             'VALUES (%s, %s, %s, %s)',
+                             (forum_id, post_id, uid, 0))
+            existing_vote = 0
+        if vote == 1:
+            if existing_vote == 0:
+                score += 1
+            if existing_vote == -1:
+                score += 2
+        elif vote == -1:
+            if existing_vote == 0:
+                score -= 1
+            if existing_vote == 1:
+                score -= 2
+        else:
+            score -= existing_vote
+        print("test3")
+        self.cur.execute('UPDATE posts '
+                         'SET score = %s '
+                         'WHERE pid = %s ', (score, post_id))
+        self.cur.execute('UPDATE post_votes '
+                         'SET vote = %s '
+                         'WHERE fid = %s AND pid = %s AND uid = %s',
+                         (vote, forum_id, post_id, uid))
+        self.conn.commit()
+
+        return
+
+    def get_answer_vote(self, session_id, forum_id, post_id, answer_id): 
+        # returns the current user's vote as 1, 0, or -1
+        uid = self.check_session(session_id)
+        self.check_in_forum(uid, forum_id)
+        self.check_post(forum_id, post_id)
+        self.check_answer(forum_id, post_id, answer_id)
+        try:
+            self.cur.execute('SELECT vote '
+                             'FROM answer_votes '
+                             'WHERE fid = %s AND pid = %s AND uid = %s ',
+                             (forum_id, post_id, uid))
+            record = self.cur.fetchone()
+            vote = record[0]
+            return {"vote": vote}
+        except:
+            return {"vote": 0}
+
+    def vote_on_answer(self, session_id, forum_id, post_id, answer_id, vote):
+        # update vote on an answer
+        # vote = 1 if upvote is pressed unless they have already upvoted
+        # vote = -1 if downvote is pressed unless they have already downvoted
+        # vote = 0 if downvote is pressed and already downvoted
+        # or upvote and already upvoted, they are removing their vote
+        uid = self.check_session(session_id)
+        self.check_in_forum(uid, forum_id)
+        self.check_post(forum_id, post_id)
+        self.check_answer(forum_id, post_id, answer_id)
+
+        if vote != -1 and vote != 0 and vote != 1:
+            raise Exception("vote must be -1, 0, or 1")
+
+        self.cur.execute('SELECT score '
+                         'FROM answers '
+                         'WHERE fid = %s AND pid = %s AND aid = %s ',
+                        (forum_id, post_id, answer_id))
+        record = self.cur.fetchone()
+        score = record[0]
+
+        try:
+            self.cur.execute('SELECT vote '
+                             'FROM answer_votes '
+                             'WHERE fid = %s AND pid = %s AND aid = %s AND uid = %s ',
+                            (forum_id, post_id, answer_id, uid))
+            record = self.cur.fetchone()
+            existing_vote = record[0]
+        except:
+            self.cur.execute('INSERT INTO answer_votes '
+                             '(fid, pid, aid, uid, vote) '
+                             'VALUES (%s, %s, %s, %s, %s)',
+                             (forum_id, post_id, answer_id, uid, 0))
+            existing_vote = 0
+        if vote == 1:
+            if existing_vote == 0:
+                score += 1
+            if existing_vote == -1:
+                score += 2
+        elif vote == -1:
+            if existing_vote == 0:
+                score -= 1
+            if existing_vote == 1:
+                score -= 2
+        else:
+            score -= existing_vote
+        self.cur.execute('UPDATE answers '
+                         'SET score = %s '
+                         'WHERE pid = %s AND aid = %s ', (score, post_id, answer_id))
+        self.cur.execute('UPDATE answer_votes '
+                         'SET vote = %s '
+                         'WHERE fid = %s AND pid = %s AND aid = %s AND uid = %s',
+                         (vote, forum_id, post_id, answer_id, uid))
+        self.conn.commit()
+
+        return

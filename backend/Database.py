@@ -319,10 +319,10 @@ class db:
 
         return
 
-    def get_email_wrapper(session_id):
-        get_email(self, session_id)
+    def get_email_wrapper(uid):
+        get_email(self, uid)
 
-    def get_email(self, session_id):
+    def get_email(self, uid):
         try:
             self.cur.execute('SELECT email '
                              'FROM users '
@@ -356,9 +356,10 @@ class db:
 
     def get_user_info(self, session_id):
         uid = self.cur.execute('SELECT uid FROM auth WHERE session_id=\'%s\'', (session_id))
-        fullname = get_full_name(self, uid)
-        alias = get_alias(self, uid)
-        return fullname, alias
+        email = get_email(uid)
+        fullname = get_full_name(uid)
+        alias = get_alias(uid)
+        return email, fullname, alias
 
     def get_user_obj(self, uid, mod, anonymous, alias):
             if mod:

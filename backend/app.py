@@ -123,9 +123,9 @@ def get_user_info():
     except:
         return jsonify({"error": "missing session_id cookie"}), 400
 
-    fullname, alias = db.get_user_info(session_id)
+    email, fullname, alias = db.get_user_info(session_id)
 
-    return jsonify({"full_name": fullname, "alias": alias}), 200
+    return jsonify({"email": email, "full_name": fullname, "alias": alias}), 200
 
 @app.route("/user/profile/set_info", methods=["GET"])
 def set_user_info():

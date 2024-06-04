@@ -5,12 +5,12 @@ import { Text, Flex, HoverCard } from '@radix-ui/themes';
 import NextLink from 'next/link';
 import Classes from '@/components/class/classes';
 
-export default function Nav() {
+export default function Nav({ classId }: { classId: string }) {
   return (
     <Flex className='flex flex-row justify-between items-center p-4'>
       <Flex className='flex flex-row gap-2'>
         <NextLink
-          href='/'
+          href={`/forum/${classId}`}
           className='group flex select-none items-center justify-between gap-[2px] rounded-[4px] px-3 py-2'
         >
           <Text size='2'>Home</Text>

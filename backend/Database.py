@@ -289,6 +289,9 @@ class db:
                          'WHERE uid = %s', (uid,))
         return self.cur.fetchone()[0]
 
+    def set_full_name_wrapper(session_id, full_name):
+        set_full_name(self, session_id, full_name)
+
     def set_full_name(self, session_id, full_name):
         uid = self.check_session(session_id)
 
@@ -310,6 +313,9 @@ class db:
                          'FROM users '
                          'WHERE uid = %s', (uid,))
         return self.cur.fetchone()[0]
+
+    def set_alias_wrapper(session_id, alias):
+        set_alias(self, session_id, alias)
 
     def set_alias(self, session_id, alias):
         uid = self.check_session(session_id)

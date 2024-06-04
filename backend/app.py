@@ -118,10 +118,29 @@ def get_user_info():
     except:
         return jsonify({"error": "missing session_id cookie"}), 400
 
-    session_id = request.cookies['session_id']
     fullname, alias = db.get_user_info(session_id)
 
     return jsonify({"full_name": fullname, "alias": alias}), 200
+
+@app.route("/user/profile/set_info", methods=["GET"])
+def set_user_info():
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        data = request.get_json(force=True)
+    except:
+        return jsonify({"error": "invalid json"}), 400
+
+    full_name = data.get("full_name")
+    alias = data.get("alias")
+
+    db.set_full_name_wrapper(session_id, full_name)
+    db.set_alias_wrapper(session_id, alias)
+
+    return "", 200
 
 @app.route("/forums/create", methods=["POST"])
 def create_forum():

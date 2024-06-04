@@ -1,6 +1,5 @@
 'use client';
 
-import { fetchClasses } from '@/api/classes';
 import { Button, Card, Flex, Separator, Text } from '@radix-ui/themes';
 import { useQuery } from '@tanstack/react-query';
 import { Class } from '@/types';
@@ -9,7 +8,13 @@ import JoinClass from '@/components/class/join';
 import ClassCard from '@/components/cards/class';
 
 export default function Classes() {
-  const classes = useQuery({ queryKey: ['classes'], queryFn: fetchClasses });
+  const classes = useQuery({
+    queryKey: ['classes'],
+    queryFn: async () => {
+      const res = await fetch('/api/classes');
+      return res.json();
+    },
+  });
 
   return (
     <Flex direction='column' gap='4' className='w-full'>

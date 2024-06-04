@@ -10,6 +10,7 @@ export const creaetUser = async ({
   fetch('/user/create', {
     method: 'POST',
     body: JSON.stringify({ email, username, password }),
+    credentials: 'include',
   });
 
 export const login = async ({
@@ -22,4 +23,5 @@ export const login = async ({
   fetch('/user/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
+    credentials: 'include',
   });

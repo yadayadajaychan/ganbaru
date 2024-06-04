@@ -8,7 +8,10 @@ export const fetchComments = async ({
   postId: number;
 }) => {
   const res = await fetch(
-    `/forums/${classId}/${postId}/answers?page=` + pageParam
+    `/forums/${classId}/${postId}/answers?page=${pageParam}`,
+    {
+      credentials: 'include',
+    }
   );
   return res.json();
 };
@@ -27,6 +30,7 @@ export const createComment = async ({
   fetch(`/forums/${classId}/${postId}/create`, {
     method: 'POST',
     body: JSON.stringify({ answer: content, anonymous }),
+    credentials: 'include',
   });
 
 export const voteComment = async ({
@@ -43,4 +47,5 @@ export const voteComment = async ({
   fetch(`/forums/${classId}/postId/${commentId}/vote`, {
     method: 'POST',
     body: JSON.stringify({ vote }),
+    credentials: 'include',
   });

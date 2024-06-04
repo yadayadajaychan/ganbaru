@@ -1,4 +1,4 @@
-export const fetchClasses = async () => {
-    const res = await fetch(`/api/xxx/classes`);
-    return res.json();
-  };
+export const fetchClasses = () =>
+  fetch(`/api/xxx/classes`, {
+    credentials: 'include',
+  });

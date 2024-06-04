@@ -9,7 +9,13 @@ import JoinClass from '@/components/class/join';
 import ClassCard from '@/components/cards/class';
 
 export default function Classes() {
-  const classes = useQuery({ queryKey: ['classes'], queryFn: fetchClasses });
+  const classes = useQuery({
+    queryKey: ['classes'],
+    queryFn: async () => {
+      const classes = await fetchClasses();
+      return classes.json();
+    },
+  });
 
   return (
     <Flex direction='column' gap='4' className='w-full'>

@@ -15,3 +15,30 @@ export const fetchPosts = async ({
   );
   return res.json();
 };
+
+export const createPost = async ({
+  forumId,
+  title,
+  fullText,
+  tags,
+  anonymous,
+}: {
+  forumId: string;
+  title: string;
+  fullText: string;
+  tags: string[];
+  anonymous: boolean;
+}) =>
+  fetch(`/forums/${forumId}/create`, {
+    //We do not know where forumID variable is.
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      title,
+      full_text: fullText,
+      tags,
+      anonymous,
+    }),
+  });

@@ -19,7 +19,7 @@ export default function Forum({ params }: { params: { forumId: string } }) {
           bottom='50px'
           right='50px'
         >
-          <PostCreate />
+          <PostCreate classId={params.forumId} />
         </Flex>
       </Flex>
     </>

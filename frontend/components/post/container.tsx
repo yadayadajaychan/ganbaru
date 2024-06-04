@@ -7,6 +7,7 @@ import {
   Separator,
   Spinner,
   TextField,
+  Text,
 } from '@radix-ui/themes';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
@@ -66,6 +67,8 @@ export default function PostContainer() {
         <TextField.Root
           placeholder='Search for a specific post...'
           className='w-full'
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         >
           <TextField.Slot>
             <MagnifyingGlassIcon height='16' width='16' />
@@ -88,6 +91,11 @@ export default function PostContainer() {
           </Select.Content>
         </Select.Root>
       </Flex>
+      {!isLoading && posts.length === 0 && (
+        <Flex justify='center' align='center'>
+          <Text>No posts found. Be the first to create one!</Text>
+        </Flex>
+      )}
       <InfiniteScroll
         pageStart={1}
         loadMore={loadMoreRows}

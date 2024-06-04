@@ -28,10 +28,11 @@ const cache = new CellMeasurerCache({
 // will be the virtualized list that contains all of the posts
 export default function PostContainer() {
   const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('');
 
   const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery({
-    queryKey: ['posts', search],
-    queryFn: ({ pageParam }) => fetchPosts({ pageParam, search }),
+    queryKey: ['posts', search, filter],
+    queryFn: ({ pageParam }) => fetchPosts({ pageParam, search, filter }),
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 1,
   });

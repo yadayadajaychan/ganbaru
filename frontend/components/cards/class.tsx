@@ -1,5 +1,5 @@
 import { Class } from '@/types';
-import { Card, Flex, Button, Text } from '@radix-ui/themes';
+import { Card, Flex, Button, Text, Badge } from '@radix-ui/themes';
 import Link from 'next/link';
 
 interface ClassCardProps {
@@ -15,9 +15,14 @@ export default function ClassCard({
     <Card variant='ghost'>
       <Flex direction='row' justify='between'>
         <Flex direction='column' gap='1'>
-          <Text size='2' weight='bold'>
-            {classData.name}
-          </Text>
+          <Flex justify='between' gap='1'>
+            <Text size='2' weight='bold'>
+              {classData.name}
+            </Text>
+            {/* <Flex direction='row' gap='1'>
+              <Badge color='yellow'>{classData.unanswered}</Badge>
+            </Flex> */}
+          </Flex>
           <Text size='1'>{classData.description}</Text>
         </Flex>
         <Flex justify='end' align='center'>

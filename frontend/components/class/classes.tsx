@@ -13,7 +13,7 @@ export default function Classes() {
 
   return (
     <Flex direction='column' gap='4' className='w-full'>
-      <Flex direction='column' gap='2'>
+      <Flex direction='column' gap='4'>
         <ClassCard
           classData={{
             description: 'test',
@@ -25,7 +25,6 @@ export default function Classes() {
             important: 5,
           }}
         />
-        <Separator orientation='horizontal' size='4' />
         <ClassCard
           classData={{
             description: 'test',

@@ -412,7 +412,7 @@
 
 "@radix-ui/react-form@^0.0.3":
   version "0.0.3"
-  resolved "https://registry.npmjs.org/@radix-ui/react-form/-/react-form-0.0.3.tgz"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-form/-/react-form-0.0.3.tgz#328e7163e723ccc748459d66a2d685d7b4f85d5a"
   integrity sha512-kgE+Z/haV6fxE5WqIXj05KkaXa3OkZASoTDy25yX2EIp/x0c54rOH/vFr5nOZTg7n7T1z8bSyXmiVIFP9bbhPQ==
   dependencies:
     "@babel/runtime" "^7.13.10"

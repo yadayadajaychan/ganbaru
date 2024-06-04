@@ -7,17 +7,17 @@ import {
   Box,
   Text,
   TextField,
-  Link,
   Button,
+  Link,
 } from '@radix-ui/themes';
 import { useState } from 'react';
+import NextLink from 'next/link';
 
 export interface LoginProps {
   onSignIn: (email: string, password: string) => void;
-  onCreateAccount: (email: string, password: string) => void;
 }
 
-export default function LoginCard({ onSignIn, onCreateAccount }: LoginProps) {
+export default function LoginCard({ onSignIn }: LoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -56,9 +56,11 @@ export default function LoginCard({ onSignIn, onCreateAccount }: LoginProps) {
         </Flex>
 
         <Flex mt='6' justify='end' gap='3'>
-          <Button className='hover:cursor-pointer' variant='outline'>
-            Create an account
-          </Button>
+          <NextLink href='/signup'>
+            <Button className='hover:cursor-pointer' variant='outline'>
+              Create an account{' '}
+            </Button>
+          </NextLink>
           <Button className='hover:cursor-pointer'>Sign in</Button>
         </Flex>
       </Card>

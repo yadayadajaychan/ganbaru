@@ -15,6 +15,8 @@ import { CaretDownIcon, PersonIcon } from '@radix-ui/react-icons';
 import NextLink from 'next/link';
 import { useTheme } from 'next-themes';
 import { useState } from 'react';
+import Settings from './settings';
+import { logout } from '../serverActions';
 
 export default function NavBar() {
   const { theme, setTheme } = useTheme();
@@ -79,6 +81,12 @@ export default function NavBar() {
                 >
                   Settings
                 </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  className='hover:cursor-pointer'
+                  onClick={() => logout()}
+                >
+                  Logout
+                </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Root>
           </Flex>
@@ -87,10 +95,9 @@ export default function NavBar() {
               <Flex direction='column' gap='6'>
                 <Flex direction='column'>
                   <Dialog.Title>Settings</Dialog.Title>
-                  <Dialog.Description>
-                    Change the settings for the website
-                  </Dialog.Description>
+                  <Dialog.Description>Change User Settings</Dialog.Description>
                 </Flex>
+                <Settings />
               </Flex>
             </Dialog.Content>
           </Dialog.Root>

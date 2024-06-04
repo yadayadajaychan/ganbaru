@@ -225,11 +225,10 @@ Get Answers
 
 - JSON Response
 
- |       field       |          type           |
- |-------------------|-------------------------|
- | instructor_answer | answer object           |
- | student_answers   | array of answer objects |
- | nextPage          | int                     |
+ |       field       |          type                         |
+ |-------------------|---------------------------------------|
+ | instructor_answer | answer object                         |
+ | student_answers   | array of answer objects, nextPage int |
 
 - Answer Object
 

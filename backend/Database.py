@@ -326,6 +326,12 @@ class db:
 
         return
 
+    def get_user_info(self, session_id):
+        uid = self.cur.execute('SELECT uid FROM auth WHERE session_id=\'%s\'', (session_id))
+        fullname = get_full_name(self, uid)
+        alias = get_alias(self, uid)
+        return fullname, alias
+
     def get_user_obj(self, uid, mod, anonymous, alias):
             if mod:
                 user_obj = {"uid": uid,

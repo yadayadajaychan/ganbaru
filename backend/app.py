@@ -111,6 +111,18 @@ def check_session():
 
     return "", 200
 
+@app.route("/user/profile", methods=["GET"])
+def get_user_info():
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    session_id = request.cookies['session_id']
+    fullname, alias = db.get_user_info(session_id)
+
+    return jsonify({"full_name": fullname, "alias": alias}), 200
+
 @app.route("/forums/create", methods=["POST"])
 def create_forum():
     try:

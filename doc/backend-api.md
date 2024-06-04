@@ -56,6 +56,27 @@ Check Session
 - check if session is valid
 - `session_id` cookie required
 
+Get User Info
+=============
+- `GET /user/profile`
+- `session_id` cookie required
+- JSON Response
+
+|   field   |  type  |   description    |
+|-----------|--------|------------------|
+| full_name | string | user's full name |
+| alias     | string | user's alias     |
+
+Set User Info
+=============
+- `POST /user/profile/set_info`
+- `session_id` cookie required
+- JSON Parameters
+
+|   field   |  type  | optional |   description    |
+|-----------|--------|----------|------------------|
+| full_name | string | y        | user's full name |
+| alias     | string | y        | user's alias     |
 
 Create Forum
 =========================

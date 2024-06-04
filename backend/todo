@@ -1,2 +1,4 @@
-- update backend api to conform to api spec regarding votes
-- update backend api to conform to api spec regarding join codes
+- update backend api to conform to api spec regarding:
+	- votes
+	- join codes
+	- user profile

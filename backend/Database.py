@@ -176,8 +176,8 @@ class db:
 
     # returns True if password correct
     # raises exception if incorrect
-    def check_password(self, username, password):
-        self.cur.execute('SELECT hash FROM auth WHERE username=%s', (username,))
+    def check_password(self, email, password):
+        self.cur.execute('SELECT hash FROM auth WHERE email=%s', (email,))
         record = self.cur.fetchone()
         if not record:
             raise Exception("user doesn't exist")
@@ -379,10 +379,10 @@ class db:
 
             return user_obj
 
-    def delete_user(self, username, password):
-        username = username.lower()
+    def delete_user(self, email, password):
+        email = email.lower()
 
-        self.cur.execute('SELECT uid FROM auth WHERE username=%s', (username,))
+        self.cur.execute('SELECT uid FROM auth WHERE email=%s', (email,))
         record = self.cur.fetchone()
         if not record:
             raise Exception("user doesn't exist")
@@ -391,7 +391,7 @@ class db:
         if uid == 0:
             raise Exception("can't delete admin")
 
-        self.check_password(username, password)
+        self.check_password(email, password)
 
         # change owner of forums to 'Deleted User'
         try:
@@ -423,10 +423,10 @@ class db:
         finally:
             self.conn.commit()
 
-    def login(self, username, password, timeout):
-        username = username.lower()
+    def login(self, email, password, timeout):
+        email = email.lower()
 
-        self.check_password(username, password)
+        self.check_password(email, password)
 
         session_id = base64.b64encode(os.urandom(36)).decode()
         exp_date = datetime.utcfromtimestamp(time.time() + timeout).isoformat()
@@ -434,8 +434,8 @@ class db:
             # TODO support multiple sessions
             self.cur.execute('UPDATE auth SET session_id = %s, '
                              'session_expiration = %s '
-                             'WHERE username = %s',
-                             (session_id, exp_date, username))
+                             'WHERE email = %s',
+                             (session_id, exp_date, email))
         finally:
             self.conn.commit()
 

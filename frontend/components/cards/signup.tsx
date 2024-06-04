@@ -9,24 +9,50 @@ import {
   TextField,
   Button,
   Link,
+  Spinner,
 } from '@radix-ui/themes';
 import { useState } from 'react';
 import NextLink from 'next/link';
+import toast from 'react-hot-toast';
+import { useRouter } from 'next/router';
 
-export interface LoginProps {
-  onCreateAccount: (
-    username: string,
-    email: string,
-    password: string,
-    confirmPassword: string
-  ) => void;
-}
+export default function SignupCard() {
+  const router = useRouter();
 
-export default function SignupCard({ onCreateAccount }: LoginProps) {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const onSubmit = async () => {
+    setIsLoading(true);
+
+    if (password !== confirmPassword) {
+      toast.error('Passwords do not match');
+      setIsLoading(false);
+      return;
+    }
+
+    const response = await fetch('/user/signup', {
+      method: 'POST',
+      body: JSON.stringify({ email, username, password }),
+      credentials: 'include',
+    });
+
+    const resp = await response.json();
+
+    if (!response.ok) {
+      toast.error(resp ?? 'Unknown error');
+      setIsLoading(false);
+      return;
+    }
+
+    router.push('/');
+
+    setIsLoading(false);
+  };
 
   return (
     <Flex flexShrink='0' direction='column' gap='6' width='416px'>
@@ -81,7 +107,9 @@ export default function SignupCard({ onCreateAccount }: LoginProps) {
           <Link href='/login' size='2'>
             Already have an Account? Sign in Here.
           </Link>
-          <Button className='hover:cursor-pointer'>Create Account</Button>
+          <Button className='hover:cursor-pointer' onClick={onSubmit}>
+            {isLoading ? <Spinner /> : 'Create Account'}
+          </Button>
         </Flex>
       </Card>
     </Flex>

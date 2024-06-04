@@ -1,3 +1,5 @@
+'use client';
+
 import { CaretDownIcon } from '@radix-ui/react-icons';
 import { Text, Flex, HoverCard } from '@radix-ui/themes';
 import NextLink from 'next/link';

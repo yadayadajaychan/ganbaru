@@ -9,17 +9,42 @@ import {
   TextField,
   Button,
   Link,
+  Spinner,
 } from '@radix-ui/themes';
 import { useState } from 'react';
 import NextLink from 'next/link';
+import toast from 'react-hot-toast';
+import { useRouter } from 'next/router';
 
-export interface LoginProps {
-  onSignIn: (email: string, password: string) => void;
-}
+export default function LoginCard() {
+  const router = useRouter();
 
-export default function LoginCard({ onSignIn }: LoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const onSubmit = async () => {
+    setIsLoading(true);
+
+    const response = await fetch('/user/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+      credentials: 'include',
+    });
+
+    const resp = await response.json();
+
+    if (!response.ok) {
+      toast.error(resp ?? 'Unknown error');
+      setIsLoading(false);
+      return;
+    }
+
+    router.push('/');
+
+    setIsLoading(false);
+  };
 
   return (
     <Flex flexShrink='0' direction='column' gap='6' width='416px'>
@@ -58,7 +83,9 @@ export default function LoginCard({ onSignIn }: LoginProps) {
               Create an account{' '}
             </Button>
           </NextLink>
-          <Button className='hover:cursor-pointer'>Sign in</Button>
+          <Button className='hover:cursor-pointer' onClick={onSubmit}>
+            {isLoading ? <Spinner /> : 'Sign in'}
+          </Button>
         </Flex>
       </Card>
     </Flex>

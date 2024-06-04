@@ -245,6 +245,16 @@ Create Answer
  | anonymous | bool   | if post is anonymous   | y        | false   |
  | alias     | bool   | if post uses alias     | y        | false   |
 
+Get Post Vote
+=============
+- `GET /forums/<forum_id>/<post_id>/get_vote`
+- `session_id` cookie required
+JSON Response
+
+ |   field   |  type  |         description          |
+ |-----------|--------|------------------------------|
+ |    vote   |  int   | value of user vote 1, 0, -1  |
+
 Vote on Post
 ============
 - `POST /forums/<forum_id>/<post_id>/vote`

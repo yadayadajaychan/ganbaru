@@ -8,6 +8,7 @@ import {
   QueryClient,
   dehydrate,
 } from '@tanstack/react-query';
+import { fetchComments } from '@/api/comment';
 import CommentContainer from '@/components/comment/container';
 import { ChatBubbleIcon } from '@radix-ui/react-icons';
 import { AutoSizer } from 'react-virtualized';
@@ -19,10 +20,8 @@ export default async function Post({ params }: { params: { postId: string } }) {
 
   await queryClient.prefetchInfiniteQuery({
     queryKey: ['comments', params.postId],
-    queryFn: async ({ pageParam }) => {
-      const res = await fetch(`/api/xxx/${params.postId}?page=${pageParam}`);
-      return res.json();
-    },
+    queryFn: ({ pageParam }) =>
+      fetchComments({ pageParam, postId: Number(params.postId) }),
     initialPageParam: 1,
   });
 

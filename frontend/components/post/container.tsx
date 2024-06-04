@@ -22,6 +22,7 @@ import {
   InfiniteQueryObserverResult,
   useInfiniteQuery,
 } from '@tanstack/react-query';
+import { fetchPosts } from '@/api/post';
 import PostCard from '../cards/post';
 import { Crosshair2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -40,12 +41,7 @@ export default function PostContainer() {
 
   const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery({
     queryKey: ['posts', search, filter],
-    queryFn: async ({ pageParam }) => {
-      const res = await fetch(
-        `/api/xxx/x?search=${search}&page=${pageParam}&filter=${filter}`
-      );
-      return res.json();
-    },
+    queryFn: ({ pageParam }) => fetchPosts({ pageParam, search, filter }),
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 1,
   });

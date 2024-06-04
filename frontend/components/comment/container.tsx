@@ -23,6 +23,7 @@ import {
   InfiniteQueryObserverResult,
   useInfiniteQuery,
 } from '@tanstack/react-query';
+import { fetchComments } from '@/api/comment';
 import InfiniteScroll from 'react-infinite-scroller';
 
 interface CommentContainerProps {
@@ -38,10 +39,8 @@ const cache = new CellMeasurerCache({
 export default function CommentContainer({ postId }: CommentContainerProps) {
   const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery({
     queryKey: ['comments', postId],
-    queryFn: async ({ pageParam }) => {
-      const res = await fetch(`/api/xxx/${postId}?page=` + pageParam);
-      return res.json();
-    },
+    queryFn: ({ pageParam }) =>
+      fetchComments({ pageParam, postId: Number(postId) }),
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 1,
   });

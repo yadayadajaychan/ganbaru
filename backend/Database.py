@@ -617,9 +617,9 @@ class db:
             anonymous = record[9]
             alias = record[10]
             user_obj = self.get_user_obj(record[1], mod, anonymous, alias)
-            if uid in record[9]:
+            if uid in record[11]:
                 vote = 1
-            elif uid in record[10]:
+            elif uid in record[12]:
                 vote = -1
             else:
                 vote = 0
@@ -681,9 +681,9 @@ class db:
         anonymous = record[9]
         alias = record[10]
         user_obj = self.get_user_obj(record[0], mod, anonymous, alias)
-        if uid in record[9]:
+        if uid in record[11]:
             vote = 1
-        elif uid in record[10]:
+        elif uid in record[12]:
             vote = -1
         else:
             vote = 0

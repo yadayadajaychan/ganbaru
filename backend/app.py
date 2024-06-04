@@ -169,13 +169,16 @@ def create_post(forum_id):
     full_text = data.get("full_text")
     if full_text is None:
         return jsonify({"error": "post body can't be empty"}), 400
+    elif len(full_text) > 10000:
+        return jsonify({"error": "post body is over the 10k character limit"}), 400
 
     tags = data.get("tags")
 
-    alias = data.get("alias")
+    anonymous = data.get("anonymous", False)
+    alias = data.get("alias", False)
 
     try:
-        db.create_post(session_id, forum_id, title, full_text, tags, alias)
+        db.create_post(session_id, forum_id, title, full_text, tags, anonymous, alias)
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
@@ -228,8 +231,14 @@ def create_answer(forum_id, post_id):
     except:
         return jsonify({"error": "missing answer field"}), 400
 
+    if len(data["answer"]) > 10000:
+        return jsonify({"error": "answer body is over the 10k character limit"}), 400
+
+    anonymous = data.get("anonymous", False)
+    alias = data.get("alias", False)
+
     try:
-        db.create_answer(session_id, forum_id, post_id, data["answer"], data["alias"])
+        db.create_answer(session_id, forum_id, post_id, data["answer"], anonymous, alias)
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
@@ -250,6 +259,30 @@ def get_answers(forum_id, post_id):
         return jsonify({"error": str(e)}), 400
 
     return jsonify(answers), 200
+
+@app.route("/forums/<forum_id>/<post_id>/vote", methods=["PUT"]) # patch?
+def vote_on_post(forum_id, post_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        data = request.get_json(force=True)
+    except:
+        return jsonify({"error": "invalid json"}), 400
+
+    try:
+        data["vote"]
+    except:
+        return jsonify({"error": "missing vote field"}), 400
+
+    try:
+        vote = db.vote_on_post(session_id, forum_id, post_id, data["vote"])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify(vote), 200
 
 if __name__ == "__main__":
     app.run(debug=True)

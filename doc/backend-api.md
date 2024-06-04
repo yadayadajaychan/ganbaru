@@ -56,6 +56,27 @@ Check Session
 - check if session is valid
 - `session_id` cookie required
 
+Get User Info
+=============
+- `GET /user/profile`
+- `session_id` cookie required
+- JSON Response
+
+|   field   |  type  |   description    |
+|-----------|--------|------------------|
+| full_name | string | user's full name |
+| alias     | string | user's alias     |
+
+Set User Info
+=============
+- `POST /user/profile/set_info`
+- `session_id` cookie required
+- JSON Parameters
+
+|   field   |  type  | optional |   description    |
+|-----------|--------|----------|------------------|
+| full_name | string | y        | user's full name |
+| alias     | string | y        | user's alias     |
 
 Create Forum
 =========================
@@ -152,12 +173,15 @@ Create Post
 - create a post
 - `session_id` cookie required
 - JSON Parameters
+- `full_text` has a 10k character limit
 
- |   field   |       type       |      description      | optional |
- |-----------|------------------|-----------------------|----------|
- | title     | string           | title of the post     | n        |
- | full_text | string           | full text of the post | n        |
- | tags      | array of strings | tags                  | y        |
+ |   field   |       type       |      description      | optional | default |
+ |-----------|------------------|-----------------------|----------|---------|
+ | title     | string           | title of the post     | n        |         |
+ | full_text | string           | full text of the post | n        |         |
+ | tags      | array of strings | tags                  | y        | []      |
+ | anonymous | bool             | if post is anonymous  | y        | false   |
+ | alias     | bool             | if post uses alias    | y        | false   |
 
 View Post
 =========================
@@ -234,10 +258,13 @@ Create Answer
 - answer a post
 - `session_id` cookie required
 - JSON Parameters
+- `answer` has a 10k character limit
 
- | field  |  type  |      description       |
- |--------|--------|------------------------|
- | answer | string | the text of the answer |
+ |   field   |  type  |      description       | optional | default |
+ |-----------|--------|------------------------|----------|---------|
+ | answer    | string | the text of the answer | n        |         |
+ | anonymous | bool   | if post is anonymous   | y        | false   |
+ | alias     | bool   | if post uses alias     | y        | false   |
 
 Vote on Post
 ============
@@ -260,3 +287,46 @@ Vote on Answer
  | field | type |      description       |
  |-------|------|------------------------|
  | vote  | int  | valid values: -1, 0, 1 |
+
+Get Join Code
+=============
+- `GET /forums/<forum_id>/join_code`
+- get the forum's join code
+- `session_id` cookie required
+- JSON Response
+
+ |   field   |  type  |         description          |
+ |-----------|--------|------------------------------|
+ | join_code | string | value required to join forum |
+
+Refresh Join Code
+=================
+- `POST /forums/<forum_id>/refresh_join_code`
+- invalidates previous join code
+- requires moderator privileges
+- `session_id` cookie required
+
+Get Moderator Join Code
+=======================
+- `GET /forums/<forum_id>/mod_join_code`
+- get the forum's moderator join code
+- requires moderator privileges
+- `session_id` cookie required
+- JSON Response
+
+ |     field     |  type  |                description                |
+ |---------------|--------|-------------------------------------------|
+ | mod_join_code | string | value required to join forum as moderator |
+
+Refresh Moderator Join Code
+===========================
+- `POST /forums/<forum_id>/refresh_mod_join_code`
+- invalidates previous moderator join code
+- requires moderator privileges
+- `session_id` cookie required
+
+Join Forum
+==========
+- `POST /forums/join/<join_code>`
+- join a forum using its join code
+- `session_id` cookie required

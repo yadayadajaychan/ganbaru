@@ -11,23 +11,26 @@ import {
 import { Post } from '@/types';
 import { MarkdownToJsx } from '../markdown';
 
+interface PostCardProps {
+  post: Post;
+  preview?: boolean;
+
+  isLiked?: boolean;
+  isDisliked?: boolean;
+}
+
 export default function PostCard({
-  title,
-  description,
-  user,
-  likes,
-  comments,
-  datePosted,
+  post,
+  preview = false,
   isLiked = false,
   isDisliked = false,
-  preview = false,
-}: Post) {
+}: PostCardProps) {
   const [likeStatus, setLikeStatus] = useState<{
     isLiked: boolean;
     isDisliked: boolean;
   }>({ isLiked, isDisliked });
 
-  const [likeCount, setLikeCount] = useState(likes);
+  const [likeCount, setLikeCount] = useState(post.likes);
 
   const handleUpvote = () => {
     if (likeStatus.isLiked) {
@@ -55,10 +58,10 @@ export default function PostCard({
         <Flex id='left' direction='column' justify='start' gap='2'>
           <Flex id='user' direction='row' justify='between'>
             <Text color='gray' size='2'>
-              Posted by: {user}
+              Posted by: {post.user}
             </Text>
-            <Text color='gray' size='2'>
-              {datePosted.toLocaleTimeString()}
+            <Text color='gray' size='1'>
+              {post.datePosted.toLocaleTimeString()}
             </Text>
           </Flex>
           <Flex id='content' direction='column' gap={preview ? '1' : '3'}>
@@ -80,7 +83,7 @@ export default function PostCard({
                 }}
                 className={preview ? 'hover:cursor-pointer' : ''}
               >
-                {title}
+                {post.title}
               </Text>
             </Flex>
             <Flex
@@ -89,7 +92,7 @@ export default function PostCard({
                 overflow: 'hidden', // Ensures content does not expand the box
               }}
             >
-              <MarkdownToJsx markdown={description} />
+              <MarkdownToJsx markdown={post.description} />
             </Flex>
           </Flex>
           <Separator orientation='horizontal' mt={'2'} size='4' />
@@ -146,7 +149,7 @@ export default function PostCard({
                 >
                   <ChatBubbleIcon className='hover:cursor-pointer' />
                   <Text as='label' size='2' className='hover:cursor-pointer'>
-                    {comments}
+                    {post.comments}
                   </Text>
                 </Flex>
               </Box>

@@ -16,8 +16,10 @@ import NextLink from 'next/link';
 import { useTheme } from 'next-themes';
 import { useState } from 'react';
 import Settings from './settings';
+import { useRouter } from 'next/router';
 
 export default function NavBar({ classId }: { classId: string }) {
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -26,6 +28,8 @@ export default function NavBar({ classId }: { classId: string }) {
     await fetch('/api/logout', {
       method: 'POST',
     });
+
+    router.push('/');
   };
 
   return (

@@ -16,12 +16,17 @@ import NextLink from 'next/link';
 import { useTheme } from 'next-themes';
 import { useState } from 'react';
 import Settings from './settings';
-import { logout } from '../serverActions';
 
 export default function NavBar() {
   const { theme, setTheme } = useTheme();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const logout = async () => {
+    await fetch('/api/logout', {
+      method: 'POST',
+    });
+  };
 
   return (
     <Box

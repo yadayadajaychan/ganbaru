@@ -3,6 +3,7 @@
 import { CaretDownIcon } from '@radix-ui/react-icons';
 import { Text, Flex, HoverCard } from '@radix-ui/themes';
 import NextLink from 'next/link';
+import Classes from './classes';
 
 export default function Nav() {
   return (
@@ -24,13 +25,11 @@ export default function Nav() {
               />
             </Flex>
           </HoverCard.Trigger>
-          <HoverCard.Content>
-            <Text>test</Text>
+          <HoverCard.Content width='200px'>
+            <Classes />
           </HoverCard.Content>
         </HoverCard.Root>
       </Flex>
-
-
     </Flex>
   );
 }

@@ -6,7 +6,7 @@ import PostCreate from '@/components/post/create';
 import { PlusIcon } from '@radix-ui/react-icons';
 import { Dialog, Flex, IconButton } from '@radix-ui/themes';
 
-export default function Home() {
+export default function Forum({ params }: { params: { forumId: string } }) {
   return (
     <>
       <Flex gap='20' direction='column' justify='start' align='center'>

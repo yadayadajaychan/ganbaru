@@ -32,23 +32,52 @@ export default function PostCard({
 
   const [likeCount, setLikeCount] = useState(post.likes);
 
-  const handleUpvote = () => {
-    if (likeStatus.isLiked) {
-      setLikeStatus({ isLiked: false, isDisliked: false });
-      setLikeCount(likeCount - 1);
-    } else {
-      setLikeStatus({ isLiked: true, isDisliked: false });
-      setLikeCount(likeStatus.isDisliked ? likeCount + 2 : likeCount + 1);
+  const sendVoteRequest = async (postId: string, voteType: string) => {
+    try {
+      const response = await fetch(`/api/vote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ postId, voteType }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to vote');
+      }
+
+      const data = await response.json();
+      return data.newScore;
+    } catch (error) {
+      console.error('Error:', error);
+      return null;
     }
   };
 
-  const handleDownvote = () => {
-    if (likeStatus.isDisliked) {
-      setLikeStatus({ isLiked: false, isDisliked: false });
-      setLikeCount(likeCount + 1);
-    } else {
-      setLikeStatus({ isLiked: false, isDisliked: true });
-      setLikeCount(likeStatus.isLiked ? likeCount - 2 : likeCount - 1);
+  const handleUpvote = async () => {
+    const newScore = await sendVoteRequest(post.id, 'upvote'); //I DONT KNOW WHATS THE POST ID 
+
+    if (newScore !== null) {
+      if (likeStatus.isLiked) {
+        setLikeStatus({ isLiked: false, isDisliked: false });
+        setLikeCount(newScore);
+      } else {
+        setLikeStatus({ isLiked: true, isDisliked: false });
+        setLikeCount(newScore);
+      }
+    }
+  };
+
+  const handleDownvote = async () => {
+    const newScore = await sendVoteRequest(post.id, 'downvote'); //I DONT KNOW WHATS THE POST ID 
+    if (newScore !== null) {
+      if (likeStatus.isDisliked) {
+        setLikeStatus({ isLiked: false, isDisliked: false });
+        setLikeCount(newScore);
+      } else {
+        setLikeStatus({ isLiked: false, isDisliked: true });
+        setLikeCount(newScore);
+      }
     }
   };
 
@@ -77,9 +106,9 @@ export default function PostCard({
                 size={preview ? '3' : '5'}
                 truncate={preview ? true : false}
                 style={{
-                  whiteSpace: 'normal', // Allows text wrapping
-                  overflow: 'hidden', // Prevents content from spilling out
-                  textOverflow: 'ellipsis', // Adds ellipsis when text overflows
+                  whiteSpace: 'normal',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
                 }}
                 className={preview ? 'hover:cursor-pointer' : ''}
               >
@@ -89,7 +118,7 @@ export default function PostCard({
             <Flex
               style={{
                 height: preview ? '80px' : undefined,
-                overflow: 'hidden', // Ensures content does not expand the box
+                overflow: 'hidden',
               }}
             >
               <MarkdownToJsx markdown={post.description} />
@@ -114,9 +143,8 @@ export default function PostCard({
               <Flex gap='3' justify='start' align='center'>
                 <Flex direction='row' justify='start' align='center' gap='1'>
                   <ThickArrowUpIcon
-                    className={`hover:cursor-pointer icon-hover ${
-                      likeStatus.isLiked ? 'liked' : ''
-                    }`}
+                    className={`hover:cursor-pointer icon-hover ${likeStatus.isLiked ? 'liked' : ''
+                      }`}
                     onClick={handleUpvote}
                   />
                   <Text as='label' size='2'>
@@ -124,9 +152,8 @@ export default function PostCard({
                   </Text>
                 </Flex>
                 <ThickArrowDownIcon
-                  className={`hover:cursor-pointer icon-hover ${
-                    likeStatus.isDisliked ? 'disliked' : ''
-                  }`}
+                  className={`hover:cursor-pointer icon-hover ${likeStatus.isDisliked ? 'disliked' : ''
+                    }`}
                   onClick={handleDownvote}
                 />
               </Flex>

@@ -78,7 +78,7 @@ export default function SignupCard({ onCreateAccount }: LoginProps) {
         </Flex>
 
         <Flex mt='6' direction='column' justify='end' gap='3'>
-          <Link href='#' size='2' onClick={(e) => e.preventDefault()}>
+          <Link href='/login' size='2'>
             Already have an Account? Sign in Here.
           </Link>
           <Button className='hover:cursor-pointer'>Create Account</Button>

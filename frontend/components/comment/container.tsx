@@ -32,8 +32,9 @@ const cache = new CellMeasurerCache({
 // will be the virtualized list that contains all of the comments
 export default function CommentContainer({ postId }: CommentContainerProps) {
   const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery({
-    queryKey: ['comments', { id: postId }],
-    queryFn: fetchComments,
+    queryKey: ['comments', postId],
+    queryFn: ({ pageParam }) =>
+      fetchComments({ pageParam, postId: Number(postId) }),
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 1,
   });

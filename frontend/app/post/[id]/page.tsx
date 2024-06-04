@@ -19,8 +19,9 @@ export default async function Post({ params }: { params: { id: string } }) {
   const queryClient = new QueryClient();
 
   await queryClient.prefetchInfiniteQuery({
-    queryKey: ['comments', { id: params.id }],
-    queryFn: fetchComments,
+    queryKey: ['comments', params.id],
+    queryFn: ({ pageParam }) =>
+      fetchComments({ pageParam, postId: Number(params.id) }),
     initialPageParam: 1,
   });
 

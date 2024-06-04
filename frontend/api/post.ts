@@ -1,7 +1,6 @@
 
 
-export const fetchPosts = async ({ pageParam = 0, queryKey }: { pageParam: number; queryKey: any }) => {
-    const [_key, { id }] = queryKey;
-    const res = await fetch(`/api/xxx/${id}?page=` + pageParam);
+export const fetchPosts = async ({ pageParam = 1, search }: { pageParam: number; search: string }) => {
+    const res = await fetch(`/api/xxx/x?search=${search}page=${pageParam}`);
     return res.json();
   };

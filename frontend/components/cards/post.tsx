@@ -47,7 +47,7 @@ export default function PostCard({ post, preview = false }: PostCardProps) {
   };
 
   const handleUpvote = async () => {
-    const newScore = await sendVoteRequest(post.post_id.toString(), 'upvote'); //I DONT KNOW WHATS THE POST ID
+    const newScore = await sendVoteRequest(post.post_id.toString(), 'upvote');
 
     if (newScore !== null) {
       if (likeStatus.isLiked) {
@@ -61,7 +61,7 @@ export default function PostCard({ post, preview = false }: PostCardProps) {
   };
 
   const handleDownvote = async () => {
-    const newScore = await sendVoteRequest(post.post_id.toString(), 'downvote'); //I DONT KNOW WHATS THE POST ID
+    const newScore = await sendVoteRequest(post.post_id.toString(), 'downvote');
     if (newScore !== null) {
       if (likeStatus.isDisliked) {
         setLikeStatus({ isLiked: false, isDisliked: false });
@@ -135,9 +135,8 @@ export default function PostCard({ post, preview = false }: PostCardProps) {
               <Flex gap='3' justify='start' align='center'>
                 <Flex direction='row' justify='start' align='center' gap='1'>
                   <ThickArrowUpIcon
-                    className={`hover:cursor-pointer icon-hover ${
-                      likeStatus.isLiked ? 'liked' : ''
-                    }`}
+                    className={`hover:cursor-pointer icon-hover ${likeStatus.isLiked ? 'liked' : ''
+                      }`}
                     onClick={handleUpvote}
                   />
                   <Text as='label' size='2'>
@@ -145,9 +144,8 @@ export default function PostCard({ post, preview = false }: PostCardProps) {
                   </Text>
                 </Flex>
                 <ThickArrowDownIcon
-                  className={`hover:cursor-pointer icon-hover ${
-                    likeStatus.isDisliked ? 'disliked' : ''
-                  }`}
+                  className={`hover:cursor-pointer icon-hover ${likeStatus.isDisliked ? 'disliked' : ''
+                    }`}
                   onClick={handleDownvote}
                 />
               </Flex>

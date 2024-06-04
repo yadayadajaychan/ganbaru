@@ -1,7 +1,7 @@
 'use client';
 
 import { Comment as CommentType, Post } from '@/types';
-import { Card, Flex, Separator, Spinner } from '@radix-ui/themes';
+import { Card, Flex, Separator, Spinner, Text } from '@radix-ui/themes';
 import {
   Dispatch,
   SetStateAction,
@@ -70,6 +70,11 @@ export default function CommentContainer({
 
   return (
     <Flex width='616px' direction='column' gap='2' justify='center' mb='5'>
+      {!isLoading && comments.length === 0 && (
+        <Flex justify='center' align='center'>
+          <Text>No comments found. Be the first to create one!</Text>
+        </Flex>
+      )}
       <InfiniteScroll
         pageStart={0}
         loadMore={loadMoreRows}

@@ -17,7 +17,7 @@ import { useTheme } from 'next-themes';
 import { useState } from 'react';
 import Settings from './settings';
 
-export default function NavBar() {
+export default function NavBar({ classId }: { classId: string }) {
   const { theme, setTheme } = useTheme();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -52,7 +52,7 @@ export default function NavBar() {
             transform: 'translateX(-50%)',
           }}
         >
-          <Nav />
+          <Nav classId={classId} />
         </Box>
 
         <Box id='user'>

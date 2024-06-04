@@ -1,13 +1,17 @@
 import NavBar from '@/components/nav/navbar';
 
-export default function HomeLayout({
+export default function ForumLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: {
+    forumId: string;
+  };
 }) {
   return (
     <>
-      <NavBar />
+      <NavBar classId={params.forumId} />
       <main className='pt-[66px] px-4'>{children}</main>
     </>
   );

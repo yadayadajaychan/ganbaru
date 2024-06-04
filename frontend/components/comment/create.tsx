@@ -7,6 +7,7 @@ import { AutoSizer } from 'react-virtualized';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { createComment } from '@/api/comment';
+import { QueryClient, useQueryClient } from '@tanstack/react-query';
 
 interface CommentPopoverProps {
   forumId: string;
@@ -21,8 +22,14 @@ export default function CommentPopover({
   const [anonymous, setAnonymous] = useState(false);
   const [open, setOpen] = useState(false);
 
+  const queryClient = useQueryClient();
+
   const handleSubmit = async () => {
     if (!text.trim()) return;
+
+    void queryClient.refetchQueries({
+      queryKey: ['comments', forumId],
+    });
 
     // Assuming you have an API endpoint for creating comments
     const response = await createComment({
@@ -35,6 +42,7 @@ export default function CommentPopover({
     if (response.ok) {
       setText('');
       setOpen(false);
+
       toast.success('Comment created!');
     } else {
       console.error('Failed to create comment');

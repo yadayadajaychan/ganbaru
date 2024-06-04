@@ -16,7 +16,7 @@ import NextLink from 'next/link';
 import { useTheme } from 'next-themes';
 import { useState } from 'react';
 import Settings from './settings';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 export default function NavBar({ classId }: { classId: string }) {
   const router = useRouter();

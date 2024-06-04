@@ -284,6 +284,16 @@ Vote on Post
  |-------|------|------------------------|
  | vote  | int  | valid values: -1, 0, 1 |
 
+Get Answer Vote
+===============
+- `GET /forums/<forum_id>/<post_id>/<answer_id>/get_vote`
+- `session_id` cookie required
+JSON Response
+
+ |   field   |  type  |         description          |
+ |-----------|--------|------------------------------|
+ |    vote   |  int   | value of user vote 1, 0, -1  |
+
 Vote on Answer
 ==============
 - `POST /forums/<forum_id>/<post_id>/<answer_id>/vote`

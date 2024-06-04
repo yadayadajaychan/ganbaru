@@ -37,6 +37,7 @@ class db:
             # passwords are salted and hashed using argon2id
             self.cur.execute('CREATE TABLE IF NOT EXISTS auth ('
                                         'uid        integer NOT NULL UNIQUE,'
+                                        'email      text    NOT NULL UNIQUE,'
                                         'username   text    NOT NULL UNIQUE,'
                                         'hash       text    NOT NULL,'
                                         'session_id text,'
@@ -44,10 +45,10 @@ class db:
         finally:
             self.conn.commit()
 
-    def __create_admin(self, username, password):
+    def __create_admin(self, email, username, password):
         self.cur.execute('SELECT uid FROM auth WHERE uid=0')
         if self.cur.fetchone() is None:
-            self.create_user(username, password)
+            self.create_user(email, username, password)
             try:
                 self.cur.execute("UPDATE users SET alias = 'admin' WHERE uid = 0")
             finally:
@@ -122,7 +123,18 @@ class db:
         finally:
             self.conn.commit()
 
-    def create_user(self, username, password):
+    def create_user(self, email, username, password):
+        if not email.isascii():
+            raise Exception("non-ascii email not allowed")
+
+        if len(email) < 1:
+            raise Exception("empty email")
+
+        email = email.lower()
+
+        if "@" not in email
+            raise Exception("invalid email")
+
         if not username.isascii():
             raise Exception("non-ascii username not allowed")
 
@@ -151,12 +163,12 @@ class db:
 
         try:
             self.cur.execute('INSERT INTO auth '
-                             '(uid, username, hash) '
-                             'VALUES (%s, %s, %s)',
-                             (uid, username, hash))
+                             '(uid, email, username, hash) '
+                             'VALUES (%s, %s, %s, %s)',
+                             (uid, email, username, hash))
             self.cur.execute('INSERT INTO users (uid) VALUES (%s)', (uid,))
         except psycopg2.errors.UniqueViolation:
-            raise Exception("username taken")
+            raise Exception("username taken or email already in use")
         finally:
             self.conn.commit()
 
@@ -306,6 +318,16 @@ class db:
             self.conn.commit()
 
         return
+
+    def get_email_wrapper(session_id):
+        get_email(self, session_id)
+
+    def get_email(self, session_id):
+        try:
+            self.cur.execute('SELECT email '
+                             'FROM users '
+                             'WHERE uid = %s', (uid))
+        return self.cur.fetchone()[0]
 
     # returns None if not found
     def get_alias(self, uid):

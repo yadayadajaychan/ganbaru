@@ -10,6 +10,11 @@ def create_user():
     global db;
 
     try:
+        data["email"]
+    except:
+        return jsonify({"error": "missing email"}), 400
+
+    try:
         data = request.get_json(force=True)
     except:
         return jsonify({"error": "invalid json"}), 400
@@ -25,7 +30,7 @@ def create_user():
         return jsonify({"error": "missing password"}), 400
 
     try:
-        db.create_user(data["username"], data["password"])
+        db.create_user(data["email"], data["username"], data["password"])
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 

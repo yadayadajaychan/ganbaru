@@ -5,33 +5,32 @@ when an error occurs, an non 2xx HTTP status code is returned
 along with a JSON Object with an "error" field containing
 the error message
 
-
 Create User
-=========================
+===========
 - `POST /user/create`
 - creates a new user
+- alias is set to username
 - JSON Params
 
  |  field   |  type  |
  |----------|--------|
+ | email    | string |
  | username | string |
  | password | string |
 
-
 Delete User
-=========================
+===========
 - `POST /user/delete`
 - deletes a user
 - JSON Params
 
  |  field   |  type  |
  |----------|--------|
- | username | string |
+ | email    | string |
  | password | string |
 
-
 Login
-=========================
+=====
 - `POST /user/login`
 - authenticate user
 - sets `session_id` cookie
@@ -39,16 +38,14 @@ Login
 
  |  field   |  type  | optional |
  |----------|--------|----------|
- | username | string | n        |
+ | email    | string | n        |
  | password | string | n        |
  | timeout  | int    | y        |
 
-
 Logout
-=========================
+======
 - `POST /user/logout`
 - `session_id` cookie required
-
 
 Check Session
 =========================
@@ -56,6 +53,27 @@ Check Session
 - check if session is valid
 - `session_id` cookie required
 
+Get User Info
+=============
+- `GET /user/profile`
+- `session_id` cookie required
+- JSON Response
+
+|   field   |  type  |   description    |
+|-----------|--------|------------------|
+| full_name | string | user's full name |
+| alias     | string | user's alias     |
+
+Set User Info
+=============
+- `POST /user/profile/set_info`
+- `session_id` cookie required
+- JSON Parameters
+
+|   field   |  type  | optional |   description    |
+|-----------|--------|----------|------------------|
+| full_name | string | y        | user's full name |
+| alias     | string | y        | user's alias     |
 
 Create Forum
 =========================

@@ -1,4 +1,5 @@
-- update backend api to conform to api spec regarding votes
-- update backend api to conform to api spec regarding join codes
-- update api spec to allow for user info viewing and management
-- character limit on posts and answers
+- update backend api to conform to api spec regarding:
+	- votes
+	- join codes
+	- user profile
+	- user creation with email

@@ -1,4 +1,4 @@
 export const fetchClasses = () =>
-  fetch(`/api/xxx/classes`, {
+  fetch(`/forums`, {
     credentials: 'include',
   });

@@ -13,7 +13,7 @@ export default function Home() {
       align='center'
     >
       <Card size='4'>
-        <Flex width='616px' direction='column' gap='4'>
+        <Flex direction='column' gap='4' className='w-full px-4 md:max-w-3xl'>
           <Heading>Classes</Heading>
           <Separator size='4' />
           <Flex>

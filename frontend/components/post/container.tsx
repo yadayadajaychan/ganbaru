@@ -62,7 +62,7 @@ export default function PostContainer() {
 
   return (
     // <Card size='5'>
-    <Flex width='616px' gap='2' direction='column' justify='center'>
+    <Flex gap='2' direction='column' justify='center' className='w-full'>
       <Flex direction='row' justify='between' className='w-full' gap='2'>
         <TextField.Root
           placeholder='Search for a specific post...'

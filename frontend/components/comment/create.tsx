@@ -28,7 +28,7 @@ export default function CommentPopover({
     if (!text.trim()) return;
 
     void queryClient.refetchQueries({
-      queryKey: ['comments', forumId],
+      queryKey: ['comments'],
     });
 
     // Assuming you have an API endpoint for creating comments

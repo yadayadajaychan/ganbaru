@@ -28,7 +28,12 @@ export default async function Post({
       direction='column'
       gap='9'
     >
-      <Flex justify='start' direction='column' gap='4'>
+      <Flex
+        justify='start'
+        direction='column'
+        gap='4'
+        className='w-full px-4 md:max-w-3xl'
+      >
         <PostCard
           post={{
             user: { uid: 25, name: 'anonymous12345' },

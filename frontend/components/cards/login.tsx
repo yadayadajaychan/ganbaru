@@ -44,9 +44,6 @@ export default function LoginCard({ onSignIn }: LoginProps) {
             <Text as='label' size='2' weight='bold'>
               Password
             </Text>
-            <Link href='#' size='2' onClick={(e) => e.preventDefault()}>
-              Forgot password?
-            </Link>
           </Flex>
           <TextField.Root
             value={password}

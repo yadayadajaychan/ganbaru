@@ -1,7 +1,6 @@
 
 
-export const fetchComments = async ({ pageParam = 0, queryKey }: { pageParam: number; queryKey: any }) => {
-    const [_key, { id }] = queryKey;
-    const res = await fetch(`/api/xxx/${id}?page=` + pageParam);
+export const fetchComments = async ({ pageParam = 0, postId }: { pageParam: number; postId: number }) => {
+    const res = await fetch(`/api/xxx/${postId}?page=` + pageParam);
     return res.json();
   };

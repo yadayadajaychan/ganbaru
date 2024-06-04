@@ -14,23 +14,15 @@ import { MarkdownToJsx } from '../markdown';
 interface PostCardProps {
   post: Post;
   preview?: boolean;
-
-  isLiked?: boolean;
-  isDisliked?: boolean;
 }
 
-export default function PostCard({
-  post,
-  preview = false,
-  isLiked = false,
-  isDisliked = false,
-}: PostCardProps) {
+export default function PostCard({ post, preview = false }: PostCardProps) {
   const [likeStatus, setLikeStatus] = useState<{
     isLiked: boolean;
     isDisliked: boolean;
-  }>({ isLiked, isDisliked });
+  }>({ isLiked: post.vote === 1, isDisliked: post.vote === -1 });
 
-  const [likeCount, setLikeCount] = useState(post.likes);
+  const [likeCount, setLikeCount] = useState(post.score);
 
   const sendVoteRequest = async (postId: string, voteType: string) => {
     try {
@@ -55,7 +47,7 @@ export default function PostCard({
   };
 
   const handleUpvote = async () => {
-    const newScore = await sendVoteRequest(post.id, 'upvote'); //I DONT KNOW WHATS THE POST ID 
+    const newScore = await sendVoteRequest(post.post_id.toString(), 'upvote'); //I DONT KNOW WHATS THE POST ID
 
     if (newScore !== null) {
       if (likeStatus.isLiked) {
@@ -69,7 +61,7 @@ export default function PostCard({
   };
 
   const handleDownvote = async () => {
-    const newScore = await sendVoteRequest(post.id, 'downvote'); //I DONT KNOW WHATS THE POST ID 
+    const newScore = await sendVoteRequest(post.post_id.toString(), 'downvote'); //I DONT KNOW WHATS THE POST ID
     if (newScore !== null) {
       if (likeStatus.isDisliked) {
         setLikeStatus({ isLiked: false, isDisliked: false });
@@ -87,10 +79,10 @@ export default function PostCard({
         <Flex id='left' direction='column' justify='start' gap='2'>
           <Flex id='user' direction='row' justify='between'>
             <Text color='gray' size='2'>
-              Posted by: {post.user}
+              Posted by: {post.user.name}
             </Text>
             <Text color='gray' size='1'>
-              {post.datePosted.toLocaleTimeString()}
+              {new Date(post.date).toLocaleTimeString()}
             </Text>
           </Flex>
           <Flex id='content' direction='column' gap={preview ? '1' : '3'}>
@@ -121,7 +113,7 @@ export default function PostCard({
                 overflow: 'hidden',
               }}
             >
-              <MarkdownToJsx markdown={post.description} />
+              <MarkdownToJsx markdown={post.content} />
             </Flex>
           </Flex>
           <Separator orientation='horizontal' mt={'2'} size='4' />
@@ -143,8 +135,9 @@ export default function PostCard({
               <Flex gap='3' justify='start' align='center'>
                 <Flex direction='row' justify='start' align='center' gap='1'>
                   <ThickArrowUpIcon
-                    className={`hover:cursor-pointer icon-hover ${likeStatus.isLiked ? 'liked' : ''
-                      }`}
+                    className={`hover:cursor-pointer icon-hover ${
+                      likeStatus.isLiked ? 'liked' : ''
+                    }`}
                     onClick={handleUpvote}
                   />
                   <Text as='label' size='2'>
@@ -152,8 +145,9 @@ export default function PostCard({
                   </Text>
                 </Flex>
                 <ThickArrowDownIcon
-                  className={`hover:cursor-pointer icon-hover ${likeStatus.isDisliked ? 'disliked' : ''
-                    }`}
+                  className={`hover:cursor-pointer icon-hover ${
+                    likeStatus.isDisliked ? 'disliked' : ''
+                  }`}
                   onClick={handleDownvote}
                 />
               </Flex>
@@ -176,7 +170,7 @@ export default function PostCard({
                 >
                   <ChatBubbleIcon className='hover:cursor-pointer' />
                   <Text as='label' size='2' className='hover:cursor-pointer'>
-                    {post.comments}
+                    {post.score}
                   </Text>
                 </Flex>
               </Box>

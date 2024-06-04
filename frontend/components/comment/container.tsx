@@ -24,7 +24,6 @@ import {
   useInfiniteQuery,
 } from '@tanstack/react-query';
 import { fetchComments } from '@/api/comment';
-import { randomComments } from './randomComments';
 import InfiniteScroll from 'react-infinite-scroller';
 
 interface CommentContainerProps {
@@ -47,7 +46,7 @@ export default function CommentContainer({ postId }: CommentContainerProps) {
   });
 
   const allRecords = data ? data.pages.map((page) => page.records) : [];
-  const comments = randomComments; //allRecords.flat();
+  const comments = allRecords.flat() as CommentType[];
 
   const [isNextPageLoading, setIsNextPageLoading] = useState(false);
 
@@ -74,7 +73,7 @@ export default function CommentContainer({ postId }: CommentContainerProps) {
         }
       >
         {comments.map((comment) => (
-          <Flex mb='5' key={comment.id}>
+          <Flex mb='5' key={comment.answer_id}>
             <Comment comment={comment} />
           </Flex>
         ))}

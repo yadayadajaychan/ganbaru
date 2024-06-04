@@ -111,13 +111,13 @@ export default function Create({
             {type === 'comment' ? (
               <Comment
                 comment={{
-                  id: '1',
-                  content: text,
-                  postId: '',
-                  createdAt: new Date(),
-                  likeCount: 1,
+                  answer_id: 1,
+                  answer: text,
+                  date: new Date().toISOString(),
+                  score: 1,
+                  vote: 1,
                   user: {
-                    id: 1,
+                    uid: 1,
                     name: 'test',
                   },
                 }}
@@ -126,11 +126,20 @@ export default function Create({
               <PostCard
                 post={{
                   title: title ?? 'My first post',
-                  description: text,
-                  user: 'test',
-                  likes: 1,
-                  comments: 1,
-                  datePosted: new Date(),
+                  content: text,
+                  user: {
+                    name: 'test',
+                    uid: 1,
+                  },
+                  score: 1,
+                  answers: 1,
+                  date: new Date().toISOString(),
+                  post_id: 1,
+                  last_activity: new Date().toISOString(),
+                  views: 1,
+                  instructor_answered: false,
+                  tags: [],
+                  vote: 1,
                 }}
                 preview={false}
               />

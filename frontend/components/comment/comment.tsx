@@ -13,20 +13,20 @@ export default function Comment({ comment }: { comment: Comment }) {
           {comment.user.name}
         </Text>
         <Separator orientation='vertical' size='1' />
-        <Text size='1'>{new Date(comment.createdAt).toLocaleTimeString()}</Text>
+        <Text size='1'>{new Date(comment.date).toLocaleTimeString()}</Text>
       </Flex>
       <Flex
         direction='column'
         gap='2'
         className='border-l-2 border-[var(--gray-5)] pl-4'
       >
-        <MarkdownToJsx markdown={comment.content} />
+        <MarkdownToJsx markdown={comment.answer} />
       </Flex>
       <Flex gap='3' justify='start' align='center'>
         <Flex direction='row' justify='start' align='center' gap='1'>
           <ThickArrowUpIcon className={`hover:cursor-pointer icon-hover`} />
           <Text as='label' size='2'>
-            {comment.likeCount}
+            {comment.score}
           </Text>
         </Flex>
         <ThickArrowDownIcon className={`hover:cursor-pointer icon-hover`} />

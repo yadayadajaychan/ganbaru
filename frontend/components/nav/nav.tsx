@@ -18,9 +18,11 @@ export default function Nav({ classId }: { classId: string }) {
       <Flex className='flex flex-row gap-2'>
         <NextLink
           href={`/forum/${classId}`}
-          className='group flex select-none items-center justify-between gap-[2px] rounded-[4px] px-3 py-2'
+          className='group flex select-none items-center justify-between gap-[2px] rounded-[4px] px-3 py-2 max-w-[80px]'
         >
-          <Text size='2'>{data ? data.name : 'Home'}</Text>
+          <Text size='2' truncate>
+            {data ? data.name : 'Home'}
+          </Text>
         </NextLink>
         <Popover.Root>
           <Popover.Trigger className='hover:bg-purple-300 hover:cursor-pointer hover:bg-opacity-10 group flex select-none items-center justify-between gap-[2px] rounded-[4px] px-2 py-2'>

@@ -28,7 +28,9 @@ export default function Classes() {
             />
           ))
         ) : (
-          <Text>No classes found</Text>
+          <Flex justify='center' align='center'>
+            <Text>No classes found</Text>
+          </Flex>
         )}
       </Flex>
       <Flex justify='center' align='end' className='w-full'>

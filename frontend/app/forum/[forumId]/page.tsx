@@ -7,7 +7,7 @@ import NavBar from '@/components/nav/navbar';
 import PostContainer from '@/components/post/container';
 import PostCreate from '@/components/post/create';
 import { PlusIcon } from '@radix-ui/react-icons';
-import { Dialog, Flex, IconButton } from '@radix-ui/themes';
+import { Dialog, Flex, IconButton, Spinner } from '@radix-ui/themes';
 import { useQuery } from '@tanstack/react-query';
 
 export default function Forum({ params }: { params: { forumId: string } }) {

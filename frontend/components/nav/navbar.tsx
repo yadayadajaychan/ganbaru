@@ -23,6 +23,7 @@ export default function NavBar({ classId }: { classId: string }) {
   const { theme, setTheme } = useTheme();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [codeOpen, setCodeOpen] = useState(false);
 
   const logout = async () => {
     await fetch('/api/logout', {
@@ -85,6 +86,12 @@ export default function NavBar({ classId }: { classId: string }) {
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
                   className='hover:cursor-pointer'
+                  onClick={() => setCodeOpen(true)}
+                >
+                  Manage Join Code
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  className='hover:cursor-pointer'
                   onClick={() => setSettingsOpen(true)}
                 >
                   Settings
@@ -106,6 +113,16 @@ export default function NavBar({ classId }: { classId: string }) {
                   <Dialog.Description>Change User Settings</Dialog.Description>
                 </Flex>
                 <Settings />
+              </Flex>
+            </Dialog.Content>
+          </Dialog.Root>
+          <Dialog.Root open={codeOpen} onOpenChange={setCodeOpen}>
+            <Dialog.Content>
+              <Flex direction='column' gap='6'>
+                <Flex direction='column'>
+                  <Dialog.Title>Manage Join Code</Dialog.Title>
+                </Flex>
+                {/* <Settings /> */}
               </Flex>
             </Dialog.Content>
           </Dialog.Root>

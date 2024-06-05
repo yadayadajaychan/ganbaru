@@ -164,6 +164,7 @@ export default function PostCard({
                   overflow: 'hidden',
                 }}
                 direction='column'
+                gap='2'
               >
                 {loading ? (
                   <Skeleton loading={true}>

@@ -119,7 +119,7 @@ export default function PostCard({
       <Card size='2'>
         <Flex id='left' direction='column' justify='start' gap='2'>
           <Link href={`/forum/${classId}/post/${post.post_id}`}>
-            <Flex id='user' direction='row' justify='between'>
+            <Flex id='user' direction='row' justify='between' gap='2'>
               <Flex direction='row' gap='2'>
                 <Text color='gray' size='2'>
                   <Skeleton loading={loading}>

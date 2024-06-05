@@ -206,6 +206,20 @@ def refresh_mod_join_code(forum_id):
 
     return "", 200
 
+@app.route("/forums/join/<join_code>", methods=["POST"])
+def join_forum(join_code):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        db.join_forum(session_id, join_code)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return "", 200
+
 @app.route("/forums/<forum_id>/create", methods=["POST"])
 def create_post(forum_id):
     try:

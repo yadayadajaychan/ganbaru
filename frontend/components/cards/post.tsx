@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Box, Card, Flex, Separator, Text } from '@radix-ui/themes';
+import { Box, Card, Flex, Separator, Skeleton, Text } from '@radix-ui/themes';
 import {
   ThickArrowUpIcon,
   ThickArrowDownIcon,
@@ -14,9 +14,14 @@ import { MarkdownToJsx } from '../markdown';
 interface PostCardProps {
   post: Post;
   preview?: boolean;
+  loading?: boolean;
 }
 
-export default function PostCard({ post, preview = false }: PostCardProps) {
+export default function PostCard({
+  post,
+  preview = false,
+  loading = false,
+}: PostCardProps) {
   const [likeStatus, setLikeStatus] = useState<{
     isLiked: boolean;
     isDisliked: boolean;
@@ -79,10 +84,12 @@ export default function PostCard({ post, preview = false }: PostCardProps) {
         <Flex id='left' direction='column' justify='start' gap='2'>
           <Flex id='user' direction='row' justify='between'>
             <Text color='gray' size='2'>
-              Posted by: {post.user.name}
+              <Skeleton loading={loading}>Posted by: {post.user.name}</Skeleton>
             </Text>
             <Text color='gray' size='1'>
-              {new Date(post.date).toLocaleTimeString()}
+              <Skeleton loading={loading}>
+                {new Date(post.date).toLocaleTimeString()}
+              </Skeleton>
             </Text>
           </Flex>
           <Flex id='content' direction='column' gap={preview ? '1' : '3'}>
@@ -104,7 +111,7 @@ export default function PostCard({ post, preview = false }: PostCardProps) {
                 }}
                 className={preview ? 'hover:cursor-pointer' : ''}
               >
-                {post.title}
+                <Skeleton loading={loading}>{post.title}</Skeleton>
               </Text>
             </Flex>
             <Flex
@@ -113,7 +120,13 @@ export default function PostCard({ post, preview = false }: PostCardProps) {
                 overflow: 'hidden',
               }}
             >
-              <MarkdownToJsx markdown={post.content} />
+              {loading ? (
+                <Skeleton loading={true}>
+                  <Text>{post.full_text}</Text>
+                </Skeleton>
+              ) : (
+                <MarkdownToJsx markdown={post.full_text} />
+              )}
             </Flex>
           </Flex>
           <Separator orientation='horizontal' mt={'2'} size='4' />
@@ -141,7 +154,7 @@ export default function PostCard({ post, preview = false }: PostCardProps) {
                     onClick={handleUpvote}
                   />
                   <Text as='label' size='2'>
-                    {likeCount}
+                    <Skeleton loading={loading}>{likeCount}</Skeleton>
                   </Text>
                 </Flex>
                 <ThickArrowDownIcon

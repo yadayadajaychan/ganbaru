@@ -126,7 +126,7 @@ export default function Create({
               <PostCard
                 post={{
                   title: title ?? 'My first post',
-                  content: text,
+                  full_text: text,
                   user: {
                     name: 'test',
                     uid: 1,

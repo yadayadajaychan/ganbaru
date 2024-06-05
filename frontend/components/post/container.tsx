@@ -27,6 +27,7 @@ import { fetchPosts } from '@/api/post';
 import PostCard from '../cards/post';
 import { Crosshair2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
 import InfiniteScroll from 'react-infinite-scroller';
+import PostSkeleton from './skeleton';
 
 // will be the virtualized list that contains all of the posts
 export default function PostContainer() {
@@ -62,7 +63,7 @@ export default function PostContainer() {
 
   return (
     // <Card size='5'>
-    <Flex gap='2' direction='column' justify='center' className='w-full'>
+    <Flex gap='4' direction='column' justify='center' className='w-full'>
       <Flex direction='row' justify='between' className='w-full' gap='2'>
         <TextField.Root
           placeholder='Search for a specific post...'
@@ -96,6 +97,7 @@ export default function PostContainer() {
           <Text>No posts found. Be the first to create one!</Text>
         </Flex>
       )}
+      {isLoading && posts.length === 0 && <PostSkeleton preview={true} />}
       <InfiniteScroll
         pageStart={1}
         loadMore={loadMoreRows}

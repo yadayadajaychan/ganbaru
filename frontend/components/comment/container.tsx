@@ -25,6 +25,7 @@ import {
 } from '@tanstack/react-query';
 import { fetchComments } from '@/api/comment';
 import InfiniteScroll from 'react-infinite-scroller';
+import CommentSkeleton from './skeleton';
 
 interface CommentContainerProps {
   forumId: string;
@@ -74,6 +75,12 @@ export default function CommentContainer({
         <Flex justify='center' align='center'>
           <Text>No comments found. Be the first to create one!</Text>
         </Flex>
+      )}
+      {isLoading && comments.length === 0 && (
+        // <Flex justify='center' align='center'>
+        //   <Spinner />
+        // </Flex>
+        <CommentSkeleton />
       )}
       <InfiniteScroll
         pageStart={0}

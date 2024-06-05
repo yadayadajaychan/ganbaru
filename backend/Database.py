@@ -21,6 +21,14 @@ class db:
 
         self.ph = PasswordHasher()
 
+        file = open(os.getenv('PRIVKEY_FILE'), 'r')
+        self.privkey = file.read()
+        file.close()
+
+        file = open(os.getenv('PUBKEY_FILE'), 'r')
+        self.pubkey = file.read()
+        file.close()
+
     def init(self):
         self.__create_auth_table()
         self.__create_users_table()

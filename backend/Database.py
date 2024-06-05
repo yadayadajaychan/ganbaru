@@ -222,7 +222,10 @@ class db:
     # returns uid if session exists and is valid
     # raises exception if session not found or expired
     def check_session(self, session_id):
-        payload = jwt.decode(session_id, self.pubkey, algorithms=["RS512"])
+        try:
+            payload = jwt.decode(session_id, self.pubkey, algorithms=["RS512"])
+        except:
+            raise Exception("invalid session_id")
 
         return payload["uid"]
 

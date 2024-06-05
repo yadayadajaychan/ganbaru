@@ -37,7 +37,21 @@ def create_user():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return jsonify({}), 200
+    timeout = int(data.get("timeout", 86400))
+
+    try:
+        session_id = db.login(data["email"], data["password"], timeout)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    resp = make_response(jsonify({}))
+    resp.set_cookie("session_id",
+                    value=session_id,
+                    max_age=timeout,
+                    #domain=".nijika.org",
+                    samesite='None',
+                    secure=True)
+    return resp, 200
 
 @app.route("/user/delete", methods=["POST"])
 def delete_user():
@@ -84,13 +98,7 @@ def login():
     except:
         return jsonify({"error": "missing password"}), 400
 
-    try:
-        timeout = int(data["timeout"])
-        cookie_timeout = timeout
-    except:
-        # defaults to 1 day
-        timeout = 86400
-        cookie_timeout = None
+    timeout = int(data.get("timeout", 86400))
 
     try:
         session_id = db.login(data["email"], data["password"], timeout)
@@ -100,10 +108,21 @@ def login():
     resp = make_response(jsonify({}))
     resp.set_cookie("session_id",
                     value=session_id,
-                    max_age=cookie_timeout,
+                    max_age=timeout,
                     #domain=".nijika.org",
                     samesite='None',
                     secure=True)
+    return resp, 200
+
+@app.route("/user/logout", methods=["POST"])
+def logout():
+    resp = make_response(jsonify({}))
+    resp.set_cookie("session_id",
+                    value='',
+                    max_age=0,
+                    samesite='None',
+                    secure=True)
+
     return resp, 200
 
 @app.route("/user/check_session", methods=["GET"])

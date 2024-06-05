@@ -226,8 +226,7 @@ Get Answers
  |       field       |          type           |
  |-------------------|-------------------------|
  | instructor_answer | answer object           |
- | student_answers   | array of answer objects |
- | nextPage          | int                     |
+ | student_answers   | student answers object  |
 
 - Answer Object
 
@@ -239,6 +238,13 @@ Get Answers
  | answer    | string   | full text of the answer |
  | score     | int      | sum of votes by users   |
  | vote      | int      | user's own vote         |
+
+- Student Answers Object
+
+|  field   |          type           |
+|----------|-------------------------|
+| answers  | array of answer objects |
+| nextPage | int                     |
 
 - user_obj
 

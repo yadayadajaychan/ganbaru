@@ -934,8 +934,11 @@ class db:
             nextPage = page+1
 
         return {"instructor_answer": instructor_answer,
-                "student_answers"  : answer_infos,
-                "nextPage"         : nextPage}
+                "student_answers"  : {
+                                        "answers": answer_infos,
+                                        "nextPage": nextPage
+                                     }
+                }
 
     def __refresh_join_code(self, forum_id):
         while True:

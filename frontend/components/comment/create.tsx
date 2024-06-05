@@ -53,7 +53,7 @@ export default function CommentPopover({
   };
 
   return (
-    <Popover.Root>
+    <Popover.Root open={open} onOpenChange={setOpen}>
       <Popover.Trigger>
         <Button variant='soft'>
           <ChatBubbleIcon width='16' height='16' />

@@ -895,7 +895,7 @@ class db:
         query = sql.SQL('SELECT aid, uid, date, answer, score, anonymous, alias, instructor_answer '
                          'FROM answers '
                          'WHERE fid = %s AND pid = %s AND answer ~* %s '
-                         'ORDER BY score {asc}, date DESC, instructor_answer DESC '
+                         'ORDER BY instructor_answer DESC, score {asc}, date DESC '
                          'LIMIT %s OFFSET %s').format(
                                  asc=sql.SQL(ascending),
                                  )

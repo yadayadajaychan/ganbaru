@@ -329,28 +329,22 @@ class db:
         if uid == 0:
             return
 
-        try:
-            uid = int(uid)
-        except:
-            raise Exception("uid must be an integer")
-
-        try:
-            forum_id = int(forum_id)
-        except:
-            raise Exception("forum_id must be an integer")
+        self.check_uid(uid)
+        self.check_forum(forum_id)
 
         # check if user is owner
         self.cur.execute('SELECT owner '
                          'FROM forums '
                          'WHERE fid = %s', (forum_id,))
-        if int(uid) == self.cur.fetchone()[0]:
+        if uid == self.cur.fetchone()[0]:
             return
 
         # check if user is a moderator
         self.cur.execute('SELECT moderators '
                          'FROM forums '
                          'WHERE fid = %s', (forum_id,))
-        if int(uid) in self.cur.fetchone()[0]:
+        mods = self.cur.fetchone()[0]
+        if mods is not None and uid in mods:
             return
 
         raise Exception(f"not an owner or moderator of forum {forum_id}")
@@ -525,11 +519,25 @@ class db:
 
     def __add_to_forum(self, uid, fid):
         forum_ids = self.__get_forums(uid)
-        if fid not in forum_ids:
+        if forum_ids is None or fid not in forum_ids:
             try:
                 self.cur.execute('UPDATE users '
                                  'SET forums = forums || %s '
                                  'WHERE uid = %s', (fid, uid))
+            finally:
+                self.conn.commit()
+
+        return
+
+    def __add_mod_to_forum(self, uid, fid):
+        self.__add_to_forum(uid, fid)
+
+        mods = self.__get_forum_mods(fid)
+        if mods is None or uid not in mods:
+            try:
+                self.cur.execute('UPDATE forums '
+                                 'SET moderators = moderators || %s '
+                                 'WHERE fid = %s', (uid, fid))
             finally:
                 self.conn.commit()
 
@@ -567,6 +575,13 @@ class db:
             output.append(record[0])
 
         return output
+
+    def __get_forum_mods(self, fid):
+        self.cur.execute('SELECT moderators '
+                         'FROM forums '
+                         'WHERE fid = %s', (fid,))
+
+        return self.cur.fetchone()[0]
 
     # check doc/backend-api.txt for output format
     def get_forums(self, session_id):
@@ -964,6 +979,50 @@ class db:
         self.__refresh_join_code(forum_id)
         return
 
+    def __refresh_mod_join_code(self, forum_id):
+        while True:
+            mod_join_code = base64.b32encode(os.urandom(10)).decode()
+
+            # check for collisions
+            self.cur.execute('SELECT fid '
+                             'FROM forums '
+                             'WHERE mod_join_code = %s', (mod_join_code,))
+            record = self.cur.fetchone()
+            if record is None:
+                break
+
+        try:
+            self.cur.execute('UPDATE forums '
+                             'SET mod_join_code = %s '
+                             'WHERE fid = %s',
+                             (mod_join_code, forum_id))
+        finally:
+            self.conn.commit()
+
+    def get_mod_join_code(self, session_id, forum_id):
+        uid = self.check_session(session_id)
+        self.check_mod_in_forum(uid, forum_id)
+
+        while True:
+            self.cur.execute('SELECT mod_join_code '
+                             'FROM forums '
+                             'WHERE fid = %s', (forum_id,))
+            mod_join_code = self.cur.fetchone()[0]
+
+            if mod_join_code is not None:
+                break
+
+            self.__refresh_mod_join_code(forum_id)
+
+        return mod_join_code
+
+    def refresh_mod_join_code(self, session_id, forum_id):
+        uid = self.check_session(session_id)
+        self.check_mod_in_forum(uid, forum_id)
+
+        self.__refresh_mod_join_code(forum_id)
+        return
+
     def join_forum(self, session_id, join_code):
         uid = self.check_session(session_id)
 
@@ -972,12 +1031,19 @@ class db:
 
         self.cur.execute('SELECT fid '
                          'FROM forums '
-                         'WHERE join_code = %s', (join_code,))
+                         'WHERE join_code = %s OR mod_join_code = %s',
+                         (join_code, join_code))
         fid = self.cur.fetchone()
         if fid is None:
             raise Exception("join code is not valid")
 
-        self.__add_to_forum(uid, fid[0])
+        if len(join_code) == 8:
+            self.__add_to_forum(uid, fid[0])
+        elif len(join_code) == 16:
+            self.__add_mod_to_forum(uid, fid[0])
+        else:
+            raise Exception("join code is incorrect length, this shouldn't happen")
+
         return
 
     def get_post_vote(self, session_id, forum_id, post_id): 

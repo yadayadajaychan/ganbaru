@@ -87,6 +87,11 @@ Create Forum
  | name        | string | name of the forum        |
  | description | string | description of the forum |
 
+- JSON Response
+
+ |  field   | type |
+ |----------|------|
+ | forum_id | int  |
 
 Get Forums (classes)
 =========================

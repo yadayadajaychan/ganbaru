@@ -139,11 +139,11 @@ def create_forum():
     description = data.get("description")
 
     try:
-        db.create_forum(session_id, name, description)
+        fid = db.create_forum(session_id, name, description)
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return jsonify({}), 200
+    return jsonify(fid), 200
 
 @app.route("/forums", methods=["GET"])
 def get_forums():

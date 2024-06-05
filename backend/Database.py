@@ -516,7 +516,7 @@ class db:
         finally:
             self.conn.commit()
 
-        return
+        return {"forum_id": fid}
 
     def __add_to_forum(self, uid, fid):
         forum_ids = self.__get_forums(uid)

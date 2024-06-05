@@ -1,5 +1,6 @@
 'use client'; // Error components must be Client Components
 
+import { Button, Flex, Heading } from '@radix-ui/themes';
 import { useEffect } from 'react';
 
 export default function Error({
@@ -15,16 +16,22 @@ export default function Error({
   }, [error]);
 
   return (
-    <div>
-      <h2>{error.message}</h2>
-      <button
+    <Flex
+      className='w-full'
+      justify='center'
+      align='center'
+      direction='column'
+      gap='4'
+    >
+      <Heading>{error.message}</Heading>
+      <Button
         onClick={
           // Attempt to recover by trying to re-render the segment
           () => reset()
         }
       >
         Try again
-      </button>
-    </div>
+      </Button>
+    </Flex>
   );
 }

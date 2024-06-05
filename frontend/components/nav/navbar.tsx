@@ -69,6 +69,7 @@ export default function NavBar({ classId }: { classId: string }) {
             position: 'absolute',
             left: '50%',
             transform: 'translateX(-50%)',
+            flex: '1 1 auto',
           }}
         >
           <Nav classId={classId} />

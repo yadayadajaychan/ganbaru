@@ -53,7 +53,7 @@ export default function PostContainer({
     queryKey: ['posts', search, filter, forumId],
     queryFn: ({ pageParam }) =>
       fetchPosts({ pageParam, search, filter, forumId: Number(forumId) }),
-    getNextPageParam: (lastPage) => lastPage.nextPage,
+    getNextPageParam: (lastPage) => lastPage.next_page,
     initialPageParam: 1,
   });
 

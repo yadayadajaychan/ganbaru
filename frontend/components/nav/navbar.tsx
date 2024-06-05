@@ -17,6 +17,7 @@ import { useTheme } from 'next-themes';
 import { useState } from 'react';
 import Settings from './settings';
 import { useRouter } from 'next/navigation';
+import Code from './code';
 
 export default function NavBar({ classId }: { classId: string }) {
   const router = useRouter();
@@ -118,10 +119,11 @@ export default function NavBar({ classId }: { classId: string }) {
           </Dialog.Root>
           <Dialog.Root open={codeOpen} onOpenChange={setCodeOpen}>
             <Dialog.Content>
-              <Flex direction='column' gap='6'>
+              <Flex direction='column' gap='2'>
                 <Flex direction='column'>
                   <Dialog.Title>Manage Join Code</Dialog.Title>
                 </Flex>
+                <Code classId={classId} />
                 {/* <Settings /> */}
               </Flex>
             </Dialog.Content>

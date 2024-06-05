@@ -50,7 +50,7 @@ export default function CommentContainer({
         classId: Number(forumId),
         postId: Number(postId),
       }),
-    getNextPageParam: (lastPage) => lastPage.nextPage,
+    getNextPageParam: (lastPage) => lastPage.next_page,
     initialPageParam: 1,
   });
 

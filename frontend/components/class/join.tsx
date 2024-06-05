@@ -1,7 +1,18 @@
 'use client';
 
-import { Button, Dialog, Flex, Text, TextField } from '@radix-ui/themes';
+import { joinClass } from '@/api/classes';
+import { JoinClassResponse } from '@/types';
+import {
+  Button,
+  Dialog,
+  Flex,
+  Spinner,
+  Text,
+  TextField,
+} from '@radix-ui/themes';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 interface JoinClassProps {
   title?: string;
@@ -10,9 +21,27 @@ interface JoinClassProps {
 export default function JoinClass({
   title = 'Join Another Class',
 }: JoinClassProps) {
-  const [code, setCode] = useState('');
+  const router = useRouter();
 
-  const onSubmit = async () => {};
+  const [code, setCode] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const onSubmit = async () => {
+    setIsLoading(true);
+
+    const res = await joinClass({ code });
+
+    if (!res.ok) {
+      setIsLoading(false);
+      toast.error('Failed to join class');
+      return;
+    }
+
+    const data: JoinClassResponse = await res.json();
+
+    setIsLoading(false);
+    router.push(`/forum/${data.forum_id}`);
+  };
 
   return (
     <Dialog.Root>
@@ -41,7 +70,7 @@ export default function JoinClass({
             className='hover:cursor-pointer'
             onClick={onSubmit}
           >
-            Join
+            {isLoading ? <Spinner /> : 'Join'}
           </Button>
         </Flex>
       </Dialog.Content>

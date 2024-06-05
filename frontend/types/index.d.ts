@@ -1,3 +1,7 @@
+export interface ErrorResponse {
+  error?: string;
+}
+
 export interface User {
   uid: number;
   name: string;
@@ -39,12 +43,24 @@ export interface Class {
   unanswered: number;
 }
 
-export interface GetPostsResponse {
+export interface GetPostsResponse extends ErrorResponse {
   posts: Post[];
-  nextPage: number | undefined;
+  next_page: number | undefined;
 }
 
-export interface GetCommentsResponse {
+export interface GetCommentsResponse extends ErrorResponse {
   answers: Comment[];
-  nextPage: number | undefined;
+  next_page: number | undefined;
+}
+
+export interface JoinClassResponse extends ErrorResponse {
+  forum_id: string;
+}
+
+export interface GetJoinCodeResponse extends ErrorResponse {
+  join_code: string;
+}
+
+export interface GetModJoinCodeResponse extends ErrorResponse {
+  mod_join_code: string;
 }

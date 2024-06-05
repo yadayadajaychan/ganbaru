@@ -193,10 +193,10 @@ class db:
 
         return
 
-    # returns True if password correct
+    # returns uid if password correct
     # raises exception if incorrect
     def check_password(self, username, password):
-        self.cur.execute('SELECT hash FROM auth WHERE username=%s', (username,))
+        self.cur.execute('SELECT hash, uid FROM auth WHERE username=%s', (username,))
         record = self.cur.fetchone()
         if not record:
             raise Exception("user doesn't exist")
@@ -204,28 +204,16 @@ class db:
 
         try:
             self.ph.verify(hash, password)
-            return True
+            return record[1]
         except:
             raise Exception("wrong password")
 
     # returns uid if session exists and is valid
     # raises exception if session not found or expired
     def check_session(self, session_id):
-        self.cur.execute('SELECT uid, session_expiration '
-                         'FROM auth WHERE session_id = %s', (session_id,))
-        record = self.cur.fetchone()
-        if not record:
-            raise Exception("session does not exist")
-        uid = record[0]
-        exp_date = record[1]
+        payload = jwt.decode(session_id, self.pubkey, algorithms=["RS512"])
 
-        # check expiration
-        exp = exp_date.timestamp()
-        curr_time = time.time()
-        if curr_time > exp:
-            raise Exception("session expired")
-
-        return uid
+        return payload["uid"]
 
     # checks if uid exists
     # raises exception if not found
@@ -484,20 +472,15 @@ class db:
     def login(self, username, password, timeout):
         username = username.lower()
 
-        self.check_password(username, password)
+        uid = self.check_password(username, password)
 
-        session_id = base64.b64encode(os.urandom(36)).decode()
-        exp_date = datetime.utcfromtimestamp(time.time() + timeout).isoformat()
-        try:
-            # TODO support multiple sessions
-            self.cur.execute('UPDATE auth SET session_id = %s, '
-                             'session_expiration = %s '
-                             'WHERE username = %s',
-                             (session_id, exp_date, username))
-        finally:
-            self.conn.commit()
+        exp_time = int(time.time() + timeout)
+        token = jwt.encode({"exp": exp_time,
+                            "username": username,
+                            "uid": uid},
+                           self.privkey, algorithm="RS512")
 
-        return session_id
+        return token
 
     def create_forum(self, session_id, name, description=None):
         uid = self.check_session(session_id)

@@ -77,7 +77,7 @@ def login():
         return jsonify({"error": "missing password"}), 400
 
     try:
-        timeout = data["timeout"]
+        timeout = int(data["timeout"])
         cookie_timeout = timeout
     except:
         # defaults to 1 day

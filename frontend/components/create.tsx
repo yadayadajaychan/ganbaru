@@ -20,6 +20,7 @@ import {
   Dialog,
   Popover,
   Switch,
+  Spinner,
 } from '@radix-ui/themes';
 import { Label } from '@radix-ui/react-label';
 import { useState } from 'react';
@@ -31,6 +32,8 @@ import { MarkdownToJsx } from './markdown';
 import MDEditor from '@uiw/react-md-editor';
 import { useTheme } from 'next-themes';
 import PostCard from './cards/post';
+import { useCookies } from 'next-client-cookies';
+import { useSession } from '@/util/session';
 
 interface CreateProps {
   width?: number;
@@ -55,30 +58,14 @@ export default function Create({
   setText,
   onSubmit,
   type,
+  anonymous,
+  setAnonymous,
 }: CreateProps) {
-  // const insertMarkdown = (
-  //   beforeSyntax: string,
-  //   afterSyntax: string,
-  //   placeholder: string
-  // ) => {
-  //   const textarea = document.getElementById(
-  //     'comment-textarea'
-  //   ) as HTMLTextAreaElement;
-  //   const start = textarea.selectionStart;
-  //   const end = textarea.selectionEnd;
-  //   const before = text.substring(0, start);
-  //   const selectedText = text.substring(start, end) || placeholder;
-  //   const after = text.substring(end, text.length);
-  //   setText(before + beforeSyntax + selectedText + afterSyntax + after);
-  //   textarea.focus();
-  //   textarea.setSelectionRange(
-  //     start + beforeSyntax.length,
-  //     end +
-  //       beforeSyntax.length +
-  //       (selectedText === placeholder ? placeholder.length : 0)
-  //   );
-  // };
   const { theme } = useTheme();
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const session = useSession();
 
   return (
     <Flex direction='column' gap='4' width={width ? `${width}px` : '100%'}>
@@ -97,7 +84,8 @@ export default function Create({
       </Flex>
       <Text as='label' size='2'>
         <Flex gap='2'>
-          <Switch size='1' /> Stay Anonymous
+          <Switch size='1' checked={anonymous} onCheckedChange={setAnonymous} />
+          Stay Anonymous
         </Flex>
       </Text>
       <Flex className='w-full' gap='4' justify='end'>
@@ -118,7 +106,7 @@ export default function Create({
                   vote: 1,
                   user: {
                     uid: 1,
-                    name: 'test',
+                    name: anonymous ? 'Anonymous' : session.username,
                   },
                 }}
               />
@@ -128,7 +116,7 @@ export default function Create({
                   title: title ?? 'My first post',
                   full_text: text,
                   user: {
-                    name: 'test',
+                    name: anonymous ? 'Anonymous' : session.username,
                     uid: 1,
                   },
                   score: 1,
@@ -141,6 +129,7 @@ export default function Create({
                   tags: [],
                   vote: 1,
                 }}
+                classId='5'
                 preview={false}
               />
             )}
@@ -149,10 +138,21 @@ export default function Create({
         <Button
           className='hover:cursor-pointer'
           variant='soft'
-          onClick={onSubmit}
+          onClick={async () => {
+            setIsLoading(true);
+            await onSubmit();
+            setIsLoading(false);
+          }}
+          disabled={isLoading}
         >
-          {type === 'comment' ? 'Post' : 'Create'}{' '}
-          {type === 'comment' ? 'Comment' : 'Post'}
+          {isLoading ? (
+            <Spinner />
+          ) : (
+            <>
+              {type === 'comment' ? 'Post' : 'Create'}{' '}
+              {type === 'comment' ? 'Comment' : 'Post'}
+            </>
+          )}
         </Button>
       </Flex>
     </Flex>

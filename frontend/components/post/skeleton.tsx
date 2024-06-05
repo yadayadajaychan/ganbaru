@@ -4,9 +4,10 @@ import PostCard from '../cards/post';
 
 interface PostSkeletonProps {
   preview?: boolean;
+  forumId: string;
 }
 
-export default function PostSkeleton({ preview }: PostSkeletonProps) {
+export default function PostSkeleton({ preview, forumId }: PostSkeletonProps) {
   const exampleComment: Post = {
     full_text:
       'A bunch of random words. A bunch of random words. A bunch of random words. A bunch of random words.',
@@ -33,7 +34,7 @@ export default function PostSkeleton({ preview }: PostSkeletonProps) {
     <Flex direction='column'>
       {examples.map((comment) => (
         <Flex mb='5' key={comment.answer_id}>
-          <PostCard post={comment} loading={true} />
+          <PostCard classId={forumId} post={comment} loading={true} />
         </Flex>
       ))}
     </Flex>

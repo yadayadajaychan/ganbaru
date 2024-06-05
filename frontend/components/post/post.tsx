@@ -21,6 +21,7 @@ export default function Post({ forumId, postId }: PostProps) {
   return (
     <Flex>
       <PostCard
+        classId={forumId}
         post={
           isLoading
             ? {

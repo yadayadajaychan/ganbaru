@@ -14,8 +14,11 @@ import Create from '../create';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { createPost } from '@/api/post';
+import { CreatePostResponse } from '@/types';
+import { useRouter } from 'next/navigation';
 
 export default function PostCreate({ classId }: { classId: string }) {
+  const router = useRouter();
   const [text, setText] = useState('');
   const [anonymous, setAnonymous] = useState(false);
   const [title, setTitle] = useState('');
@@ -35,9 +38,13 @@ export default function PostCreate({ classId }: { classId: string }) {
     });
 
     if (response.ok) {
+      const res: CreatePostResponse = await response.json();
+
       setText('');
       setOpen(false);
       toast.success('Post created!');
+
+      router.push(`/forum/${classId}/post/${res.post_id}`);
     } else {
       console.error('Failed to create post');
     }

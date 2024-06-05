@@ -1,4 +1,4 @@
-export const creaetUser = async ({
+export const createUser = async ({
   email,
   username,
   password,
@@ -21,6 +21,9 @@ export const login = async ({
   password: string;
 }) =>
   fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/login`, {
+    headers: {
+      'Access-Control-Allow-Credentials': 'true',
+    },
     method: 'POST',
     body: JSON.stringify({ email, password }),
     credentials: 'include',

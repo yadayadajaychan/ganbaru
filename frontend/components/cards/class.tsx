@@ -13,7 +13,7 @@ export default function ClassCard({
 }: ClassCardProps) {
   return (
     <Card variant='ghost'>
-      <Flex direction='row' justify='between'>
+      <Flex direction='row' justify='between' gap='4'>
         <Flex direction='column' gap='1'>
           <Flex justify='between' gap='1'>
             <Text size='2' weight='bold'>

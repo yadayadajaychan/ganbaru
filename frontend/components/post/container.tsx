@@ -57,7 +57,7 @@ export default function PostContainer({
     initialPageParam: 1,
   });
 
-  const allRecords = data ? data.pages.map((page) => page.posts) : [];
+  const allRecords = data ? data.pages.map((page) => page.post_infos) : [];
   const posts = allRecords.flat();
 
   const loadMoreRows = async () => {
@@ -107,7 +107,7 @@ export default function PostContainer({
         </Flex>
       )}
       {((isLoading && posts.length === 0) || mainLoading) && (
-        <PostSkeleton preview={true} />
+        <PostSkeleton forumId={forumId} preview={true} />
       )}
       <InfiniteScroll
         pageStart={1}
@@ -120,8 +120,8 @@ export default function PostContainer({
         }
       >
         {posts.map((post) => (
-          <Flex mb='5' key={post.post_id}>
-            <PostCard post={post} preview={true} />
+          <Flex mb='5' key={post.post_id} className='w-full'>
+            <PostCard classId={forumId} post={post} preview={true} />
           </Flex>
         ))}
       </InfiniteScroll>

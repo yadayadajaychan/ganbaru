@@ -33,7 +33,7 @@ export default function LoginCard() {
     const resp = await response.json();
 
     if (!response.ok) {
-      toast.error(resp ?? 'Unknown error');
+      toast.error(resp.error ?? 'Unknown error');
       setIsLoading(false);
       return;
     }

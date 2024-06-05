@@ -44,7 +44,7 @@ export interface Class {
 }
 
 export interface GetPostsResponse extends ErrorResponse {
-  posts: Post[];
+  post_infos: Post[];
   next_page: number | undefined;
 }
 
@@ -63,4 +63,14 @@ export interface GetJoinCodeResponse extends ErrorResponse {
 
 export interface GetModJoinCodeResponse extends ErrorResponse {
   mod_join_code: string;
+}
+
+export interface GetIsModeratorResponse extends ErrorResponse {}
+
+export interface GetClassesResponse extends ErrorResponse {
+  forums: Class[];
+}
+
+export interface CreatePostResponse extends ErrorResponse {
+  post_id: number;
 }

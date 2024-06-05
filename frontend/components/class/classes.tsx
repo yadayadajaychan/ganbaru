@@ -8,6 +8,7 @@ import Link from 'next/link';
 import JoinClass from '@/components/class/join';
 import ClassCard from '@/components/cards/class';
 import ClassesSkeleton from './skeleton';
+import CreateClass from './create';
 
 export default function Classes() {
   const { data, isLoading } = useQuery({
@@ -19,12 +20,12 @@ export default function Classes() {
     <Flex direction='column' gap='4' className='w-full'>
       <Flex direction='column' gap='4'>
         {isLoading ?? <ClassesSkeleton />}
-        {data ? (
-          data.map((classData: Class) => (
+        {data && data.forums.length > 0 ? (
+          data.forums.map((classData: Class) => (
             <ClassCard
               classData={classData}
               key={classData.forum_id}
-              loading={true}
+              loading={false}
             />
           ))
         ) : (
@@ -33,7 +34,14 @@ export default function Classes() {
           </Flex>
         )}
       </Flex>
-      <Flex justify='center' align='end' className='w-full'>
+      <Flex
+        justify='center'
+        direction='column'
+        gap='2'
+        align='center'
+        className='w-full'
+      >
+        <CreateClass />
         <JoinClass title='Join a Class' />
       </Flex>
     </Flex>

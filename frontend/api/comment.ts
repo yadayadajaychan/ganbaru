@@ -9,8 +9,10 @@ export const fetchComments = async ({
   classId: number;
   postId: number;
 }) => {
+  console.log(postId);
+
   const res = await fetch(
-    `${process.env.API_URL}/forums/${classId}/${postId}/answers?page=${pageParam}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/forums/${classId}/${postId}/answers?page=${pageParam}`,
     {
       credentials: 'include',
     }

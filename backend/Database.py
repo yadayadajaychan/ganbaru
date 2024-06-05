@@ -363,7 +363,7 @@ class db:
             return full_name
 
         # try getting alias
-        alias = self.get_alias(uid)
+        alias = self.get_username(uid)
         if alias is not None:
             return alias
 
@@ -393,13 +393,13 @@ class db:
         return
 
     # returns None if not found
-    def get_alias(self, uid):
+    def get_username(self, uid):
         self.cur.execute('SELECT alias '
                          'FROM users '
                          'WHERE uid = %s', (uid,))
         return self.cur.fetchone()[0]
 
-    def set_alias(self, session_id, alias):
+    def set_username(self, session_id, alias):
         uid = self.check_session(session_id)
 
         if len(alias) == 0:
@@ -422,7 +422,7 @@ class db:
                 user_obj = {"uid": -2,
                             "name": 'Anonymous User'}
             elif alias:
-                alias = self.get_alias(uid)
+                alias = self.get_username(uid)
                 if alias is None:
                     alias = 'Unknown User'
                 user_obj = {"uid": -2,
@@ -477,14 +477,15 @@ class db:
         finally:
             self.conn.commit()
 
-    def login(self, username, password, timeout):
-        username = username.lower()
+    def login(self, email, password, timeout):
+        email = email.lower()
 
-        uid = self.check_password(username, password)
+        uid = self.check_password(email, password)
 
         exp_time = int(time.time() + timeout)
         token = jwt.encode({"exp": exp_time,
-                            "username": username,
+                            "email": email,
+                            "username": self.get_username(uid),
                             "uid": uid},
                            self.privkey, algorithm="RS512")
 

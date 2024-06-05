@@ -73,7 +73,7 @@ Set User Info
 |   field   |  type  | optional |   description    |
 |-----------|--------|----------|------------------|
 | full_name | string | y        | user's full name |
-| alias     | string | y        | user's alias     |
+| username  | string | y        | user's alias     |
 
 Create Forum
 =========================

@@ -136,9 +136,7 @@ class db:
                              'score  integer NOT NULL,'
                              'anonymous bool NOT NULL,'
                              'alias     bool NOT NULL,'
-                             'instructor_answer bool NOT NULL,'
-                             'upvotes integer[],'
-                             'downvotes integer[]);')
+                             'instructor_answer bool NOT NULL);')
         finally:
             self.conn.commit()
 

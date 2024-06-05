@@ -1,8 +1,9 @@
 import { jwtDecode } from 'jwt-decode';
-import { getCookie } from 'cookies-next';
+import { useCookies } from 'next-client-cookies';
 
 export const useSession = () => {
-  const sessionIdCookie = getCookie('session_id');
+  const cookies = useCookies();
+  const sessionIdCookie = cookies.get('session_id');
 
   const session = jwtDecode(sessionIdCookie!) as { username: string };
 

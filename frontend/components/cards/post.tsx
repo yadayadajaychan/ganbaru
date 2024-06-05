@@ -19,6 +19,7 @@ import {
 import { Post } from '@/types';
 import { MarkdownToJsx } from '../markdown';
 import Link from 'next/link';
+import { sendVote } from '@/api/post';
 
 interface PostCardProps {
   classId: string;
@@ -42,60 +43,75 @@ export default function PostCard({
 
   const [likeCount, setLikeCount] = useState(post.score);
 
-  const sendVoteRequest = async (postId: string, voteType: string) => {
-    try {
-      const response = await fetch(`/api/vote`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ postId, voteType }),
+  const handleUpvote = async () => {
+    console.log(likeStatus);
+
+    if (likeStatus.isLiked) {
+      await sendVote({
+        forumId: classId,
+        postId: post.post_id.toString(),
+        vote: 0,
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to vote');
-      }
+      setLikeStatus({ isLiked: false, isDisliked: false });
+      setLikeCount(likeCount - 1);
+    } else if (likeStatus.isDisliked) {
+      await sendVote({
+        forumId: classId,
+        postId: post.post_id.toString(),
+        vote: 1,
+      });
 
-      const data = await response.json();
-      return data.newScore;
-    } catch (error) {
-      console.error('Error:', error);
-      return null;
-    }
-  };
+      setLikeStatus({ isLiked: true, isDisliked: false });
+      setLikeCount(likeCount + 2);
+    } else {
+      await sendVote({
+        forumId: classId,
+        postId: post.post_id.toString(),
+        vote: 1,
+      });
 
-  const handleUpvote = async () => {
-    const newScore = await sendVoteRequest(post.post_id.toString(), 'upvote');
-
-    if (newScore !== null) {
-      if (likeStatus.isLiked) {
-        setLikeStatus({ isLiked: false, isDisliked: false });
-        setLikeCount(newScore);
-      } else {
-        setLikeStatus({ isLiked: true, isDisliked: false });
-        setLikeCount(newScore);
-      }
+      setLikeStatus({ isLiked: true, isDisliked: false });
+      setLikeCount(likeCount + 1);
     }
   };
 
   const handleDownvote = async () => {
-    const newScore = await sendVoteRequest(post.post_id.toString(), 'downvote');
-    if (newScore !== null) {
-      if (likeStatus.isDisliked) {
-        setLikeStatus({ isLiked: false, isDisliked: false });
-        setLikeCount(newScore);
-      } else {
-        setLikeStatus({ isLiked: false, isDisliked: true });
-        setLikeCount(newScore);
-      }
+    if (likeStatus.isLiked) {
+      await sendVote({
+        forumId: classId,
+        postId: post.post_id.toString(),
+        vote: -1,
+      });
+
+      setLikeStatus({ isLiked: false, isDisliked: false });
+      setLikeCount(likeCount - 2);
+    } else if (likeStatus.isDisliked) {
+      await sendVote({
+        forumId: classId,
+        postId: post.post_id.toString(),
+        vote: 0,
+      });
+
+      setLikeStatus({ isLiked: true, isDisliked: false });
+      setLikeCount(likeCount + 1);
+    } else {
+      await sendVote({
+        forumId: classId,
+        postId: post.post_id.toString(),
+        vote: -1,
+      });
+
+      setLikeStatus({ isLiked: true, isDisliked: false });
+      setLikeCount(likeCount - 1);
     }
   };
 
   return (
     <Box className={`${preview ? 'hover:cursor-pointer' : ''} w-full`}>
-      <Link href={`/forum/${classId}/post/${post.post_id}`}>
-        <Card size='2'>
-          <Flex id='left' direction='column' justify='start' gap='2'>
+      <Card size='2'>
+        <Flex id='left' direction='column' justify='start' gap='2'>
+          <Link href={`/forum/${classId}/post/${post.post_id}`}>
             <Flex id='user' direction='row' justify='between'>
               <Flex direction='row' gap='2'>
                 <Text color='gray' size='2'>
@@ -150,69 +166,69 @@ export default function PostCard({
                 )}
               </Flex>
             </Flex>
-            <Separator orientation='horizontal' mt={'2'} size='4' />
-            <Flex
-              id='controls'
-              direction='row'
-              justify='start'
-              align='center'
-              gap='3'
+          </Link>
+          <Separator orientation='horizontal' mt={'2'} size='4' />
+          <Flex
+            id='controls'
+            direction='row'
+            justify='start'
+            align='center'
+            gap='3'
+          >
+            <Box
+              id='likes'
+              style={{
+                background: 'var(--gray-a3)',
+                borderRadius: 'var(--radius-3)',
+              }}
+              className='py-1 px-2'
             >
+              <Flex gap='3' justify='start' align='center'>
+                <Flex direction='row' justify='start' align='center' gap='1'>
+                  <ThickArrowUpIcon
+                    className={`hover:cursor-pointer icon-hover ${
+                      likeStatus.isLiked ? 'liked' : ''
+                    }`}
+                    onClick={handleUpvote}
+                  />
+                  <Text as='label' size='2'>
+                    <Skeleton loading={loading}>{likeCount}</Skeleton>
+                  </Text>
+                </Flex>
+                <ThickArrowDownIcon
+                  className={`hover:cursor-pointer icon-hover ${
+                    likeStatus.isDisliked ? 'disliked' : ''
+                  }`}
+                  onClick={handleDownvote}
+                />
+              </Flex>
+            </Box>
+            {preview && (
               <Box
-                id='likes'
+                id='comments'
                 style={{
                   background: 'var(--gray-a3)',
                   borderRadius: 'var(--radius-3)',
                 }}
                 className='py-1 px-2'
               >
-                <Flex gap='3' justify='start' align='center'>
-                  <Flex direction='row' justify='start' align='center' gap='1'>
-                    <ThickArrowUpIcon
-                      className={`hover:cursor-pointer icon-hover ${
-                        likeStatus.isLiked ? 'liked' : ''
-                      }`}
-                      onClick={handleUpvote}
-                    />
-                    <Text as='label' size='2'>
-                      <Skeleton loading={loading}>{likeCount}</Skeleton>
-                    </Text>
-                  </Flex>
-                  <ThickArrowDownIcon
-                    className={`hover:cursor-pointer icon-hover ${
-                      likeStatus.isDisliked ? 'disliked' : ''
-                    }`}
-                    onClick={handleDownvote}
-                  />
+                <Flex
+                  gap='2'
+                  direction='row'
+                  justify='start'
+                  align='center'
+                  className='hover:cursor-pointer'
+                >
+                  <ChatBubbleIcon className='hover:cursor-pointer' />
+                  <Text as='label' size='2' className='hover:cursor-pointer'>
+                    {post.answers}
+                  </Text>
                 </Flex>
               </Box>
-              {preview && (
-                <Box
-                  id='comments'
-                  style={{
-                    background: 'var(--gray-a3)',
-                    borderRadius: 'var(--radius-3)',
-                  }}
-                  className='py-1 px-2'
-                >
-                  <Flex
-                    gap='2'
-                    direction='row'
-                    justify='start'
-                    align='center'
-                    className='hover:cursor-pointer'
-                  >
-                    <ChatBubbleIcon className='hover:cursor-pointer' />
-                    <Text as='label' size='2' className='hover:cursor-pointer'>
-                      {post.answers}
-                    </Text>
-                  </Flex>
-                </Box>
-              )}
-            </Flex>
+            )}
           </Flex>
-        </Card>
-      </Link>
+        </Flex>
+      </Card>
     </Box>
   );
 }

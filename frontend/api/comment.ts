@@ -12,7 +12,7 @@ export const fetchComments = async ({
   console.log(postId);
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/forums/${classId}/${postId}/answers?page=${pageParam}`,
+    `${process.env.API_URL}/forums/${classId}/${postId}/answers?page=${pageParam}`,
     {
       credentials: 'include',
     }
@@ -59,7 +59,7 @@ export const voteComment = async ({
   vote: number;
 }) =>
   fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/forums/${classId}/postId/${commentId}/vote`,
+    `${process.env.NEXT_PUBLIC_API_URL}/forums/${classId}/${postId}/${commentId}/vote`,
     {
       method: 'POST',
       body: JSON.stringify({ vote }),

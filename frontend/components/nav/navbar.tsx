@@ -21,9 +21,9 @@ import { useRouter } from 'next/navigation';
 import Code from './code';
 import { useQuery } from '@tanstack/react-query';
 import { isModerator } from '@/api/classes';
-import { useCookies } from 'next-client-cookies';
 import { jwtDecode } from 'jwt-decode';
 import { useSession } from '@/util/session';
+import { logout } from '@/api/user';
 
 export default function NavBar({ classId }: { classId: string }) {
   const router = useRouter();
@@ -35,14 +35,14 @@ export default function NavBar({ classId }: { classId: string }) {
   const { isLoading: isModeratorLoading, error: moderatorError } = useQuery({
     queryKey: ['isModerator', classId],
     queryFn: () => isModerator({ forumId: classId }),
+    retry: false,
   });
 
-  const logout = async () => {
-    await fetch('/api/logout', {
-      method: 'POST',
-    });
+  const onLogout = async () => {
+    await logout();
 
-    router.push('/');
+    router.replace('/');
+    router.refresh();
   };
 
   const session = useSession();
@@ -80,7 +80,9 @@ export default function NavBar({ classId }: { classId: string }) {
               <Text size='2' className='hidden md:inline '>
                 {session['username']}
               </Text>
-              {!!!moderatorError && <Badge color='green'>Moderator</Badge>}
+              {!!!moderatorError && !isModeratorLoading && (
+                <Badge color='green'>Moderator</Badge>
+              )}
             </Flex>
             <DropdownMenu.Root>
               <DropdownMenu.Trigger className='hover:bg-purple-300 hover:cursor-pointer hover:bg-opacity-10 group flex select-none items-center justify-between gap-[2px] rounded-[4px] px-2 py-2'>
@@ -115,7 +117,7 @@ export default function NavBar({ classId }: { classId: string }) {
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
                   className='hover:cursor-pointer'
-                  onClick={() => logout()}
+                  onClick={onLogout}
                 >
                   Logout
                 </DropdownMenu.Item>

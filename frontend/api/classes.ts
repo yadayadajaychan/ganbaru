@@ -3,6 +3,7 @@ import {
   GetIsModeratorResponse,
   GetJoinCodeResponse,
   GetModJoinCodeResponse,
+  Class,
 } from '@/types';
 
 export const fetchClasses = async () => {
@@ -21,7 +22,7 @@ export const fetchClasses = async () => {
 
 export const fetchClass = async ({ forumId }: { forumId: string }) => {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/forums/${forumId}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/forums/info/${forumId}`,
     {
       credentials: 'include',
     }
@@ -33,7 +34,7 @@ export const fetchClass = async ({ forumId }: { forumId: string }) => {
     throw new Error(data.error || 'Failed to fetch classes');
   }
 
-  return data;
+  return data as Class;
 };
 
 export const createClass = async ({
@@ -111,6 +112,7 @@ export const refreshJoinCode = async ({ forumId }: { forumId: string }) =>
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({}),
+      credentials: 'include',
     }
   );
 
@@ -124,6 +126,7 @@ export const refreshModJoinCode = async ({ forumId }: { forumId: string }) =>
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({}),
+      credentials: 'include',
     }
   );
 

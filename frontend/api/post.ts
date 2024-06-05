@@ -77,3 +77,24 @@ export const createPost = async ({
       anonymous,
     }),
   });
+
+export const sendVote = async ({
+  forumId,
+  postId,
+  vote,
+}: {
+  forumId: string;
+  postId: string;
+  vote: number;
+}) =>
+  await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/forums/${forumId}/${postId}/vote`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ vote }),
+      credentials: 'include',
+    }
+  );

@@ -23,7 +23,7 @@ export default async function PostPage({
 }) {
   return (
     <Flex
-      justify='center'
+      justify='start'
       align='center'
       className='min-h-screen'
       direction='column'

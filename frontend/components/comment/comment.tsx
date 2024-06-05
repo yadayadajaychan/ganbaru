@@ -1,79 +1,111 @@
 import type { Comment } from '@/types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Flex, Separator, Skeleton, Text } from '@radix-ui/themes';
 
 import { ThickArrowUpIcon, ThickArrowDownIcon } from '@radix-ui/react-icons';
 import { MarkdownToJsx } from '../markdown';
+import { voteComment } from '@/api/comment';
 
 interface CommentProps {
   comment: Comment;
+  classId: string;
+  postId: string;
   loading?: boolean;
 }
 
 // the comment itself that is displaye on a post
-export default function Comment({ comment, loading = false }: CommentProps) {
+export default function Comment({
+  comment,
+  loading = false,
+  classId,
+  postId,
+}: CommentProps) {
   const [likeStatus, setLikeStatus] = useState<{
     isLiked: boolean;
     isDisliked: boolean;
-  }>({ isLiked: comment.vote === 1, isDisliked: comment.vote === -1 });
+  }>({ isLiked: comment.vote == 1, isDisliked: comment.vote == -1 });
 
   const [likeCount, setLikeCount] = useState(comment.score);
 
-  const sendVoteRequest = async (postId: string, voteType: string) => {
-    try {
-      const response = await fetch(`/api/vote`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ postId, voteType }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to vote');
-      }
-
-      const data = await response.json();
-      return data.newScore;
-    } catch (error) {
-      console.error('Error:', error);
-      return null;
-    }
-  };
+  useEffect(() => {
+    setLikeStatus({
+      isLiked: comment.vote == 1,
+      isDisliked: comment.vote == -1,
+    });
+    setLikeCount(comment.score);
+  }, [comment]);
 
   const handleUpvote = async () => {
-    const newScore = await sendVoteRequest(
-      comment.answer_id.toString(),
-      'upvote'
-    );
+    if (loading) return;
 
-    if (newScore !== null) {
-      if (likeStatus.isLiked) {
-        setLikeStatus({ isLiked: false, isDisliked: false });
-        setLikeCount(newScore);
-      } else {
-        setLikeStatus({ isLiked: true, isDisliked: false });
-        setLikeCount(newScore);
-      }
+    if (likeStatus.isLiked) {
+      await voteComment({
+        classId: Number(classId),
+        postId: Number(postId),
+        commentId: comment.answer_id,
+        vote: 0,
+      });
+
+      setLikeStatus({ isLiked: false, isDisliked: false });
+      setLikeCount(likeCount - 1);
+    } else if (likeStatus.isDisliked) {
+      await voteComment({
+        classId: Number(classId),
+        postId: Number(postId),
+        commentId: comment.answer_id,
+        vote: 1,
+      });
+
+      setLikeStatus({ isLiked: true, isDisliked: false });
+      setLikeCount(likeCount + 2);
+    } else {
+      await voteComment({
+        classId: Number(classId),
+        postId: Number(postId),
+        commentId: comment.answer_id,
+        vote: 1,
+      });
+
+      setLikeStatus({ isLiked: true, isDisliked: false });
+      setLikeCount(likeCount + 1);
     }
   };
 
   const handleDownvote = async () => {
-    const newScore = await sendVoteRequest(
-      comment.answer_id.toString(),
-      'downvote'
-    );
-    if (newScore !== null) {
-      if (likeStatus.isDisliked) {
-        setLikeStatus({ isLiked: false, isDisliked: false });
-        setLikeCount(newScore);
-      } else {
-        setLikeStatus({ isLiked: false, isDisliked: true });
-        setLikeCount(newScore);
-      }
+    if (loading) return;
+
+    if (likeStatus.isLiked) {
+      await voteComment({
+        classId: Number(classId),
+        postId: Number(postId),
+        commentId: comment.answer_id,
+        vote: -1,
+      });
+
+      setLikeStatus({ isLiked: false, isDisliked: true });
+      setLikeCount(likeCount - 2);
+    } else if (likeStatus.isDisliked) {
+      await voteComment({
+        classId: Number(classId),
+        postId: Number(postId),
+        commentId: comment.answer_id,
+        vote: 0,
+      });
+
+      setLikeStatus({ isLiked: false, isDisliked: false });
+      setLikeCount(likeCount + 1);
+    } else {
+      await voteComment({
+        classId: Number(classId),
+        postId: Number(postId),
+        commentId: comment.answer_id,
+        vote: -1,
+      });
+
+      setLikeStatus({ isLiked: false, isDisliked: true });
+      setLikeCount(likeCount - 1);
     }
   };
-
   return (
     <Flex direction='column' gap='4'>
       <Flex id='user' direction='row' gap='4' justify='start' align='center'>

@@ -31,9 +31,8 @@ import ReactMarkdown from 'react-markdown';
 import { MarkdownToJsx } from './markdown';
 import MDEditor from '@uiw/react-md-editor';
 import { useTheme } from 'next-themes';
-import PostCard from './cards/post';
-import { useCookies } from 'next-client-cookies';
 import { useSession } from '@/util/session';
+import PostCard from './cards/post';
 
 interface CreateProps {
   width?: number;
@@ -101,7 +100,7 @@ export default function Create({
                 comment={{
                   answer_id: 1,
                   answer: text,
-                  date: new Date().toISOString(),
+                  date: new Date(1000).toISOString(),
                   score: 1,
                   vote: 1,
                   user: {
@@ -109,6 +108,8 @@ export default function Create({
                     name: anonymous ? 'Anonymous' : session.username,
                   },
                 }}
+                classId='1'
+                postId='1'
               />
             ) : (
               <PostCard
@@ -121,9 +122,9 @@ export default function Create({
                   },
                   score: 1,
                   answers: 1,
-                  date: new Date().toISOString(),
+                  date: new Date(1000).toISOString(),
                   post_id: 1,
-                  last_activity: new Date().toISOString(),
+                  last_activity: new Date(1000).toISOString(),
                   views: 1,
                   instructor_answered: false,
                   tags: [],

@@ -27,10 +27,6 @@ export default function CommentPopover({
   const handleSubmit = async () => {
     if (!text.trim()) return;
 
-    void queryClient.refetchQueries({
-      queryKey: ['comments'],
-    });
-
     // Assuming you have an API endpoint for creating comments
     const response = await createComment({
       classId: Number(forumId),
@@ -44,6 +40,10 @@ export default function CommentPopover({
       setOpen(false);
 
       toast.success('Comment created!');
+
+      void queryClient.refetchQueries({
+        queryKey: ['comments'],
+      });
     } else {
       console.error('Failed to create comment');
     }

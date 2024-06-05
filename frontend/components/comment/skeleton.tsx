@@ -6,7 +6,7 @@ export default function CommentSkeleton() {
   const exampleComment: CommentType = {
     answer: 'A bunch of random comments. A bunch of random comments. ',
     answer_id: 1,
-    date: new Date().toISOString(),
+    date: new Date(1000).toISOString(),
     score: 1,
     vote: 1,
     user: {
@@ -21,7 +21,12 @@ export default function CommentSkeleton() {
     <Flex direction='column'>
       {examples.map((comment) => (
         <Flex mb='5' key={comment.answer_id}>
-          <Comment comment={comment} loading={true} />
+          <Comment
+            comment={comment}
+            loading={true}
+            classId={'1'}
+            postId={'1'}
+          />
         </Flex>
       ))}
     </Flex>

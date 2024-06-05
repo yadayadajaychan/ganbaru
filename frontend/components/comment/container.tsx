@@ -76,12 +76,7 @@ export default function CommentContainer({
           <Text>No comments found. Be the first to create one!</Text>
         </Flex>
       )}
-      {isLoading && comments.length === 0 && (
-        // <Flex justify='center' align='center'>
-        //   <Spinner />
-        // </Flex>
-        <CommentSkeleton />
-      )}
+      {isLoading && comments.length === 0 && <CommentSkeleton />}
       <InfiniteScroll
         pageStart={0}
         loadMore={loadMoreRows}
@@ -94,7 +89,7 @@ export default function CommentContainer({
       >
         {comments.map((comment) => (
           <Flex mb='5' key={comment.answer_id}>
-            <Comment comment={comment} />
+            <Comment comment={comment} classId={forumId} postId={postId} />
           </Flex>
         ))}
       </InfiniteScroll>

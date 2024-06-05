@@ -135,7 +135,10 @@ class db:
                              'answer text NOT NULL,'
                              'score  integer NOT NULL,'
                              'anonymous bool NOT NULL,'
-                             'alias     bool NOT NULL);')
+                             'alias     bool NOT NULL,'
+                             'instructor_answer bool NOT NULL,'
+                             'upvotes integer[],'
+                             'downvotes integer[]);')
         finally:
             self.conn.commit()
 
@@ -836,9 +839,9 @@ class db:
 
         try:
             self.cur.execute('INSERT INTO answers '
-                             '(fid, pid, aid, uid, date, answer, score, anonymous, alias) '
-                             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                             (forum_id, post_id, aid, uid, date, answer, 0, anonymous, alias))
+                             '(fid, pid, aid, uid, date, answer, score, anonymous, alias, instructor_answer) '
+                             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                             (forum_id, post_id, aid, uid, date, answer, 0, anonymous, alias, mod))
             self.cur.execute('UPDATE posts '
                              'SET answers = answers + 1, last_activity = %s '
                              'WHERE fid = %s AND pid = %s',
@@ -881,41 +884,15 @@ class db:
         
         search = query.get("search", '.*')
 
-        query = sql.SQL('SELECT instructor_answered, instructor_aid '
-                        'FROM posts '
-                        'WHERE fid = %s AND pid = %s')
-        try:
-            self.cur.execute(query, (forum_id, post_id))
-        finally:
-            self.conn.commit()
-        records = self.cur.fetchone()
-        instructor_answered = records[0]
-        instructor_aid = records[1]
-
-        instructor_answer = None
-        if instructor_answered:
-            self.cur.execute('SELECT aid, uid, date, answer, score '
-                             'FROM answers '
-                             'WHERE fid = %s AND pid = %s AND aid = %s',
-                             (forum_id, post_id, instructor_aid))
-            record = self.cur.fetchone()
-            instructor_answer = {"answer_id" : record[0],
-                                 "user"      : {"uid" : record[1],
-                                                "name": "The Instructor"},
-                                 "date"      : record[2],
-                                 "answer"    : record[3],
-                                 "score"     : record[4],
-                                 }
-
-        query = sql.SQL('SELECT aid, uid, date, answer, score, anonymous, alias '
+        query = sql.SQL('SELECT aid, uid, date, answer, score, anonymous, alias, instructor_answer '
                          'FROM answers '
-                         'WHERE fid = %s AND pid = %s AND aid != %s AND answer ~* %s '
-                         'ORDER BY score {asc}, date DESC '
+                         'WHERE fid = %s AND pid = %s AND answer ~* %s '
+                         'ORDER BY score {asc}, date DESC, instructor_answer DESC '
                          'LIMIT %s OFFSET %s').format(
                                  asc=sql.SQL(ascending),
                                  )
         try:
-            self.cur.execute(query, (forum_id, post_id, instructor_aid, search, count, offset))
+            self.cur.execute(query, (forum_id, post_id, search, count, offset))
         finally:
             self.conn.commit()
 
@@ -924,7 +901,10 @@ class db:
         for record in records:
             anonymous = record[5]
             alias = record[6]
-            user_obj = self.get_user_obj(record[1], mod, anonymous, alias)
+            if record[7]:
+                user_obj = {"uid" : record[1], "name": "Instructor"}
+            else:
+                user_obj = self.get_user_obj(record[1], mod, anonymous, alias)
 
             answer = {"answer_id"     : record[0],
                       "user"          : user_obj,
@@ -936,7 +916,7 @@ class db:
 
         # check if this is the last page
         try:
-            self.cur.execute(query, (forum_id, post_id, instructor_aid, search, 1, offset+count))
+            self.cur.execute(query, (forum_id, post_id, search, 1, offset+count))
         finally:
             self.conn.commit()
         records = self.cur.fetchall()
@@ -945,11 +925,8 @@ class db:
         else:
             nextPage = page+1
 
-        return {"instructor_answer": instructor_answer,
-                "student_answers"  : {
-                                        "answers": answer_infos,
-                                        "nextPage": nextPage
-                                     }
+        return {"answers": answer_infos,
+                "nextPage": nextPage,
                 }
 
     def __refresh_join_code(self, forum_id):

@@ -235,10 +235,10 @@ Get Answers
 
 - JSON Response
 
- |       field       |          type           |
- |-------------------|-------------------------|
- | instructor_answer | answer object           |
- | student_answers   | student answers object  |
+ |  field   |          type           |
+ |----------|-------------------------|
+ | answers  | array of answer objects |
+ | nextPage | int                     |
 
 - Answer Object
 
@@ -250,13 +250,6 @@ Get Answers
  | answer    | string   | full text of the answer |
  | score     | int      | sum of votes by users   |
  | vote      | int      | user's own vote         |
-
-- Student Answers Object
-
-|  field   |          type           |
-|----------|-------------------------|
-| answers  | array of answer objects |
-| nextPage | int                     |
 
 - user_obj
 

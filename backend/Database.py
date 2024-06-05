@@ -284,18 +284,22 @@ class db:
         if uid == 0:
             return
 
+        self.check_uid(uid)
+        self.check_forum(forum_id)
+
         # check if user is owner
         self.cur.execute('SELECT owner '
                          'FROM forums '
                          'WHERE fid = %s', (forum_id,))
-        if int(uid) == self.cur.fetchone()[0]:
+        if uid == self.cur.fetchone()[0]:
             return
 
         # check if user is a moderator
         self.cur.execute('SELECT moderators '
                          'FROM forums '
                          'WHERE fid = %s', (forum_id,))
-        if int(uid) in self.cur.fetchone()[0]:
+        mods = self.cur.fetchone()[0]
+        if mods is not None and uid in mods:
             return
 
         raise Exception(f"not an owner or moderator of forum {forum_id}")

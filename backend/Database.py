@@ -6,6 +6,7 @@ from psycopg2 import sql
 import re
 from argon2 import PasswordHasher
 import base64
+import jwt
 
 class db:
     def __init__(self):

@@ -591,6 +591,24 @@ class db:
 
         return self.cur.fetchone()[0]
 
+    def get_forum_info(self, session_id, forum_id):
+        uid = self.check_session(session_id)
+        self.check_in_forum(uid, forum_id)
+
+        self.cur.execute('SELECT fid, owner, name, description '
+                         'FROM forums '
+                         'WHERE fid = %s', (forum_id,))
+        record = self.cur.fetchone()
+
+        forum = dict()
+        forum['forum_id']    = record[0]
+        forum['owner']       = {"uid": record[1],
+                                "name": self.get_display_name(record[1])}
+        forum['name']        = record[2]
+        forum['description'] = record[3]
+
+        return forum
+
     # check doc/backend-api.txt for output format
     def get_forums(self, session_id):
         uid = self.check_session(session_id)

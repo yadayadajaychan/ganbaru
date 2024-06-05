@@ -120,6 +120,17 @@ Get Forums (classes)
  | uid   | int    | user id      |
  | name  | string | display name |
 
+Get Forum Info
+==============
+- `GET /forums/info/<forum_id>`
+- get forum information
+- `session_id` cookie required
+- JSON Response
+
+ | field |     type     |
+ |-------|--------------|
+ | forum | forum object |
+
 Get Posts
 =========================
 - `GET /forums/<forum_id>`

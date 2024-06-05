@@ -164,6 +164,20 @@ def create_forum():
 
     return jsonify(fid), 200
 
+@app.route("/forums/info/<forum_id>", methods=["GET"])
+def get_forum_info(forum_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        forum = db.get_forum_info(session_id, forum_id)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify(forum), 200
+
 @app.route("/forums", methods=["GET"])
 def get_forums():
     try:

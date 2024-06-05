@@ -1060,7 +1060,7 @@ class db:
         else:
             raise Exception("join code is incorrect length, this shouldn't happen")
 
-        return
+        return {"forum_id": fid[0]}
 
     def get_post_vote(self, session_id, forum_id, post_id): 
         # returns the current user's vote as 1, 0, or -1

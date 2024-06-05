@@ -112,6 +112,7 @@ export const refreshJoinCode = async ({ forumId }: { forumId: string }) =>
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({}),
+      credentials: 'include',
     }
   );
 
@@ -125,6 +126,7 @@ export const refreshModJoinCode = async ({ forumId }: { forumId: string }) =>
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({}),
+      credentials: 'include',
     }
   );
 

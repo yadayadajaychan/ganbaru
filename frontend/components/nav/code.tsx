@@ -12,6 +12,7 @@ import {
   DataList,
   Flex,
   Skeleton,
+  Spinner,
   Text,
   TextField,
 } from '@radix-ui/themes';
@@ -34,6 +35,8 @@ export default function Code({ classId }: { classId: string }) {
   });
 
   const onRefreshJoinCode = async () => {
+    console.log('here');
+
     setIsRefreshingJoinCode(true);
 
     const res = await refreshJoinCode({ forumId: classId });
@@ -80,22 +83,26 @@ export default function Code({ classId }: { classId: string }) {
           </DataList.Value>
         </DataList.Item>
       </DataList.Root>
-      <Flex justify='between' direction='row'>
+      <Flex justify='end' direction='row' gap='4'>
         <Button
           className='hover:cursor-pointer'
           size='2'
           variant='soft'
-          onSubmit={onRefreshJoinCode}
+          onClick={onRefreshJoinCode}
         >
-          Refresh Join Code
+          {isRefreshingJoinCode ? <Spinner /> : 'Refresh Join Code'}
         </Button>
         <Button
           className='hover:cursor-pointer'
           size='2'
           variant='soft'
-          onSubmit={onRefreshModJoinCode}
+          onClick={onRefreshModJoinCode}
         >
-          Refresh Moderator Join Code
+          {isRefreshingModJoinCode ? (
+            <Spinner />
+          ) : (
+            'Refresh Moderator Join Code'
+          )}
         </Button>
       </Flex>
       {/* <Text as='label' size='2'>

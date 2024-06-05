@@ -9,12 +9,22 @@ import JoinClass from '@/components/class/join';
 import ClassCard from '@/components/cards/class';
 import ClassesSkeleton from './skeleton';
 import CreateClass from './create';
+import { logout } from '@/api/user';
+import { useRouter } from 'next/navigation';
 
 export default function Classes() {
+  const router = useRouter();
+
   const { data, isLoading } = useQuery({
     queryKey: ['classes'],
     queryFn: fetchClasses,
   });
+
+  const onLogout = async () => {
+    await logout();
+
+    router.push('/');
+  };
 
   return (
     <Flex direction='column' gap='4' className='w-full'>
@@ -43,6 +53,13 @@ export default function Classes() {
       >
         <CreateClass />
         <JoinClass title='Join a Class' />
+        <Button
+          className='hover:cursor-pointer'
+          variant='outline'
+          onClick={onLogout}
+        >
+          Logout
+        </Button>
       </Flex>
     </Flex>
   );

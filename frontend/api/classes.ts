@@ -3,6 +3,7 @@ import {
   GetIsModeratorResponse,
   GetJoinCodeResponse,
   GetModJoinCodeResponse,
+  Class,
 } from '@/types';
 
 export const fetchClasses = async () => {
@@ -33,7 +34,7 @@ export const fetchClass = async ({ forumId }: { forumId: string }) => {
     throw new Error(data.error || 'Failed to fetch classes');
   }
 
-  return data;
+  return data as Class;
 };
 
 export const createClass = async ({

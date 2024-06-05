@@ -38,9 +38,9 @@ export default function LoginCard() {
       return;
     }
 
-    router.push('/');
-
     setIsLoading(false);
+
+    router.push('/');
   };
 
   return (

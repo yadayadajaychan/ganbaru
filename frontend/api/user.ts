@@ -28,3 +28,12 @@ export const login = async ({
     body: JSON.stringify({ email, password }),
     credentials: 'include',
   });
+
+export const logout = async () =>
+  fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/logout`, {
+    headers: {
+      'Access-Control-Allow-Credentials': 'true',
+    },
+    method: 'POST',
+    credentials: 'include',
+  });

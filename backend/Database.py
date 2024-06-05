@@ -221,6 +221,11 @@ class db:
     # checks if uid exists
     # raises exception if not found
     def check_uid(self, uid):
+        try:
+            uid = int(uid)
+        except:
+            raise Exception("uid must be an integer")
+
         self.cur.execute('SELECT uid '
                          'FROM users '
                          'WHERE uid = %s', (uid,))
@@ -232,6 +237,11 @@ class db:
     # checks if forum exists
     # raises exception if not found
     def check_forum(self, forum_id):
+        try:
+            forum_id = int(forum_id)
+        except:
+            raise Exception("forum_id must be an integer")
+
         self.cur.execute('SELECT fid '
                          'FROM forums '
                          'WHERE fid = %s', (forum_id,))
@@ -243,6 +253,16 @@ class db:
     # checks if post exists
     # raises exception if not found
     def check_post(self, forum_id, post_id):
+        try:
+            post_id = int(post_id)
+        except:
+            raise Exception("post_id must be an integer")
+
+        try:
+            forum_id = int(forum_id)
+        except:
+            raise Exception("forum_id must be an integer")
+
         self.cur.execute('SELECT pid '
                          'FROM posts '
                          'WHERE fid = %s AND pid = %s',
@@ -255,6 +275,21 @@ class db:
     # checks if answer exists
     # raises exception if not found
     def check_answer(self, forum_id, post_id, answer_id):
+        try:
+            post_id = int(post_id)
+        except:
+            raise Exception("post_id must be an integer")
+
+        try:
+            forum_id = int(forum_id)
+        except:
+            raise Exception("forum_id must be an integer")
+
+        try:
+            answer_id = int(answer_id)
+        except:
+            raise Exception("answer_id must be an integer")
+
         self.cur.execute('SELECT aid '
                          'FROM answers '
                          'WHERE fid = %s AND pid = %s AND aid = %s',
@@ -270,6 +305,16 @@ class db:
         if uid == 0:
             return
 
+        try:
+            uid = int(uid)
+        except:
+            raise Exception("uid must be an integer")
+
+        try:
+            forum_id = int(forum_id)
+        except:
+            raise Exception("forum_id must be an integer")
+
         self.cur.execute('SELECT forums '
                          'FROM users '
                          'WHERE uid = %s', (uid,))
@@ -283,6 +328,16 @@ class db:
     def check_mod_in_forum(self, uid, forum_id):
         if uid == 0:
             return
+
+        try:
+            uid = int(uid)
+        except:
+            raise Exception("uid must be an integer")
+
+        try:
+            forum_id = int(forum_id)
+        except:
+            raise Exception("forum_id must be an integer")
 
         # check if user is owner
         self.cur.execute('SELECT owner '

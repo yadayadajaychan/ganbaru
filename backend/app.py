@@ -424,7 +424,7 @@ def vote_on_post(forum_id, post_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return jsonify(vote), 200
+    return jsonify({}), 200
 
 @app.route("/forums/<forum_id>/<post_id>/<answer_id>/get_vote", methods=["GET"])
 def get_answer_vote(forum_id, post_id, answer_id):
@@ -462,7 +462,7 @@ def vote_on_answer(forum_id, post_id, answer_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return jsonify(vote), 200
+    return jsonify({}), 200
 
 @app.route("/forums/<forum_id>/is_mod", methods=["GET"])
 def is_mod(forum_id):

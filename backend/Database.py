@@ -719,7 +719,7 @@ class db:
         elif sortby == "activity":
             sortby = 'last_activity'
         elif sortby == "votes":
-            raise Exception("sorting by votes not implemented yet") #TODO
+            sortby = 'score'
         else:
             raise Exception("invalid sortby, must be: post_date, activity, votes")
 
@@ -772,6 +772,7 @@ class db:
                     "tags"          : record[8],
                     "score"         : record[11],
                     "full_text"     : record[12],
+                    "vote"          : self.get_post_vote(session_id, forum_id, record[0]).get("vote"),
                     }
             post_infos.append(post)
 
@@ -801,7 +802,7 @@ class db:
 
         self.cur.execute('SELECT uid, title, date, last_activity, views, '
                          'answers, instructor_answered, tags, full_text, '
-                         'anonymous, alias, score, pid '
+                         'anonymous, alias, score '
                          'FROM posts '
                          'WHERE fid = %s AND pid = %s',
                          (forum_id, post_id))
@@ -830,7 +831,8 @@ class db:
                 "tags"    : record[7],
                 "full_text": record[8],
                 "score"   : record[11],
-                "post_id" : record[12],
+                "post_id" : post_id,
+                "vote"    : self.get_post_vote(session_id, forum_id, post_id).get("vote"),
                 }
 
         return post
@@ -940,6 +942,7 @@ class db:
                       "date"          : record[2],
                       "answer"        : record[3],
                       "score"         : record[4],
+                      "vote"          : self.get_answer_vote(session_id, forum_id, post_id, record[0]).get("vote"),
                      }
             answer_infos.append(answer)
 
@@ -1151,8 +1154,8 @@ class db:
         try:
             self.cur.execute('SELECT vote '
                              'FROM answer_votes '
-                             'WHERE fid = %s AND pid = %s AND uid = %s ',
-                             (forum_id, post_id, uid))
+                             'WHERE fid = %s AND pid = %s AND aid = %s AND uid = %s ',
+                             (forum_id, post_id, answer_id, uid))
             record = self.cur.fetchone()
             vote = record[0]
             return {"vote": vote}

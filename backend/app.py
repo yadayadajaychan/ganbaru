@@ -1,7 +1,10 @@
 from flask import Flask, jsonify, request, make_response, redirect
+from flask_cors import CORS
 import Database
 
 app = Flask(__name__)
+CORS(app, origins="http://localhost:3000", headers='Content-Type', supports_credentials=True)
+
 db = Database.db()
 db.init()
 
@@ -99,6 +102,7 @@ def login():
                     value=session_id,
                     max_age=cookie_timeout,
                     #domain=".nijika.org",
+                    samesite='None',
                     secure=True)
     return resp, 200
 

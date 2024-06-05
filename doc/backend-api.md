@@ -107,9 +107,6 @@ Get Forums (classes)
  | owner       | user_obj | owner of the forum           |
  | name        | string   | name of the forum            |
  | description | string   | description of the forum     |
- | important   | int      | # of unread instructor posts |
- | unread      | int      | # of unread posts            |
- | unanswered  | int      | # of unanswered questions    |
 
 - user_obj
 
@@ -133,6 +130,7 @@ Get Posts
  | tags        | string[] | tags to filter by          | y        | []        |
  | ascending   | bool     | ascending order            | y        | false     |
  | sortby      | string   | post_date, activity, votes | y        | post_date |
+ | filter      | string   | all, unanswered            | y        | all       |
 
 - JSON Response
 
@@ -156,6 +154,7 @@ Get Posts
  | tags                | array of strings | tags                  |
  | score               | int              | sum of votes by users |
  | vote                | int              | user's own vote       |
+ | full_text           | string           | full text of the post |
 
 - user_obj
 
@@ -189,6 +188,7 @@ View Post
 
  |  field              |          type           |       description      |
  |---------------------|-------------------------|------------------------|
+ | post_id             | int                     | post id                |
  | user                | user_obj                | user who created post  |
  | title               | string                  | title of post          |
  | date                | string                  | iso8601 timestamp      |
@@ -199,7 +199,6 @@ View Post
  | tags                | array of strings        | tags                   |
  | score               | int                     | sum of votes by users  |
  | vote                | int                     | user's own vote        |
- |                     |                         |                        |
  | full_text           | string                  | full text of the post  |
 
 - user_obj
@@ -228,8 +227,7 @@ Get Answers
  |       field       |          type           |
  |-------------------|-------------------------|
  | instructor_answer | answer object           |
- | student_answers   | array of answer objects |
- | nextPage          | int                     |
+ | student_answers   | student answers object  |
 
 - Answer Object
 
@@ -241,6 +239,13 @@ Get Answers
  | answer    | string   | full text of the answer |
  | score     | int      | sum of votes by users   |
  | vote      | int      | user's own vote         |
+
+- Student Answers Object
+
+|  field   |          type           |
+|----------|-------------------------|
+| answers  | array of answer objects |
+| nextPage | int                     |
 
 - user_obj
 

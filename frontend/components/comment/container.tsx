@@ -25,6 +25,7 @@ import {
 } from '@tanstack/react-query';
 import { fetchComments } from '@/api/comment';
 import InfiniteScroll from 'react-infinite-scroller';
+import CommentSkeleton from './skeleton';
 
 interface CommentContainerProps {
   forumId: string;
@@ -49,11 +50,11 @@ export default function CommentContainer({
         classId: Number(forumId),
         postId: Number(postId),
       }),
-    getNextPageParam: (lastPage) => lastPage.nextPage,
+    getNextPageParam: (lastPage) => lastPage.next_page,
     initialPageParam: 1,
   });
 
-  const allRecords = data ? data.pages.map((page) => page.records) : [];
+  const allRecords = data ? data.pages.map((page) => page.answers) : [];
   const comments = allRecords.flat() as CommentType[];
 
   const [isNextPageLoading, setIsNextPageLoading] = useState(false);
@@ -74,6 +75,12 @@ export default function CommentContainer({
         <Flex justify='center' align='center'>
           <Text>No comments found. Be the first to create one!</Text>
         </Flex>
+      )}
+      {isLoading && comments.length === 0 && (
+        // <Flex justify='center' align='center'>
+        //   <Spinner />
+        // </Flex>
+        <CommentSkeleton />
       )}
       <InfiniteScroll
         pageStart={0}

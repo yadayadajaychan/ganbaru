@@ -1,19 +1,53 @@
+import { GetPostsResponse } from '@/types';
+
 export const fetchPosts = async ({
   pageParam = 1,
   search,
   filter,
+  forumId,
 }: {
   pageParam: number;
+  forumId: number;
   search: string;
   filter: string;
 }) => {
   const res = await fetch(
-    `/api/xxx/x?search=${search}&page=${pageParam}&filter=${filter}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/forums/${forumId}?search=${search}&page=${pageParam}&filter=${filter}`,
     {
       credentials: 'include',
     }
   );
-  return res.json();
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to fetch posts');
+  }
+
+  return data as GetPostsResponse;
+};
+
+export const fetchPost = async ({
+  forumId,
+  postId,
+}: {
+  forumId: string;
+  postId: string;
+}) => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/forums/${forumId}/${postId}`,
+    {
+      credentials: 'include',
+    }
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to fetch post');
+  }
+
+  return data;
 };
 
 export const createPost = async ({
@@ -29,12 +63,13 @@ export const createPost = async ({
   tags: string[];
   anonymous: boolean;
 }) =>
-  fetch(`/forums/${forumId}/create`, {
+  fetch(`${process.env.NEXT_PUBLIC_API_URL}/forums/${forumId}/create`, {
     //We do not know where forumID variable is.
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: 'include',
     body: JSON.stringify({
       title,
       full_text: fullText,

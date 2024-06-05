@@ -150,6 +150,76 @@ def get_forums():
 
     return jsonify(forums), 200
 
+@app.route("/forums/<forum_id>/join_code", methods=["GET"])
+def get_join_code(forum_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        join_code = db.get_join_code(session_id, forum_id)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify({"join_code": join_code}), 200
+
+@app.route("/forums/<forum_id>/refresh_join_code", methods=["POST"])
+def refresh_join_code(forum_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        db.refresh_join_code(session_id, forum_id)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return "", 200
+
+@app.route("/forums/<forum_id>/mod_join_code", methods=["GET"])
+def get_mod_join_code(forum_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        mod_join_code = db.get_mod_join_code(session_id, forum_id)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify({"mod_join_code": mod_join_code}), 200
+
+@app.route("/forums/<forum_id>/refresh_mod_join_code", methods=["POST"])
+def refresh_mod_join_code(forum_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        db.refresh_mod_join_code(session_id, forum_id)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return "", 200
+
+@app.route("/forums/join/<join_code>", methods=["GET"])
+def join_forum(join_code):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        fid = db.join_forum(session_id, join_code)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify(fid), 200
+
 @app.route("/forums/<forum_id>/create", methods=["POST"])
 def create_post(forum_id):
     try:

@@ -14,6 +14,7 @@ import {
   Code,
   Blockquote,
   Link,
+  Skeleton,
 } from '@radix-ui/themes';
 import remarkBreaks from 'remark-breaks';
 
@@ -21,7 +22,12 @@ import rehypeRaw from 'rehype-raw';
 import React from 'react';
 import MDEditor from '@uiw/react-md-editor';
 
-export const MarkdownToJsx = ({ markdown }: { markdown: string }) => {
+interface MarkdownProps {
+  markdown: string;
+  loading?: boolean;
+}
+
+export const MarkdownToJsx = ({ markdown, loading = false }: MarkdownProps) => {
   return (
     <ReactMarkdown
       // rehypePlugins={[rehypeRaw]}

@@ -37,7 +37,7 @@ def create_user():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return "", 200
+    return jsonify({}), 200
 
 @app.route("/user/delete", methods=["POST"])
 def delete_user():
@@ -63,7 +63,7 @@ def delete_user():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return "", 200
+    return jsonify({}), 200
 
 @app.route("/user/login", methods=["POST"])
 def login():
@@ -118,7 +118,7 @@ def check_session():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return "", 200
+    return jsonify({}), 200
 
 @app.route("/forums/create", methods=["POST"])
 def create_forum():
@@ -143,7 +143,7 @@ def create_forum():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return "", 200
+    return jsonify({}), 200
 
 @app.route("/forums", methods=["GET"])
 def get_forums():
@@ -185,7 +185,7 @@ def refresh_join_code(forum_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return "", 200
+    return jsonify({}), 200
 
 @app.route("/forums/<forum_id>/mod_join_code", methods=["GET"])
 def get_mod_join_code(forum_id):
@@ -213,7 +213,7 @@ def refresh_mod_join_code(forum_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return "", 200
+    return jsonify({}), 200
 
 @app.route("/forums/join/<join_code>", methods=["POST"])
 def join_forum(join_code):
@@ -277,7 +277,7 @@ def create_post(forum_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return "", 200
+    return jsonify({}), 200
 
 @app.route("/forums/<forum_id>", methods=["GET"])
 def get_posts(forum_id):
@@ -337,7 +337,7 @@ def create_answer(forum_id, post_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return "", 200
+    return jsonify({}), 200
 
 @app.route("/forums/<forum_id>/<post_id>/answers", methods=["GET"])
 def get_answers(forum_id, post_id):
@@ -443,7 +443,7 @@ def is_mod(forum_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return "", 200
+    return jsonify({}), 200
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -30,7 +30,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import PostSkeleton from './skeleton';
 
 // will be the virtualized list that contains all of the posts
-export default function PostContainer() {
+export default function PostContainer({ forumId }: { forumId: string }) {
   const filterData = {
     all: { label: 'All' },
     unanswered: { label: 'Unanswered' },
@@ -42,8 +42,9 @@ export default function PostContainer() {
   const [isNextPageLoading, setIsNextPageLoading] = useState(false);
 
   const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery({
-    queryKey: ['posts', search, filter],
-    queryFn: ({ pageParam }) => fetchPosts({ pageParam, search, filter }),
+    queryKey: ['posts', search, filter, forumId],
+    queryFn: ({ pageParam }) =>
+      fetchPosts({ pageParam, search, filter, forumId: Number(forumId) }),
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 1,
   });

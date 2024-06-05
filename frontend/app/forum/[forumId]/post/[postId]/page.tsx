@@ -14,8 +14,9 @@ import { ChatBubbleIcon } from '@radix-ui/react-icons';
 import { AutoSizer } from 'react-virtualized';
 import CommentPopover from '@/components/comment/create';
 import PostCard from '@/components/cards/post';
+import Post from '@/components/post/post';
 
-export default async function Post({
+export default async function PostPage({
   params,
 }: {
   params: { postId: string; forumId: string };
@@ -34,7 +35,7 @@ export default async function Post({
         gap='4'
         className='w-full px-4 md:max-w-3xl'
       >
-        <PostCard
+        {/* <PostCard
           post={{
             user: { uid: 25, name: 'anonymous12345' },
             title: 'test',
@@ -50,7 +51,8 @@ export default async function Post({
             vote: 0,
           }}
           preview={false}
-        />
+        /> */}
+        <Post forumId={params.forumId} postId={params.postId} />
         <CommentPopover forumId={params.forumId} postId={params.postId} />
         <CommentContainer forumId={params.forumId} postId={params.postId} />
       </Flex>

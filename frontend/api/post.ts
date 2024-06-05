@@ -2,18 +2,47 @@ export const fetchPosts = async ({
   pageParam = 1,
   search,
   filter,
+  forumId,
 }: {
   pageParam: number;
+  forumId: number;
   search: string;
   filter: string;
 }) => {
   const res = await fetch(
-    `/api/xxx/x?search=${search}&page=${pageParam}&filter=${filter}`,
+    `/forums/${forumId}?search=${search}&page=${pageParam}&filter=${filter}`,
     {
       credentials: 'include',
     }
   );
-  return res.json();
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to fetch posts');
+  }
+
+  return data;
+};
+
+export const fetchPost = async ({
+  forumId,
+  postId,
+}: {
+  forumId: string;
+  postId: string;
+}) => {
+  const res = await fetch(`/forums/${forumId}/${postId}`, {
+    credentials: 'include',
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to fetch post');
+  }
+
+  return data;
 };
 
 export const createPost = async ({

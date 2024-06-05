@@ -11,7 +11,7 @@ export default function Forum({ params }: { params: { forumId: string } }) {
     <>
       <Flex gap='20' direction='column' justify='start' align='center'>
         <Flex className='w-full px-4 md:max-w-3xl'>
-          <PostContainer />
+          <PostContainer forumId={params.forumId} />
         </Flex>
         {/* bottom right */}
         <Flex

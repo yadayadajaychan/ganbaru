@@ -156,6 +156,7 @@ Get Posts
  | tags                | array of strings | tags                  |
  | score               | int              | sum of votes by users |
  | vote                | int              | user's own vote       |
+ | full_text           | string           | full text of the post |
 
 - user_obj
 
@@ -199,7 +200,6 @@ View Post
  | tags                | array of strings        | tags                   |
  | score               | int                     | sum of votes by users  |
  | vote                | int                     | user's own vote        |
- |                     |                         |                        |
  | full_text           | string                  | full text of the post  |
 
 - user_obj

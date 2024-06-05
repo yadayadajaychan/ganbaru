@@ -697,7 +697,7 @@ class db:
 
         query = sql.SQL('SELECT pid, uid, title, date, last_activity, '
                         'views, answers, instructor_answered, tags, '
-                        'anonymous, alias, score '
+                        'anonymous, alias, score, full_text '
                          'FROM posts '
                          'WHERE fid = %s AND (title ~* %s OR full_text ~* %s) '
                          'ORDER BY {sortby} {asc} '
@@ -727,6 +727,7 @@ class db:
                     "instructor_answered": record[7],
                     "tags"          : record[8],
                     "score"         : record[11],
+                    "full_text"     : record[12],
                     }
             post_infos.append(post)
 

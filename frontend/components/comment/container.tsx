@@ -76,12 +76,7 @@ export default function CommentContainer({
           <Text>No comments found. Be the first to create one!</Text>
         </Flex>
       )}
-      {isLoading && comments.length === 0 && (
-        // <Flex justify='center' align='center'>
-        //   <Spinner />
-        // </Flex>
-        <CommentSkeleton />
-      )}
+      {isLoading && comments.length === 0 && <CommentSkeleton />}
       <InfiniteScroll
         pageStart={0}
         loadMore={loadMoreRows}

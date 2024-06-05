@@ -1,5 +1,5 @@
 import type { Comment } from '@/types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Flex, Separator, Skeleton, Text } from '@radix-ui/themes';
 
 import { ThickArrowUpIcon, ThickArrowDownIcon } from '@radix-ui/react-icons';
@@ -23,9 +23,17 @@ export default function Comment({
   const [likeStatus, setLikeStatus] = useState<{
     isLiked: boolean;
     isDisliked: boolean;
-  }>({ isLiked: comment.vote === 1, isDisliked: comment.vote === -1 });
+  }>({ isLiked: comment.vote == 1, isDisliked: comment.vote == -1 });
 
   const [likeCount, setLikeCount] = useState(comment.score);
+
+  useEffect(() => {
+    setLikeStatus({
+      isLiked: comment.vote == 1,
+      isDisliked: comment.vote == -1,
+    });
+    setLikeCount(comment.score);
+  }, [comment]);
 
   const handleUpvote = async () => {
     if (loading) return;

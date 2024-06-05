@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Badge,
   Box,
@@ -39,9 +39,14 @@ export default function PostCard({
   const [likeStatus, setLikeStatus] = useState<{
     isLiked: boolean;
     isDisliked: boolean;
-  }>({ isLiked: post.vote === 1, isDisliked: post.vote === -1 });
+  }>({ isLiked: post.vote == 1, isDisliked: post.vote == -1 });
 
   const [likeCount, setLikeCount] = useState(post.score);
+
+  useEffect(() => {
+    setLikeStatus({ isLiked: post.vote == 1, isDisliked: post.vote == -1 });
+    setLikeCount(post.score);
+  }, [post]);
 
   const handleUpvote = async () => {
     if (loading) return;

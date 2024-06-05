@@ -9,8 +9,6 @@ export const fetchComments = async ({
   classId: number;
   postId: number;
 }) => {
-  console.log(postId);
-
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/forums/${classId}/${postId}/answers?page=${pageParam}`,
     {

@@ -898,7 +898,7 @@ class db:
             record = self.cur.fetchone()
             instructor_answer = {"answer_id" : record[0],
                                  "user"      : {"uid" : record[1],
-                                                "name": self.get_display_name(record[1])},
+                                                "name": "The Instructor"},
                                  "date"      : record[2],
                                  "answer"    : record[3],
                                  "score"     : record[4],
@@ -907,7 +907,7 @@ class db:
         query = sql.SQL('SELECT aid, uid, date, answer, score, anonymous, alias '
                          'FROM answers '
                          'WHERE fid = %s AND pid = %s AND aid != %s AND answer ~* %s '
-                         'ORDER BY score {asc} '
+                         'ORDER BY score {asc}, date DESC '
                          'LIMIT %s OFFSET %s').format(
                                  asc=sql.SQL(ascending),
                                  )

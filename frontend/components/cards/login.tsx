@@ -14,7 +14,7 @@ import {
 import { useState } from 'react';
 import NextLink from 'next/link';
 import toast from 'react-hot-toast';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { login } from '@/api/user';
 
 export default function LoginCard() {

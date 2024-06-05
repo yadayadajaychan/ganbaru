@@ -1,30 +1,48 @@
 
 
+export interface User {
+    uid: number;
+    name: string;
+}
+
 export interface Comment {
-    id: string;
-    content: string;
-    postId: string;
-    createdAt: Date;
-    likeCount: number;
-    user: {
-        id: number;
-        name: string;
-    };
+    answer_id: number;
+    user: User;
+    date: string;
+    answer: string;
+    score: number;
+    vote: number;
 }
 
 export interface Post {
+    post_id: number;
+    user: User;
     title: string;
-    description: string;
-    user: string;
-    likes: number;
-    comments: number;
-    datePosted: Date;
-  
+    content: string;
+    date: string;
+    last_activity: string;
+    views: number;
+    answers: number;
+    instructor_answered: boolean;
+    tags: string[];
+    score: number;
+    vote: number;
+
     // user related
-    isLiked?: boolean;
-    isDisliked?: boolean;
+    // isLiked?: boolean;
+    // isDisliked?: boolean;
   
     preview?: boolean;
+}
+
+export interface Class {
+    forum_id: number;
+    owner: User;
+    name: string;
+    description: string;
+    important: number;
+    unread: number;
+    unanswered: number;
 }
 
 export interface GetPostResponse {

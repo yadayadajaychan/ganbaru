@@ -19,6 +19,7 @@ import {
   Text,
   Dialog,
   Popover,
+  Switch,
 } from '@radix-ui/themes';
 import { Label } from '@radix-ui/react-label';
 import { useState } from 'react';
@@ -34,13 +35,27 @@ import PostCard from './cards/post';
 interface CreateProps {
   width?: number;
 
+  title?: string;
+
   text: string;
   setText: (text: string) => void;
+
+  anonymous: boolean;
+  setAnonymous: (anonymous: boolean) => void;
+
+  onSubmit: () => Promise<void>;
 
   type: 'comment' | 'post';
 }
 
-export default function Create({ width, text, setText, type }: CreateProps) {
+export default function Create({
+  width,
+  title,
+  text,
+  setText,
+  onSubmit,
+  type,
+}: CreateProps) {
   // const insertMarkdown = (
   //   beforeSyntax: string,
   //   afterSyntax: string,
@@ -69,64 +84,22 @@ export default function Create({ width, text, setText, type }: CreateProps) {
     <Flex direction='column' gap='4' width={width ? `${width}px` : '100%'}>
       <Flex direction='row' gap='4' className='w-full'>
         <Box className='w-full'>
-          {/* <Card className='w-full'> */}
           <Flex direction='column' gap='2' className='w-full'>
-            {/* <Box>
-              <Flex gap='4'>
-                <Flex gap='1'>
-                  <IconButton
-                    variant='soft'
-                    onClick={() => insertMarkdown('# ', '', 'heading')}
-                  >
-                    <HeadingIcon />
-                  </IconButton>
-                  <IconButton
-                    variant='soft'
-                    onClick={() => insertMarkdown('*', '*', 'italic')}
-                  >
-                    <FontItalicIcon />
-                  </IconButton>
-
-                  <IconButton
-                    variant='soft'
-                    onClick={() => insertMarkdown('**', '**', 'bold')}
-                  >
-                    <FontBoldIcon />
-                  </IconButton>
-                </Flex>
-
-                <Flex gap='1'>
-                  <IconButton
-                    variant='soft'
-                    onClick={() => insertMarkdown('```', '```', 'code')}
-                  >
-                    <CodeIcon />
-                  </IconButton>
-                </Flex>
-              </Flex>
-            </Box> */}
-            {/* <TextArea
-              id='comment-textarea'
-              spellCheck={false}
-              variant='classic'
-              resize='vertical'
-              rows={10}
-              placeholder='Start typing here...'
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-            /> */}
             <div data-color-mode={theme}>
               <MDEditor
                 value={text}
                 preview='edit'
-                // extraCommands={[codePreview, customButton, commands.fullscreen]}
                 onChange={(e) => setText(e ?? '')}
               />
             </div>
           </Flex>
-          {/* </Card> */}
         </Box>
       </Flex>
+      <Text as='label' size='2'>
+        <Flex gap='2'>
+          <Switch size='1' /> Stay Anonymous
+        </Flex>
+      </Text>
       <Flex className='w-full' gap='4' justify='end'>
         <Dialog.Root>
           <Dialog.Trigger>
@@ -138,13 +111,13 @@ export default function Create({ width, text, setText, type }: CreateProps) {
             {type === 'comment' ? (
               <Comment
                 comment={{
-                  id: '1',
-                  content: text,
-                  postId: '',
-                  createdAt: new Date(),
-                  likeCount: 1,
+                  answer_id: 1,
+                  answer: text,
+                  date: new Date().toISOString(),
+                  score: 1,
+                  vote: 1,
                   user: {
-                    id: 1,
+                    uid: 1,
                     name: 'test',
                   },
                 }}
@@ -152,19 +125,32 @@ export default function Create({ width, text, setText, type }: CreateProps) {
             ) : (
               <PostCard
                 post={{
-                  title: 'test',
-                  description: text,
-                  user: 'test',
-                  likes: 1,
-                  comments: 1,
-                  datePosted: new Date(),
+                  title: title ?? 'My first post',
+                  content: text,
+                  user: {
+                    name: 'test',
+                    uid: 1,
+                  },
+                  score: 1,
+                  answers: 1,
+                  date: new Date().toISOString(),
+                  post_id: 1,
+                  last_activity: new Date().toISOString(),
+                  views: 1,
+                  instructor_answered: false,
+                  tags: [],
+                  vote: 1,
                 }}
                 preview={false}
               />
             )}
           </Dialog.Content>
         </Dialog.Root>
-        <Button className='hover:cursor-pointer' variant='soft'>
+        <Button
+          className='hover:cursor-pointer'
+          variant='soft'
+          onClick={onSubmit}
+        >
           {type === 'comment' ? 'Post' : 'Create'}{' '}
           {type === 'comment' ? 'Comment' : 'Post'}
         </Button>

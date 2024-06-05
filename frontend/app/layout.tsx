@@ -5,6 +5,8 @@ import ReactQueryProvider from '@/providers/reactQuery';
 import { Theme } from '@radix-ui/themes';
 import { ThemeProvider } from 'next-themes';
 import NavBar from '@/components/nav/navbar';
+import * as Toast from '@radix-ui/react-toast';
+import { Toaster } from 'react-hot-toast';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -19,18 +21,29 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body className='min-h-screen'>
-        <ReactQueryProvider>
-          <ThemeProvider
-            attribute='class'
-            defaultTheme='dark'
-            value={{ light: 'light', dark: 'dark' }}
-          >
-            <Theme accentColor='purple'>
-              <NavBar />
-              {children}
-            </Theme>
-          </ThemeProvider>
-        </ReactQueryProvider>
+        <ThemeProvider
+          attribute='class'
+          defaultTheme='dark'
+          value={{ light: 'light', dark: 'dark' }}
+        >
+          <Theme accentColor='purple'>
+            <Toaster
+              position='bottom-right'
+              toastOptions={{
+                style: {
+                  backgroundColor: 'var(--color-panel-solid)',
+                  color: 'var(--gray-11)',
+                  outline: '1px solid var(--gray-5)',
+                  padding: '10px',
+                  zIndex: 9999,
+                  fontSize: '14px',
+                },
+              }}
+            />
+            {/* <NavBar /> */}
+            <ReactQueryProvider>{children}</ReactQueryProvider>
+          </Theme>
+        </ThemeProvider>
       </body>
     </html>
   );

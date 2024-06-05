@@ -5,36 +5,46 @@ import { ChatBubbleIcon } from '@radix-ui/react-icons';
 import { Button, Inset, Popover } from '@radix-ui/themes';
 import { AutoSizer } from 'react-virtualized';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { createComment } from '@/api/comment';
+import { QueryClient, useQueryClient } from '@tanstack/react-query';
 
 interface CommentPopoverProps {
+  forumId: string;
   postId: string;
 }
 
-export default function CommentPopover({ postId }: CommentPopoverProps) {
+export default function CommentPopover({
+  forumId,
+  postId,
+}: CommentPopoverProps) {
   const [text, setText] = useState('');
+  const [anonymous, setAnonymous] = useState(false);
   const [open, setOpen] = useState(false);
+
+  const queryClient = useQueryClient();
 
   const handleSubmit = async () => {
     if (!text.trim()) return;
 
+    void queryClient.refetchQueries({
+      queryKey: ['comments'],
+    });
+
     // Assuming you have an API endpoint for creating comments
-    const response = await fetch(`/forums/${forumId}/${postId}/create`, { //We do not know where forumID variable is.
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        answer: "answer"
-      }),
+    const response = await createComment({
+      classId: Number(forumId),
+      postId: Number(postId),
+      content: text,
+      anonymous,
     });
 
     if (response.ok) {
-      // Handle success (e.g., clear the text and close the popover)
       setText('');
       setOpen(false);
-      // Optionally, you could also refresh the comments list or add the new comment to the state
+
+      toast.success('Comment created!');
     } else {
-      // Handle error
       console.error('Failed to create comment');
     }
   };
@@ -57,6 +67,9 @@ export default function CommentPopover({ postId }: CommentPopoverProps) {
                 setText={setText}
                 width={width}
                 type='comment'
+                onSubmit={handleSubmit}
+                anonymous={anonymous}
+                setAnonymous={setAnonymous}
               />
             )}
           </AutoSizer>

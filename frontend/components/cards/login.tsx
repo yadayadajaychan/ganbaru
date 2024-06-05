@@ -7,22 +7,49 @@ import {
   Box,
   Text,
   TextField,
-  Link,
   Button,
+  Link,
+  Spinner,
 } from '@radix-ui/themes';
 import { useState } from 'react';
+import NextLink from 'next/link';
+import toast from 'react-hot-toast';
+import { useRouter } from 'next/router';
+import { login } from '@/api/user';
 
-export interface LoginProps {
-  onSignIn: (email: string, password: string) => void;
-  onCreateAccount: (email: string, password: string) => void;
-}
+export default function LoginCard() {
+  const router = useRouter();
 
-export default function LoginCard({ onSignIn, onCreateAccount }: LoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const [isLoading, setIsLoading] = useState(false);
+
+  const onSubmit = async () => {
+    setIsLoading(true);
+
+    const response = await login({ email, password });
+
+    const resp = await response.json();
+
+    if (!response.ok) {
+      toast.error(resp ?? 'Unknown error');
+      setIsLoading(false);
+      return;
+    }
+
+    router.push('/');
+
+    setIsLoading(false);
+  };
+
   return (
-    <Flex flexShrink='0' direction='column' gap='6' width='416px'>
+    <Flex
+      flexShrink='0'
+      direction='column'
+      gap='6'
+      className='w-full px-4 md:max-w-3xl'
+    >
       <Card size='4'>
         <Heading as='h3' size='6' trim='start' mb='5'>
           Sign In
@@ -44,9 +71,6 @@ export default function LoginCard({ onSignIn, onCreateAccount }: LoginProps) {
             <Text as='label' size='2' weight='bold'>
               Password
             </Text>
-            <Link href='#' size='2' onClick={(e) => e.preventDefault()}>
-              Forgot password?
-            </Link>
           </Flex>
           <TextField.Root
             value={password}
@@ -56,10 +80,14 @@ export default function LoginCard({ onSignIn, onCreateAccount }: LoginProps) {
         </Flex>
 
         <Flex mt='6' justify='end' gap='3'>
-          <Button className='hover:cursor-pointer' variant='outline'>
-            Create an account
+          <NextLink href='/signup'>
+            <Button className='hover:cursor-pointer' variant='outline'>
+              Create an account{' '}
+            </Button>
+          </NextLink>
+          <Button className='hover:cursor-pointer' onClick={onSubmit}>
+            {isLoading ? <Spinner /> : 'Sign in'}
           </Button>
-          <Button className='hover:cursor-pointer'>Sign in</Button>
         </Flex>
       </Card>
     </Flex>

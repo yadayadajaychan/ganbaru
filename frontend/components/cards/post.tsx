@@ -14,54 +14,75 @@ import { MarkdownToJsx } from '../markdown';
 interface PostCardProps {
   post: Post;
   preview?: boolean;
-
-  isLiked?: boolean;
-  isDisliked?: boolean;
 }
 
-export default function PostCard({
-  post,
-  preview = false,
-  isLiked = false,
-  isDisliked = false,
-}: PostCardProps) {
+export default function PostCard({ post, preview = false }: PostCardProps) {
   const [likeStatus, setLikeStatus] = useState<{
     isLiked: boolean;
     isDisliked: boolean;
-  }>({ isLiked, isDisliked });
+  }>({ isLiked: post.vote === 1, isDisliked: post.vote === -1 });
 
-  const [likeCount, setLikeCount] = useState(post.likes);
+  const [likeCount, setLikeCount] = useState(post.score);
 
-  const handleUpvote = () => {
-    if (likeStatus.isLiked) {
-      setLikeStatus({ isLiked: false, isDisliked: false });
-      setLikeCount(likeCount - 1);
-    } else {
-      setLikeStatus({ isLiked: true, isDisliked: false });
-      setLikeCount(likeStatus.isDisliked ? likeCount + 2 : likeCount + 1);
+  const sendVoteRequest = async (postId: string, voteType: string) => {
+    try {
+      const response = await fetch(`/api/vote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ postId, voteType }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to vote');
+      }
+
+      const data = await response.json();
+      return data.newScore;
+    } catch (error) {
+      console.error('Error:', error);
+      return null;
     }
   };
 
-  const handleDownvote = () => {
-    if (likeStatus.isDisliked) {
-      setLikeStatus({ isLiked: false, isDisliked: false });
-      setLikeCount(likeCount + 1);
-    } else {
-      setLikeStatus({ isLiked: false, isDisliked: true });
-      setLikeCount(likeStatus.isLiked ? likeCount - 2 : likeCount - 1);
+  const handleUpvote = async () => {
+    const newScore = await sendVoteRequest(post.post_id.toString(), 'upvote');
+
+    if (newScore !== null) {
+      if (likeStatus.isLiked) {
+        setLikeStatus({ isLiked: false, isDisliked: false });
+        setLikeCount(newScore);
+      } else {
+        setLikeStatus({ isLiked: true, isDisliked: false });
+        setLikeCount(newScore);
+      }
+    }
+  };
+
+  const handleDownvote = async () => {
+    const newScore = await sendVoteRequest(post.post_id.toString(), 'downvote');
+    if (newScore !== null) {
+      if (likeStatus.isDisliked) {
+        setLikeStatus({ isLiked: false, isDisliked: false });
+        setLikeCount(newScore);
+      } else {
+        setLikeStatus({ isLiked: false, isDisliked: true });
+        setLikeCount(newScore);
+      }
     }
   };
 
   return (
-    <Box maxWidth='616px' className={preview ? 'hover:cursor-pointer' : ''}>
+    <Box className={`${preview ? 'hover:cursor-pointer' : ''}`}>
       <Card size='2'>
         <Flex id='left' direction='column' justify='start' gap='2'>
           <Flex id='user' direction='row' justify='between'>
             <Text color='gray' size='2'>
-              Posted by: {post.user}
+              Posted by: {post.user.name}
             </Text>
             <Text color='gray' size='1'>
-              {post.datePosted.toLocaleTimeString()}
+              {new Date(post.date).toLocaleTimeString()}
             </Text>
           </Flex>
           <Flex id='content' direction='column' gap={preview ? '1' : '3'}>
@@ -77,9 +98,9 @@ export default function PostCard({
                 size={preview ? '3' : '5'}
                 truncate={preview ? true : false}
                 style={{
-                  whiteSpace: 'normal', // Allows text wrapping
-                  overflow: 'hidden', // Prevents content from spilling out
-                  textOverflow: 'ellipsis', // Adds ellipsis when text overflows
+                  whiteSpace: 'normal',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
                 }}
                 className={preview ? 'hover:cursor-pointer' : ''}
               >
@@ -89,10 +110,10 @@ export default function PostCard({
             <Flex
               style={{
                 height: preview ? '80px' : undefined,
-                overflow: 'hidden', // Ensures content does not expand the box
+                overflow: 'hidden',
               }}
             >
-              <MarkdownToJsx markdown={post.description} />
+              <MarkdownToJsx markdown={post.content} />
             </Flex>
           </Flex>
           <Separator orientation='horizontal' mt={'2'} size='4' />
@@ -149,7 +170,7 @@ export default function PostCard({
                 >
                   <ChatBubbleIcon className='hover:cursor-pointer' />
                   <Text as='label' size='2' className='hover:cursor-pointer'>
-                    {post.comments}
+                    {post.score}
                   </Text>
                 </Flex>
               </Box>

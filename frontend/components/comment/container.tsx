@@ -94,7 +94,7 @@ export default function CommentContainer({
       >
         {comments.map((comment) => (
           <Flex mb='5' key={comment.answer_id}>
-            <Comment comment={comment} />
+            <Comment comment={comment} classId={forumId} postId={postId} />
           </Flex>
         ))}
       </InfiniteScroll>

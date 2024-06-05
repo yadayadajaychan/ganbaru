@@ -21,7 +21,12 @@ export default function CommentSkeleton() {
     <Flex direction='column'>
       {examples.map((comment) => (
         <Flex mb='5' key={comment.answer_id}>
-          <Comment comment={comment} loading={true} />
+          <Comment
+            comment={comment}
+            loading={true}
+            classId={'1'}
+            postId={'1'}
+          />
         </Flex>
       ))}
     </Flex>

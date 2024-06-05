@@ -108,6 +108,8 @@ export default function Create({
                     name: anonymous ? 'Anonymous' : session.username,
                   },
                 }}
+                classId='1'
+                postId='1'
               />
             ) : (
               <PostCard

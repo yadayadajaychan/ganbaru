@@ -44,7 +44,7 @@ export default function PostCard({
   const [likeCount, setLikeCount] = useState(post.score);
 
   const handleUpvote = async () => {
-    console.log(likeStatus);
+    if (loading) return;
 
     if (likeStatus.isLiked) {
       await sendVote({
@@ -77,6 +77,8 @@ export default function PostCard({
   };
 
   const handleDownvote = async () => {
+    if (loading) return;
+
     if (likeStatus.isLiked) {
       await sendVote({
         forumId: classId,
@@ -93,7 +95,7 @@ export default function PostCard({
         vote: 0,
       });
 
-      setLikeStatus({ isLiked: true, isDisliked: false });
+      setLikeStatus({ isLiked: false, isDisliked: false });
       setLikeCount(likeCount + 1);
     } else {
       await sendVote({
@@ -102,7 +104,7 @@ export default function PostCard({
         vote: -1,
       });
 
-      setLikeStatus({ isLiked: true, isDisliked: false });
+      setLikeStatus({ isLiked: false, isDisliked: true });
       setLikeCount(likeCount - 1);
     }
   };

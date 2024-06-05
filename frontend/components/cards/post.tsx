@@ -160,7 +160,7 @@ export default function PostCard({
               </Flex>
               <Flex
                 style={{
-                  height: preview ? '80px' : undefined,
+                  height: preview ? '90px' : undefined,
                   overflow: 'hidden',
                 }}
                 direction='column'

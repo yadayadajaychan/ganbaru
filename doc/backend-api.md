@@ -184,6 +184,12 @@ Create Post
  | anonymous | bool             | if post is anonymous  | y        | false   |
  | alias     | bool             | if post uses alias    | y        | false   |
 
+- JSON Response
+
+ |  field  | type |
+ |---------|------|
+ | post_id | int  |
+
 View Post
 =========================
 - `GET /forums/<forum_id>/<post_id>`

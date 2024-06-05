@@ -273,11 +273,11 @@ def create_post(forum_id):
     alias = data.get("alias", False)
 
     try:
-        db.create_post(session_id, forum_id, title, full_text, tags, anonymous, alias)
+        pid = db.create_post(session_id, forum_id, title, full_text, tags, anonymous, alias)
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return jsonify({}), 200
+    return jsonify(pid), 200
 
 @app.route("/forums/<forum_id>", methods=["GET"])
 def get_posts(forum_id):

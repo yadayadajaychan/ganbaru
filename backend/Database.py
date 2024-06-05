@@ -656,6 +656,8 @@ class db:
         finally:
             self.conn.commit()
 
+        return {"post_id": pid}
+
     def get_posts(self, session_id, forum_id, query):
         uid = self.check_session(session_id)
         self.check_in_forum(uid, forum_id)

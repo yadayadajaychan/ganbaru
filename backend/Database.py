@@ -326,7 +326,8 @@ class db:
         self.cur.execute('SELECT forums '
                          'FROM users '
                          'WHERE uid = %s', (uid,))
-        if int(forum_id) not in self.cur.fetchone()[0]:
+        record = self.cur.fetchone()[0]
+        if record is None or int(forum_id) not in record:
             raise Exception(f"user is not in forum {forum_id}")
 
         return
@@ -593,6 +594,9 @@ class db:
 
         forum_ids = self.__get_forums(uid)
 
+        if forum_ids is None:
+            return {"forums": []}
+
         output = list()
         for fid in forum_ids:
             # get forum info from db
@@ -727,6 +731,10 @@ class db:
 
         post_infos = list()
         records = self.cur.fetchall()
+
+        if records is None:
+            return {"post_infos": [], "nextPage": None}
+
         for record in records:
             anonymous = record[9]
             alias = record[10]

@@ -39,8 +39,6 @@ export const MarkdownToJsx = ({ markdown, loading = false }: MarkdownProps) => {
           </Heading>
         ),
         code: ({ children }) => {
-          console.log(typeof children); // Log outside JSX
-          console.log(children);
           return (
             <Code size='2'>
               {typeof children === 'string'

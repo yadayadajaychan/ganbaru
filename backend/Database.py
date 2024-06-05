@@ -1133,7 +1133,6 @@ class db:
                 score -= 2
         else:
             score -= existing_vote
-        print("test3")
         self.cur.execute('UPDATE posts '
                          'SET score = %s '
                          'WHERE pid = %s ', (score, post_id))

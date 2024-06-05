@@ -1,5 +1,4 @@
 - update backend api to conform to api spec regarding:
 	- votes
-	- join codes
 	- user profile
 	- user creation with email

@@ -18,9 +18,9 @@ export default function Nav({ classId }: { classId: string }) {
       <Flex className='flex flex-row gap-2'>
         <NextLink
           href={`/forum/${classId}`}
-          className='group flex select-none items-center justify-between gap-[2px] rounded-[4px] px-3 py-2 sm:max-w-[120px]'
+          className='group flex select-none items-center justify-between gap-[2px] rounded-[4px] px-3 py-2'
         >
-          <Text size='2' truncate>
+          <Text size='2' truncate wrap='nowrap'>
             {data ? data.name : 'Home'}
           </Text>
         </NextLink>

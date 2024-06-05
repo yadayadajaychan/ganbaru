@@ -757,7 +757,7 @@ class db:
 
         self.cur.execute('SELECT uid, title, date, last_activity, views, '
                          'answers, instructor_answered, tags, full_text, '
-                         'anonymous, alias, score '
+                         'anonymous, alias, score, pid '
                          'FROM posts '
                          'WHERE fid = %s AND pid = %s',
                          (forum_id, post_id))
@@ -786,6 +786,7 @@ class db:
                 "tags"    : record[7],
                 "full_text": record[8],
                 "score"   : record[11],
+                "post_id" : record[12],
                 }
 
         return post

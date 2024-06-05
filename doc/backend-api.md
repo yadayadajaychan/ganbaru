@@ -190,6 +190,7 @@ View Post
 
  |  field              |          type           |       description      |
  |---------------------|-------------------------|------------------------|
+ | post_id             | int                     | post id                |
  | user                | user_obj                | user who created post  |
  | title               | string                  | title of post          |
  | date                | string                  | iso8601 timestamp      |

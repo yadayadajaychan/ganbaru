@@ -22,7 +22,7 @@ export const fetchClasses = async () => {
 
 export const fetchClass = async ({ forumId }: { forumId: string }) => {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/forums/${forumId}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/forums/info/${forumId}`,
     {
       credentials: 'include',
     }

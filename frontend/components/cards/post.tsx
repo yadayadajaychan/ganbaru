@@ -204,7 +204,7 @@ export default function PostCard({
                   >
                     <ChatBubbleIcon className='hover:cursor-pointer' />
                     <Text as='label' size='2' className='hover:cursor-pointer'>
-                      {post.score}
+                      {post.answers}
                     </Text>
                   </Flex>
                 </Box>

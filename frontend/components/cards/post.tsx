@@ -1,7 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { Box, Card, Flex, Separator, Skeleton, Text } from '@radix-ui/themes';
+import {
+  Badge,
+  Box,
+  Card,
+  Flex,
+  Separator,
+  Skeleton,
+  Text,
+} from '@radix-ui/themes';
 import {
   ThickArrowUpIcon,
   ThickArrowDownIcon,
@@ -83,9 +91,16 @@ export default function PostCard({
       <Card size='2'>
         <Flex id='left' direction='column' justify='start' gap='2'>
           <Flex id='user' direction='row' justify='between'>
-            <Text color='gray' size='2'>
-              <Skeleton loading={loading}>Posted by: {post.user.name}</Skeleton>
-            </Text>
+            <Flex direction='row' gap='2'>
+              <Text color='gray' size='2'>
+                <Skeleton loading={loading}>
+                  Posted by: {post.user.name}
+                </Skeleton>
+              </Text>
+              {post.instructor_answered && !loading && (
+                <Badge color='green'>Instructor Answered</Badge>
+              )}
+            </Flex>
             <Text color='gray' size='1'>
               <Skeleton loading={loading}>
                 {new Date(post.date).toLocaleTimeString()}

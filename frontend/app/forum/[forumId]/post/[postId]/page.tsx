@@ -42,7 +42,7 @@ export default async function Post({
             score: 0,
             answers: 5,
             date: new Date().toISOString(),
-            instructor_answered: false,
+            instructor_answered: true,
             last_activity: new Date().toISOString(),
             post_id: 25,
             views: 0,

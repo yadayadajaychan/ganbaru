@@ -1043,6 +1043,8 @@ class db:
         if join_code is None or len(join_code) == 0:
             raise Exception("join code can't be empty")
 
+        join_code = join_code.upper()
+
         self.cur.execute('SELECT fid '
                          'FROM forums '
                          'WHERE join_code = %s OR mod_join_code = %s',

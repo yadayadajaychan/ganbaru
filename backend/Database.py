@@ -32,7 +32,7 @@ class db:
     def init(self):
         self.__create_auth_table()
         self.__create_users_table()
-        self.__create_admin("admin", "12345678")
+        self.__create_admin("admin@nijika.org", "12345678", "admin")
         self.__create_forums_table()
         self.__create_posts_table()
         self.__create_post_votes_table()
@@ -55,20 +55,17 @@ class db:
         finally:
             self.conn.commit()
 
-    def __create_admin(self, username, password):
+    def __create_admin(self, email, password, username):
         self.cur.execute('SELECT uid FROM auth WHERE uid=0')
         if self.cur.fetchone() is None:
-            self.create_user(username, password)
-            try:
-                self.cur.execute("UPDATE users SET alias = 'admin' WHERE uid = 0")
-            finally:
-                self.conn.commit()
+            self.create_user(email, password, username)
 
         self.cur.execute('SELECT uid FROM users WHERE uid=-1')
         if self.cur.fetchone() is None:
             try:
-                self.cur.execute('INSERT INTO users (uid, full_name) '
-                                 'VALUES (%s, %s)', (-1, "Deleted User"))
+                self.cur.execute('INSERT INTO users (uid, full_name, alias) '
+                                 'VALUES (%s, %s, %s)',
+                                 (-1, "Deleted User", "deleted_user"))
             finally:
                 self.conn.commit()
 
@@ -78,7 +75,7 @@ class db:
                              'uid        integer NOT NULL UNIQUE,'
                              'forums     integer[],'
                              'full_name  text,'
-                             'alias      text);')
+                             'alias      text NOT NULL UNIQUE);')
         finally:
             self.conn.commit()
 
@@ -153,18 +150,26 @@ class db:
         finally:
             self.conn.commit()
 
-    def create_user(self, username, password):
+    def create_user(self, email, password, username):
+        if not email.isascii():
+            raise Exception("non-ascii email not allowed")
         if not username.isascii():
             raise Exception("non-ascii username not allowed")
 
+        if len(email) < 1:
+            raise Exception("empty email")
         if len(username) < 1:
             raise Exception("empty username")
 
         r = re.compile('[^A-Za-z0-9_]')
         if r.search(username):
             raise Exception("only alphanumeric characters and underscore allowed in username")
+        r = re.compile('@')
+        if not r.search(email):
+            raise Exception("email requires @ symbol")
 
         username = username.lower()
+        email = email.lower()
 
         if len(password) < 8:
             raise Exception("password must be at least 8 characters")
@@ -184,10 +189,13 @@ class db:
             self.cur.execute('INSERT INTO auth '
                              '(uid, username, hash) '
                              'VALUES (%s, %s, %s)',
-                             (uid, username, hash))
-            self.cur.execute('INSERT INTO users (uid) VALUES (%s)', (uid,))
+                             (uid, email, hash))
+            self.cur.execute('INSERT INTO users '
+                             '(uid, alias) '
+                             'VALUES (%s, %s)',
+                             (uid, username))
         except psycopg2.errors.UniqueViolation:
-            raise Exception("username taken")
+            raise Exception("email or username taken")
         finally:
             self.conn.commit()
 

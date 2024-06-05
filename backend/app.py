@@ -25,7 +25,12 @@ def create_user():
         return jsonify({"error": "missing password"}), 400
 
     try:
-        db.create_user(data["username"], data["password"])
+        data["email"]
+    except:
+        return jsonify({"error": "missing email"}), 400
+
+    try:
+        db.create_user(data["email"], data["password"], data["username"])
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
@@ -41,9 +46,9 @@ def delete_user():
         return jsonify({"error": "invalid json"}), 400
 
     try:
-        data["username"]
+        data["email"]
     except:
-        return jsonify({"error": "missing username"}), 400
+        return jsonify({"error": "missing email"}), 400
 
     try:
         data["password"]
@@ -51,7 +56,7 @@ def delete_user():
         return jsonify({"error": "missing password"}), 400
 
     try:
-        db.delete_user(data["username"], data["password"])
+        db.delete_user(data["email"], data["password"])
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
@@ -67,9 +72,9 @@ def login():
         return jsonify({"error": "invalid json"}), 400
 
     try:
-        data["username"]
+        data["email"]
     except:
-        return jsonify({"error": "missing username"}), 400
+        return jsonify({"error": "missing email"}), 400
 
     try:
         data["password"]
@@ -85,7 +90,7 @@ def login():
         cookie_timeout = None
 
     try:
-        session_id = db.login(data["username"], data["password"], timeout)
+        session_id = db.login(data["email"], data["password"], timeout)
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 

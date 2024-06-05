@@ -107,9 +107,6 @@ Get Forums (classes)
  | owner       | user_obj | owner of the forum           |
  | name        | string   | name of the forum            |
  | description | string   | description of the forum     |
- | important   | int      | # of unread instructor posts |
- | unread      | int      | # of unread posts            |
- | unanswered  | int      | # of unanswered questions    |
 
 - user_obj
 

@@ -25,7 +25,10 @@ export default function CommentPopover({
   const queryClient = useQueryClient();
 
   const handleSubmit = async () => {
-    if (!text.trim()) return;
+    if (!text.length) {
+      toast.error('Comment cannot be empty');
+      return;
+    }
 
     // Assuming you have an API endpoint for creating comments
     const response = await createComment({

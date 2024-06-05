@@ -26,7 +26,10 @@ export default function PostCreate({ classId }: { classId: string }) {
   const [open, setOpen] = useState(false);
 
   const handleSubmit = async () => {
-    if (!text.trim()) return;
+    if (!text.length) {
+      toast.error('Comment cannot be empty');
+      return;
+    }
 
     // Assuming you have an API endpoint for creating posts
     const response = await createPost({

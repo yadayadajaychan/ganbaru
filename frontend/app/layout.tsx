@@ -4,7 +4,6 @@ import './globals.css';
 import ReactQueryProvider from '@/providers/reactQuery';
 import { Theme } from '@radix-ui/themes';
 import { ThemeProvider } from 'next-themes';
-import { CookiesProvider } from 'next-client-cookies/server';
 import { Toaster } from 'react-hot-toast';
 
 export const metadata: Metadata = {
@@ -40,9 +39,7 @@ export default function RootLayout({
               }}
             />
             {/* <NavBar /> */}
-            <ReactQueryProvider>
-              <CookiesProvider>{children}</CookiesProvider>
-            </ReactQueryProvider>
+            <ReactQueryProvider>{children}</ReactQueryProvider>
           </Theme>
         </ThemeProvider>
       </body>

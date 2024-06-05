@@ -31,9 +31,8 @@ import ReactMarkdown from 'react-markdown';
 import { MarkdownToJsx } from './markdown';
 import MDEditor from '@uiw/react-md-editor';
 import { useTheme } from 'next-themes';
-import PostCard from './cards/post';
-import { useCookies } from 'next-client-cookies';
 import { useSession } from '@/util/session';
+import PostCard from './cards/post';
 
 interface CreateProps {
   width?: number;

@@ -46,9 +46,14 @@ export default function SignupCard() {
       return;
     }
 
-    router.push('/');
-
     setIsLoading(false);
+
+    toast.success('Success, redirecting...');
+
+    setTimeout(() => {
+      router.replace('/');
+      router.refresh();
+    }, 1000);
   };
 
   return (

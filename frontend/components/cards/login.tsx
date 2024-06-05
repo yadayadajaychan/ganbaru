@@ -40,7 +40,12 @@ export default function LoginCard() {
 
     setIsLoading(false);
 
-    router.push('/');
+    toast.success('Success, redirecting...');
+
+    setTimeout(() => {
+      router.replace('/');
+      router.refresh();
+    }, 1000);
   };
 
   return (

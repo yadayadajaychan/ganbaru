@@ -23,7 +23,8 @@ export default function Classes() {
   const onLogout = async () => {
     await logout();
 
-    router.push('/');
+    router.replace('/');
+    router.refresh();
   };
 
   return (

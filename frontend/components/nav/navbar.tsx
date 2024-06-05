@@ -21,7 +21,6 @@ import { useRouter } from 'next/navigation';
 import Code from './code';
 import { useQuery } from '@tanstack/react-query';
 import { isModerator } from '@/api/classes';
-import { useCookies } from 'next-client-cookies';
 import { jwtDecode } from 'jwt-decode';
 import { useSession } from '@/util/session';
 import { logout } from '@/api/user';
@@ -42,7 +41,8 @@ export default function NavBar({ classId }: { classId: string }) {
   const onLogout = async () => {
     await logout();
 
-    router.push('/');
+    router.replace('/');
+    router.refresh();
   };
 
   const session = useSession();

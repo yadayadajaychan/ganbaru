@@ -150,6 +150,34 @@ def get_forums():
 
     return jsonify(forums), 200
 
+@app.route("/forums/<forum_id>/join_code", methods=["GET"])
+def get_join_code(forum_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        join_code = db.get_join_code(session_id, forum_id)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify({"join_code": join_code}), 200
+
+@app.route("/forums/<forum_id>/refresh_join_code", methods=["POST"])
+def refresh_join_code(forum_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        db.refresh_join_code(session_id, forum_id)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return "", 200
+
 @app.route("/forums/<forum_id>/create", methods=["POST"])
 def create_post(forum_id):
     try:

@@ -1206,3 +1206,7 @@ class db:
         self.conn.commit()
 
         return
+
+    def is_mod(self, session_id, forum_id):
+        uid = self.check_session(session_id)
+        self.check_mod_in_forum(uid, forum_id)

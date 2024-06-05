@@ -364,3 +364,10 @@ Join Forum (GET)
 - join a forum using its join code
 - `session_id` cookie required
 - redirects to forum page
+
+Check If Moderator
+==================
+- `GET /forums/<forum_id>/is_mod`
+- check if moderator in a forum
+- `session_id` cookie required
+- returns error if not moderator

@@ -16,8 +16,10 @@ import NextLink from 'next/link';
 import { useTheme } from 'next-themes';
 import { useState } from 'react';
 import Settings from './settings';
+import { useRouter } from 'next/navigation';
 
 export default function NavBar({ classId }: { classId: string }) {
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -26,6 +28,8 @@ export default function NavBar({ classId }: { classId: string }) {
     await fetch('/api/logout', {
       method: 'POST',
     });
+
+    router.push('/');
   };
 
   return (
@@ -57,12 +61,11 @@ export default function NavBar({ classId }: { classId: string }) {
 
         <Box id='user'>
           <Flex className='flex flex-row gap-2 ml-auto'>
-            <NextLink
-              href='/'
-              className='group flex select-none items-center justify-between gap-[2px] rounded-[4px] px-3 py-2'
-            >
-              <Text size='2'>Ben Chen</Text>
-            </NextLink>
+            <Flex justify='center' align='center'>
+              <Text size='2' className='hidden md:inline '>
+                Ben Chen
+              </Text>
+            </Flex>
             <DropdownMenu.Root>
               <DropdownMenu.Trigger className='hover:bg-purple-300 hover:cursor-pointer hover:bg-opacity-10 group flex select-none items-center justify-between gap-[2px] rounded-[4px] px-2 py-2'>
                 <Flex>

@@ -52,7 +52,12 @@ export default function SignupCard() {
   };
 
   return (
-    <Flex flexShrink='0' direction='column' gap='6' width='416px'>
+    <Flex
+      flexShrink='0'
+      direction='column'
+      gap='6'
+      className='w-full px-4 md:max-w-3xl'
+    >
       <Card size='4'>
         <Heading as='h3' size='6' trim='start' mb='5'>
           Sign Up

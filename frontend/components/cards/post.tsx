@@ -74,7 +74,7 @@ export default function PostCard({ post, preview = false }: PostCardProps) {
   };
 
   return (
-    <Box maxWidth='616px' className={preview ? 'hover:cursor-pointer' : ''}>
+    <Box className={`${preview ? 'hover:cursor-pointer' : ''}`}>
       <Card size='2'>
         <Flex id='left' direction='column' justify='start' gap='2'>
           <Flex id='user' direction='row' justify='between'>
@@ -135,8 +135,9 @@ export default function PostCard({ post, preview = false }: PostCardProps) {
               <Flex gap='3' justify='start' align='center'>
                 <Flex direction='row' justify='start' align='center' gap='1'>
                   <ThickArrowUpIcon
-                    className={`hover:cursor-pointer icon-hover ${likeStatus.isLiked ? 'liked' : ''
-                      }`}
+                    className={`hover:cursor-pointer icon-hover ${
+                      likeStatus.isLiked ? 'liked' : ''
+                    }`}
                     onClick={handleUpvote}
                   />
                   <Text as='label' size='2'>
@@ -144,8 +145,9 @@ export default function PostCard({ post, preview = false }: PostCardProps) {
                   </Text>
                 </Flex>
                 <ThickArrowDownIcon
-                  className={`hover:cursor-pointer icon-hover ${likeStatus.isDisliked ? 'disliked' : ''
-                    }`}
+                  className={`hover:cursor-pointer icon-hover ${
+                    likeStatus.isDisliked ? 'disliked' : ''
+                  }`}
                   onClick={handleDownvote}
                 />
               </Flex>

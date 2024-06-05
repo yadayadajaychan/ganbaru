@@ -13,8 +13,9 @@ import {
 import Create from '../create';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { createPost } from '@/api/post';
 
-export default function PostCreate() {
+export default function PostCreate({ classId }: { classId: string }) {
   const [text, setText] = useState('');
   const [anonymous, setAnonymous] = useState(false);
   const [title, setTitle] = useState('');
@@ -25,16 +26,12 @@ export default function PostCreate() {
     if (!text.trim()) return;
 
     // Assuming you have an API endpoint for creating posts
-    const response = await fetch('/forums/0/create', {
-      //We do not know where forumID variable is.
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        title: 'title goes here',
-        full_text: 'full text goes here',
-      }),
+    const response = await createPost({
+      forumId: classId,
+      title,
+      fullText: text,
+      tags: [],
+      anonymous,
     });
 
     if (response.ok) {

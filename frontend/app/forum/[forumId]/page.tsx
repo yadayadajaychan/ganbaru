@@ -10,7 +10,9 @@ export default function Forum({ params }: { params: { forumId: string } }) {
   return (
     <>
       <Flex gap='20' direction='column' justify='start' align='center'>
-        <PostContainer />
+        <Flex className='w-full px-4 md:max-w-3xl'>
+          <PostContainer />
+        </Flex>
         {/* bottom right */}
         <Flex
           position='fixed'
@@ -19,7 +21,7 @@ export default function Forum({ params }: { params: { forumId: string } }) {
           bottom='50px'
           right='50px'
         >
-          <PostCreate />
+          <PostCreate classId={params.forumId} />
         </Flex>
       </Flex>
     </>

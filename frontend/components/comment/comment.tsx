@@ -74,7 +74,7 @@ export default function Comment({
         vote: -1,
       });
 
-      setLikeStatus({ isLiked: false, isDisliked: false });
+      setLikeStatus({ isLiked: false, isDisliked: true });
       setLikeCount(likeCount - 2);
     } else if (likeStatus.isDisliked) {
       await voteComment({

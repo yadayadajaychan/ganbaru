@@ -6,7 +6,7 @@ export default function CommentSkeleton() {
   const exampleComment: CommentType = {
     answer: 'A bunch of random comments. A bunch of random comments. ',
     answer_id: 1,
-    date: new Date().toISOString(),
+    date: new Date(1000).toISOString(),
     score: 1,
     vote: 1,
     user: {

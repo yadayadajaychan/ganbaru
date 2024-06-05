@@ -86,7 +86,7 @@ export default function PostCard({
         vote: -1,
       });
 
-      setLikeStatus({ isLiked: false, isDisliked: false });
+      setLikeStatus({ isLiked: false, isDisliked: true });
       setLikeCount(likeCount - 2);
     } else if (likeStatus.isDisliked) {
       await sendVote({

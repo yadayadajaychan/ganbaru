@@ -100,7 +100,7 @@ export default function Create({
                 comment={{
                   answer_id: 1,
                   answer: text,
-                  date: new Date().toISOString(),
+                  date: new Date(1000).toISOString(),
                   score: 1,
                   vote: 1,
                   user: {
@@ -122,9 +122,9 @@ export default function Create({
                   },
                   score: 1,
                   answers: 1,
-                  date: new Date().toISOString(),
+                  date: new Date(1000).toISOString(),
                   post_id: 1,
-                  last_activity: new Date().toISOString(),
+                  last_activity: new Date(1000).toISOString(),
                   views: 1,
                   instructor_answered: false,
                   tags: [],

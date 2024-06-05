@@ -47,12 +47,29 @@ export default function PostContainer({
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all' as keyof typeof filterData);
 
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+
   const [isNextPageLoading, setIsNextPageLoading] = useState(false);
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [search]);
+
   const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery({
-    queryKey: ['posts', search, filter, forumId],
+    queryKey: ['posts', debouncedSearch, filter, forumId],
     queryFn: ({ pageParam }) =>
-      fetchPosts({ pageParam, search, filter, forumId: Number(forumId) }),
+      fetchPosts({
+        pageParam,
+        search: debouncedSearch,
+        filter,
+        forumId: Number(forumId),
+      }),
     getNextPageParam: (lastPage) => lastPage.next_page,
     initialPageParam: 1,
   });

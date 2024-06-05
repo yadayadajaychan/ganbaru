@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, abort, make_response
+from flask import Flask, jsonify, request, make_response, redirect
 import Database
 
 app = Flask(__name__)
@@ -206,7 +206,7 @@ def refresh_mod_join_code(forum_id):
 
     return "", 200
 
-@app.route("/forums/join/<join_code>", methods=["GET"])
+@app.route("/forums/join/<join_code>", methods=["POST"])
 def join_forum(join_code):
     try:
         session_id = request.cookies['session_id']
@@ -219,6 +219,22 @@ def join_forum(join_code):
         return jsonify({"error": str(e)}), 400
 
     return jsonify(fid), 200
+
+@app.route("/forums/join/<join_code>", methods=["GET"])
+def join_forum_and_redirect(join_code):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        fid = db.join_forum(session_id, join_code)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    fid = fid["forum_id"]
+
+    return redirect(f"/forum/{fid}", code=302)
 
 @app.route("/forums/<forum_id>/create", methods=["POST"])
 def create_post(forum_id):

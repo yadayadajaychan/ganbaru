@@ -347,8 +347,20 @@ Refresh Moderator Join Code
 - requires moderator privileges
 - `session_id` cookie required
 
-Join Forum
-==========
+Join Forum (POST)
+=================
 - `POST /forums/join/<join_code>`
 - join a forum using its join code
 - `session_id` cookie required
+- JSON Response
+
+|  field   | type |
+|----------|------|
+| forum_id | int  |
+
+Join Forum (GET)
+================
+- `GET /forums/join/<join_code>`
+- join a forum using its join code
+- `session_id` cookie required
+- redirects to forum page

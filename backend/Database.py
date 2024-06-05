@@ -470,11 +470,25 @@ class db:
 
     def __add_to_forum(self, uid, fid):
         forum_ids = self.__get_forums(uid)
-        if fid not in forum_ids:
+        if forum_ids is None or fid not in forum_ids:
             try:
                 self.cur.execute('UPDATE users '
                                  'SET forums = forums || %s '
                                  'WHERE uid = %s', (fid, uid))
+            finally:
+                self.conn.commit()
+
+        return
+
+    def __add_mod_to_forum(self, uid, fid):
+        self.__add_to_forum(uid, fid)
+
+        mods = self.__get_forum_mods(fid)
+        if mods is None or uid not in mods:
+            try:
+                self.cur.execute('UPDATE forums '
+                                 'SET moderators = moderators || %s '
+                                 'WHERE fid = %s', (uid, fid))
             finally:
                 self.conn.commit()
 
@@ -512,6 +526,13 @@ class db:
             output.append(record[0])
 
         return output
+
+    def __get_forum_mods(self, fid):
+        self.cur.execute('SELECT moderators '
+                         'FROM forums '
+                         'WHERE fid = %s', (fid,))
+
+        return self.cur.fetchone()[0]
 
     # check doc/backend-api.txt for output format
     def get_forums(self, session_id):
@@ -961,12 +982,19 @@ class db:
 
         self.cur.execute('SELECT fid '
                          'FROM forums '
-                         'WHERE join_code = %s', (join_code,))
+                         'WHERE join_code = %s OR mod_join_code = %s',
+                         (join_code, join_code))
         fid = self.cur.fetchone()
         if fid is None:
             raise Exception("join code is not valid")
 
-        self.__add_to_forum(uid, fid[0])
+        if len(join_code) == 8:
+            self.__add_to_forum(uid, fid[0])
+        elif len(join_code) == 16:
+            self.__add_mod_to_forum(uid, fid[0])
+        else:
+            raise Exception("join code is incorrect length, this shouldn't happen")
+
         return
 
     def get_post_vote(self, session_id, forum_id, post_id): 

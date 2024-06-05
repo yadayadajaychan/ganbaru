@@ -97,7 +97,7 @@ def login():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    resp = make_response()
+    resp = make_response(jsonify({}))
     resp.set_cookie("session_id",
                     value=session_id,
                     max_age=cookie_timeout,

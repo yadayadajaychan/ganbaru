@@ -909,6 +909,50 @@ class db:
         self.__refresh_join_code(forum_id)
         return
 
+    def __refresh_mod_join_code(self, forum_id):
+        while True:
+            mod_join_code = base64.b32encode(os.urandom(10)).decode()
+
+            # check for collisions
+            self.cur.execute('SELECT fid '
+                             'FROM forums '
+                             'WHERE mod_join_code = %s', (mod_join_code,))
+            record = self.cur.fetchone()
+            if record is None:
+                break
+
+        try:
+            self.cur.execute('UPDATE forums '
+                             'SET mod_join_code = %s '
+                             'WHERE fid = %s',
+                             (mod_join_code, forum_id))
+        finally:
+            self.conn.commit()
+
+    def get_mod_join_code(self, session_id, forum_id):
+        uid = self.check_session(session_id)
+        self.check_mod_in_forum(uid, forum_id)
+
+        while True:
+            self.cur.execute('SELECT mod_join_code '
+                             'FROM forums '
+                             'WHERE fid = %s', (forum_id,))
+            mod_join_code = self.cur.fetchone()[0]
+
+            if mod_join_code is not None:
+                break
+
+            self.__refresh_mod_join_code(forum_id)
+
+        return mod_join_code
+
+    def refresh_mod_join_code(self, session_id, forum_id):
+        uid = self.check_session(session_id)
+        self.check_mod_in_forum(uid, forum_id)
+
+        self.__refresh_mod_join_code(forum_id)
+        return
+
     def join_forum(self, session_id, join_code):
         uid = self.check_session(session_id)
 

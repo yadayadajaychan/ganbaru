@@ -150,6 +150,76 @@ def get_forums():
 
     return jsonify(forums), 200
 
+@app.route("/forums/<forum_id>/join_code", methods=["GET"])
+def get_join_code(forum_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        join_code = db.get_join_code(session_id, forum_id)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify({"join_code": join_code}), 200
+
+@app.route("/forums/<forum_id>/refresh_join_code", methods=["POST"])
+def refresh_join_code(forum_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        db.refresh_join_code(session_id, forum_id)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return "", 200
+
+@app.route("/forums/<forum_id>/mod_join_code", methods=["GET"])
+def get_mod_join_code(forum_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        mod_join_code = db.get_mod_join_code(session_id, forum_id)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify({"mod_join_code": mod_join_code}), 200
+
+@app.route("/forums/<forum_id>/refresh_mod_join_code", methods=["POST"])
+def refresh_mod_join_code(forum_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        db.refresh_mod_join_code(session_id, forum_id)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return "", 200
+
+@app.route("/forums/join/<join_code>", methods=["GET"])
+def join_forum(join_code):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        fid = db.join_forum(session_id, join_code)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify(fid), 200
+
 @app.route("/forums/<forum_id>/create", methods=["POST"])
 def create_post(forum_id):
     try:
@@ -260,7 +330,21 @@ def get_answers(forum_id, post_id):
 
     return jsonify(answers), 200
 
-@app.route("/forums/<forum_id>/<post_id>/vote", methods=["PUT"]) # patch?
+@app.route("/forums/<forum_id>/<post_id>/get_vote", methods=["GET"])
+def get_post_vote(forum_id, post_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        vote = db.get_post_vote(session_id, forum_id, post_id)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify(vote), 200
+
+@app.route("/forums/<forum_id>/<post_id>/vote", methods=["POST"])
 def vote_on_post(forum_id, post_id):
     try:
         session_id = request.cookies['session_id']
@@ -279,6 +363,44 @@ def vote_on_post(forum_id, post_id):
 
     try:
         vote = db.vote_on_post(session_id, forum_id, post_id, data["vote"])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify(vote), 200
+
+@app.route("/forums/<forum_id>/<post_id>/<answer_id>/get_vote", methods=["GET"])
+def get_answer_vote(forum_id, post_id, answer_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        vote = db.get_answer_vote(session_id, forum_id, post_id, answer_id)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify(vote), 200
+
+@app.route("/forums/<forum_id>/<post_id>/<answer_id>/vote", methods=["POST"])
+def vote_on_answer(forum_id, post_id, answer_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        data = request.get_json(force=True)
+    except:
+        return jsonify({"error": "invalid json"}), 400
+
+    try:
+        data["vote"]
+    except:
+        return jsonify({"error": "missing vote field"}), 400
+
+    try:
+        vote = db.vote_on_answer(session_id, forum_id, post_id, answer_id, data["vote"])
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 

@@ -5,33 +5,32 @@ when an error occurs, an non 2xx HTTP status code is returned
 along with a JSON Object with an "error" field containing
 the error message
 
-
 Create User
-=========================
+===========
 - `POST /user/create`
 - creates a new user
+- alias is set to username
 - JSON Params
 
  |  field   |  type  |
  |----------|--------|
+ | email    | string |
  | username | string |
  | password | string |
 
-
 Delete User
-=========================
+===========
 - `POST /user/delete`
 - deletes a user
 - JSON Params
 
  |  field   |  type  |
  |----------|--------|
- | username | string |
+ | email    | string |
  | password | string |
 
-
 Login
-=========================
+=====
 - `POST /user/login`
 - authenticate user
 - sets `session_id` cookie
@@ -39,16 +38,14 @@ Login
 
  |  field   |  type  | optional |
  |----------|--------|----------|
- | username | string | n        |
+ | email    | string | n        |
  | password | string | n        |
  | timeout  | int    | y        |
 
-
 Logout
-=========================
+======
 - `POST /user/logout`
 - `session_id` cookie required
-
 
 Check Session
 =========================
@@ -110,9 +107,6 @@ Get Forums (classes)
  | owner       | user_obj | owner of the forum           |
  | name        | string   | name of the forum            |
  | description | string   | description of the forum     |
- | important   | int      | # of unread instructor posts |
- | unread      | int      | # of unread posts            |
- | unanswered  | int      | # of unanswered questions    |
 
 - user_obj
 
@@ -136,6 +130,7 @@ Get Posts
  | tags        | string[] | tags to filter by          | y        | []        |
  | ascending   | bool     | ascending order            | y        | false     |
  | sortby      | string   | post_date, activity, votes | y        | post_date |
+ | filter      | string   | all, unanswered            | y        | all       |
 
 - JSON Response
 
@@ -159,6 +154,7 @@ Get Posts
  | tags                | array of strings | tags                  |
  | score               | int              | sum of votes by users |
  | vote                | int              | user's own vote       |
+ | full_text           | string           | full text of the post |
 
 - user_obj
 
@@ -192,6 +188,7 @@ View Post
 
  |  field              |          type           |       description      |
  |---------------------|-------------------------|------------------------|
+ | post_id             | int                     | post id                |
  | user                | user_obj                | user who created post  |
  | title               | string                  | title of post          |
  | date                | string                  | iso8601 timestamp      |
@@ -202,7 +199,6 @@ View Post
  | tags                | array of strings        | tags                   |
  | score               | int                     | sum of votes by users  |
  | vote                | int                     | user's own vote        |
- |                     |                         |                        |
  | full_text           | string                  | full text of the post  |
 
 - user_obj
@@ -231,8 +227,7 @@ Get Answers
  |       field       |          type           |
  |-------------------|-------------------------|
  | instructor_answer | answer object           |
- | student_answers   | array of answer objects |
- | nextPage          | int                     |
+ | student_answers   | student answers object  |
 
 - Answer Object
 
@@ -244,6 +239,13 @@ Get Answers
  | answer    | string   | full text of the answer |
  | score     | int      | sum of votes by users   |
  | vote      | int      | user's own vote         |
+
+- Student Answers Object
+
+|  field   |          type           |
+|----------|-------------------------|
+| answers  | array of answer objects |
+| nextPage | int                     |
 
 - user_obj
 
@@ -266,6 +268,16 @@ Create Answer
  | anonymous | bool   | if post is anonymous   | y        | false   |
  | alias     | bool   | if post uses alias     | y        | false   |
 
+Get Post Vote
+=============
+- `GET /forums/<forum_id>/<post_id>/get_vote`
+- `session_id` cookie required
+JSON Response
+
+ |   field   |  type  |         description          |
+ |-----------|--------|------------------------------|
+ |    vote   |  int   | value of user vote 1, 0, -1  |
+
 Vote on Post
 ============
 - `POST /forums/<forum_id>/<post_id>/vote`
@@ -276,6 +288,16 @@ Vote on Post
  | field | type |      description       |
  |-------|------|------------------------|
  | vote  | int  | valid values: -1, 0, 1 |
+
+Get Answer Vote
+===============
+- `GET /forums/<forum_id>/<post_id>/<answer_id>/get_vote`
+- `session_id` cookie required
+JSON Response
+
+ |   field   |  type  |         description          |
+ |-----------|--------|------------------------------|
+ |    vote   |  int   | value of user vote 1, 0, -1  |
 
 Vote on Answer
 ==============

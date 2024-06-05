@@ -9,6 +9,7 @@ import {
   ContextMenu,
   DropdownMenu,
   Dialog,
+  Badge,
 } from '@radix-ui/themes';
 import Nav from './nav';
 import { CaretDownIcon, PersonIcon } from '@radix-ui/react-icons';
@@ -17,20 +18,34 @@ import { useTheme } from 'next-themes';
 import { useState } from 'react';
 import Settings from './settings';
 import { useRouter } from 'next/navigation';
+import Code from './code';
+import { useQuery } from '@tanstack/react-query';
+import { isModerator } from '@/api/classes';
+import { jwtDecode } from 'jwt-decode';
+import { useSession } from '@/util/session';
+import { logout } from '@/api/user';
 
 export default function NavBar({ classId }: { classId: string }) {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [codeOpen, setCodeOpen] = useState(false);
 
-  const logout = async () => {
-    await fetch('/api/logout', {
-      method: 'POST',
-    });
+  const { isLoading: isModeratorLoading, error: moderatorError } = useQuery({
+    queryKey: ['isModerator', classId],
+    queryFn: () => isModerator({ forumId: classId }),
+    retry: false,
+  });
 
-    router.push('/');
+  const onLogout = async () => {
+    await logout();
+
+    router.replace('/');
+    router.refresh();
   };
+
+  const session = useSession();
 
   return (
     <Box
@@ -61,10 +76,13 @@ export default function NavBar({ classId }: { classId: string }) {
 
         <Box id='user'>
           <Flex className='flex flex-row gap-2 ml-auto'>
-            <Flex justify='center' align='center'>
+            <Flex justify='center' align='center' direction='row' gap='2'>
               <Text size='2' className='hidden md:inline '>
-                Ben Chen
+                {session['username']}
               </Text>
+              {!!!moderatorError && !isModeratorLoading && (
+                <Badge color='green'>Moderator</Badge>
+              )}
             </Flex>
             <DropdownMenu.Root>
               <DropdownMenu.Trigger className='hover:bg-purple-300 hover:cursor-pointer hover:bg-opacity-10 group flex select-none items-center justify-between gap-[2px] rounded-[4px] px-2 py-2'>
@@ -83,6 +101,14 @@ export default function NavBar({ classId }: { classId: string }) {
                 >
                   Change Lighting
                 </DropdownMenu.Item>
+                {!!!moderatorError && (
+                  <DropdownMenu.Item
+                    className='hover:cursor-pointer'
+                    onClick={() => setCodeOpen(true)}
+                  >
+                    Manage Join Codes
+                  </DropdownMenu.Item>
+                )}
                 <DropdownMenu.Item
                   className='hover:cursor-pointer'
                   onClick={() => setSettingsOpen(true)}
@@ -91,7 +117,7 @@ export default function NavBar({ classId }: { classId: string }) {
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
                   className='hover:cursor-pointer'
-                  onClick={() => logout()}
+                  onClick={onLogout}
                 >
                   Logout
                 </DropdownMenu.Item>
@@ -106,6 +132,16 @@ export default function NavBar({ classId }: { classId: string }) {
                   <Dialog.Description>Change User Settings</Dialog.Description>
                 </Flex>
                 <Settings />
+              </Flex>
+            </Dialog.Content>
+          </Dialog.Root>
+          <Dialog.Root open={codeOpen} onOpenChange={setCodeOpen}>
+            <Dialog.Content>
+              <Flex direction='column' gap='2'>
+                <Flex direction='column'>
+                  <Dialog.Title>Manage Join Code</Dialog.Title>
+                </Flex>
+                <Code classId={classId} />
               </Flex>
             </Dialog.Content>
           </Dialog.Root>

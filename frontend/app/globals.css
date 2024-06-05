@@ -45,3 +45,11 @@ body {
 .icon-hover.active:hover {
   color: var(--accent-9);
 }
+
+.liked {
+  color: var(--accent-10);
+}
+
+.disliked {
+  color: var(--accent-10);
+}

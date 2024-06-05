@@ -1,4 +1,7 @@
 import NavBar from '@/components/nav/navbar';
+import { QueryClient, useQuery } from '@tanstack/react-query';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 export default function ForumLayout({
   children,
@@ -9,6 +12,11 @@ export default function ForumLayout({
     forumId: string;
   };
 }) {
+  const cookie = cookies();
+  if (!cookie.get('session_id')) {
+    return redirect('/login');
+  }
+
   return (
     <>
       <NavBar classId={params.forumId} />

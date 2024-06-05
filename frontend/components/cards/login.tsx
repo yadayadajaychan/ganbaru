@@ -14,7 +14,7 @@ import {
 import { useState } from 'react';
 import NextLink from 'next/link';
 import toast from 'react-hot-toast';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { login } from '@/api/user';
 
 export default function LoginCard() {
@@ -33,14 +33,19 @@ export default function LoginCard() {
     const resp = await response.json();
 
     if (!response.ok) {
-      toast.error(resp ?? 'Unknown error');
+      toast.error(resp.error ?? 'Unknown error');
       setIsLoading(false);
       return;
     }
 
-    router.push('/');
-
     setIsLoading(false);
+
+    toast.success('Success, redirecting...');
+
+    setTimeout(() => {
+      router.replace('/');
+      router.refresh();
+    }, 1000);
   };
 
   return (

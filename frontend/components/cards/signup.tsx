@@ -14,8 +14,8 @@ import {
 import { useState } from 'react';
 import NextLink from 'next/link';
 import toast from 'react-hot-toast';
-import { useRouter } from 'next/router';
-import { creaetUser } from '@/api/user';
+import { useRouter } from 'next/navigation';
+import { createUser } from '@/api/user';
 
 export default function SignupCard() {
   const router = useRouter();
@@ -36,19 +36,24 @@ export default function SignupCard() {
       return;
     }
 
-    const response = await creaetUser({ email, username, password });
+    const response = await createUser({ email, username, password });
 
     const resp = await response.json();
 
     if (!response.ok) {
-      toast.error(resp ?? 'Unknown error');
+      toast.error(resp.error ?? 'Unknown error');
       setIsLoading(false);
       return;
     }
 
-    router.push('/');
-
     setIsLoading(false);
+
+    toast.success('Success, redirecting...');
+
+    setTimeout(() => {
+      router.replace('/');
+      router.refresh();
+    }, 1000);
   };
 
   return (

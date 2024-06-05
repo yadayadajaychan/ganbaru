@@ -1,7 +1,15 @@
 'use client';
 
-import { useState } from 'react';
-import { Box, Card, Flex, Separator, Text } from '@radix-ui/themes';
+import { useEffect, useState } from 'react';
+import {
+  Badge,
+  Box,
+  Card,
+  Flex,
+  Separator,
+  Skeleton,
+  Text,
+} from '@radix-ui/themes';
 import {
   ThickArrowUpIcon,
   ThickArrowDownIcon,
@@ -10,112 +18,162 @@ import {
 
 import { Post } from '@/types';
 import { MarkdownToJsx } from '../markdown';
+import Link from 'next/link';
+import { sendVote } from '@/api/post';
 
 interface PostCardProps {
+  classId: string;
   post: Post;
   preview?: boolean;
+  loading?: boolean;
+  redirect?: boolean;
 }
 
-export default function PostCard({ post, preview = false }: PostCardProps) {
+export default function PostCard({
+  classId,
+  post,
+  preview = false,
+  loading = false,
+  redirect = true,
+}: PostCardProps) {
   const [likeStatus, setLikeStatus] = useState<{
     isLiked: boolean;
     isDisliked: boolean;
-  }>({ isLiked: post.vote === 1, isDisliked: post.vote === -1 });
+  }>({ isLiked: post.vote == 1, isDisliked: post.vote == -1 });
 
   const [likeCount, setLikeCount] = useState(post.score);
 
-  const sendVoteRequest = async (postId: string, voteType: string) => {
-    try {
-      const response = await fetch(`/api/vote`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ postId, voteType }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to vote');
-      }
-
-      const data = await response.json();
-      return data.newScore;
-    } catch (error) {
-      console.error('Error:', error);
-      return null;
-    }
-  };
+  useEffect(() => {
+    setLikeStatus({ isLiked: post.vote == 1, isDisliked: post.vote == -1 });
+    setLikeCount(post.score);
+  }, [post]);
 
   const handleUpvote = async () => {
-    const newScore = await sendVoteRequest(post.post_id.toString(), 'upvote');
+    if (loading) return;
 
-    if (newScore !== null) {
-      if (likeStatus.isLiked) {
-        setLikeStatus({ isLiked: false, isDisliked: false });
-        setLikeCount(newScore);
-      } else {
-        setLikeStatus({ isLiked: true, isDisliked: false });
-        setLikeCount(newScore);
-      }
+    if (likeStatus.isLiked) {
+      await sendVote({
+        forumId: classId,
+        postId: post.post_id.toString(),
+        vote: 0,
+      });
+
+      setLikeStatus({ isLiked: false, isDisliked: false });
+      setLikeCount(likeCount - 1);
+    } else if (likeStatus.isDisliked) {
+      await sendVote({
+        forumId: classId,
+        postId: post.post_id.toString(),
+        vote: 1,
+      });
+
+      setLikeStatus({ isLiked: true, isDisliked: false });
+      setLikeCount(likeCount + 2);
+    } else {
+      await sendVote({
+        forumId: classId,
+        postId: post.post_id.toString(),
+        vote: 1,
+      });
+
+      setLikeStatus({ isLiked: true, isDisliked: false });
+      setLikeCount(likeCount + 1);
     }
   };
 
   const handleDownvote = async () => {
-    const newScore = await sendVoteRequest(post.post_id.toString(), 'downvote');
-    if (newScore !== null) {
-      if (likeStatus.isDisliked) {
-        setLikeStatus({ isLiked: false, isDisliked: false });
-        setLikeCount(newScore);
-      } else {
-        setLikeStatus({ isLiked: false, isDisliked: true });
-        setLikeCount(newScore);
-      }
+    if (loading) return;
+
+    if (likeStatus.isLiked) {
+      await sendVote({
+        forumId: classId,
+        postId: post.post_id.toString(),
+        vote: -1,
+      });
+
+      setLikeStatus({ isLiked: false, isDisliked: true });
+      setLikeCount(likeCount - 2);
+    } else if (likeStatus.isDisliked) {
+      await sendVote({
+        forumId: classId,
+        postId: post.post_id.toString(),
+        vote: 0,
+      });
+
+      setLikeStatus({ isLiked: false, isDisliked: false });
+      setLikeCount(likeCount + 1);
+    } else {
+      await sendVote({
+        forumId: classId,
+        postId: post.post_id.toString(),
+        vote: -1,
+      });
+
+      setLikeStatus({ isLiked: false, isDisliked: true });
+      setLikeCount(likeCount - 1);
     }
   };
 
   return (
-    <Box className={`${preview ? 'hover:cursor-pointer' : ''}`}>
+    <Box className={`${preview ? 'hover:cursor-pointer' : ''} w-full`}>
       <Card size='2'>
         <Flex id='left' direction='column' justify='start' gap='2'>
-          <Flex id='user' direction='row' justify='between'>
-            <Text color='gray' size='2'>
-              Posted by: {post.user.name}
-            </Text>
-            <Text color='gray' size='1'>
-              {new Date(post.date).toLocaleTimeString()}
-            </Text>
-          </Flex>
-          <Flex id='content' direction='column' gap={preview ? '1' : '3'}>
-            <Flex
-              style={{
-                height: preview ? '30px' : undefined,
-                overflow: 'hidden',
-              }}
-            >
-              <Text
-                as='label'
-                weight='bold'
-                size={preview ? '3' : '5'}
-                truncate={preview ? true : false}
-                style={{
-                  whiteSpace: 'normal',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                }}
-                className={preview ? 'hover:cursor-pointer' : ''}
-              >
-                {post.title}
+          <Link href={`/forum/${classId}/post/${post.post_id}`}>
+            <Flex id='user' direction='row' justify='between'>
+              <Flex direction='row' gap='2'>
+                <Text color='gray' size='2'>
+                  <Skeleton loading={loading}>
+                    Posted by: {post.user.name}
+                  </Skeleton>
+                </Text>
+                {post.instructor_answered && !loading && (
+                  <Badge color='green'>Instructor Answered</Badge>
+                )}
+              </Flex>
+              <Text color='gray' size='1'>
+                <Skeleton loading={loading}>
+                  {new Date(post.date).toLocaleTimeString()}
+                </Skeleton>
               </Text>
             </Flex>
-            <Flex
-              style={{
-                height: preview ? '80px' : undefined,
-                overflow: 'hidden',
-              }}
-            >
-              <MarkdownToJsx markdown={post.content} />
+            <Flex id='content' direction='column' gap={preview ? '1' : '3'}>
+              <Flex
+                style={{
+                  height: preview ? '30px' : undefined,
+                  overflow: 'hidden',
+                }}
+              >
+                <Text
+                  as='label'
+                  weight='bold'
+                  size={preview ? '3' : '5'}
+                  truncate={preview ? true : false}
+                  style={{
+                    whiteSpace: 'normal',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                  className={preview ? 'hover:cursor-pointer' : ''}
+                >
+                  <Skeleton loading={loading}>{post.title}</Skeleton>
+                </Text>
+              </Flex>
+              <Flex
+                style={{
+                  height: preview ? '80px' : undefined,
+                  overflow: 'hidden',
+                }}
+              >
+                {loading ? (
+                  <Skeleton loading={true}>
+                    <Text>{post.full_text}</Text>
+                  </Skeleton>
+                ) : (
+                  <MarkdownToJsx markdown={post.full_text} />
+                )}
+              </Flex>
             </Flex>
-          </Flex>
+          </Link>
           <Separator orientation='horizontal' mt={'2'} size='4' />
           <Flex
             id='controls'
@@ -141,7 +199,7 @@ export default function PostCard({ post, preview = false }: PostCardProps) {
                     onClick={handleUpvote}
                   />
                   <Text as='label' size='2'>
-                    {likeCount}
+                    <Skeleton loading={loading}>{likeCount}</Skeleton>
                   </Text>
                 </Flex>
                 <ThickArrowDownIcon
@@ -170,7 +228,7 @@ export default function PostCard({ post, preview = false }: PostCardProps) {
                 >
                   <ChatBubbleIcon className='hover:cursor-pointer' />
                   <Text as='label' size='2' className='hover:cursor-pointer'>
-                    {post.score}
+                    {post.answers}
                   </Text>
                 </Flex>
               </Box>

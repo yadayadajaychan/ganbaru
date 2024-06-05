@@ -7,44 +7,60 @@ import { Class } from '@/types';
 import Link from 'next/link';
 import JoinClass from '@/components/class/join';
 import ClassCard from '@/components/cards/class';
+import ClassesSkeleton from './skeleton';
+import CreateClass from './create';
+import { logout } from '@/api/user';
+import { useRouter } from 'next/navigation';
 
 export default function Classes() {
-  const classes = useQuery({
+  const router = useRouter();
+
+  const { data, isLoading } = useQuery({
     queryKey: ['classes'],
-    queryFn: async () => {
-      const classes = await fetchClasses();
-      return classes.json();
-    },
+    queryFn: fetchClasses,
   });
+
+  const onLogout = async () => {
+    await logout();
+
+    router.replace('/');
+    router.refresh();
+  };
 
   return (
     <Flex direction='column' gap='4' className='w-full'>
       <Flex direction='column' gap='4'>
-        <ClassCard
-          classData={{
-            description: 'test',
-            name: 'test',
-            owner: { name: 'test', uid: 25 },
-            forum_id: 25,
-            unread: 0,
-            unanswered: 0,
-            important: 5,
-          }}
-        />
-        <ClassCard
-          classData={{
-            description: 'test',
-            name: 'test',
-            owner: { name: 'test', uid: 25 },
-            forum_id: 25,
-            unread: 0,
-            unanswered: 0,
-            important: 5,
-          }}
-        />
+        {isLoading ?? <ClassesSkeleton />}
+        {data && data.forums.length > 0 ? (
+          data.forums.map((classData: Class) => (
+            <ClassCard
+              classData={classData}
+              key={classData.forum_id}
+              loading={false}
+            />
+          ))
+        ) : (
+          <Flex justify='center' align='center'>
+            <Text>No classes found</Text>
+          </Flex>
+        )}
       </Flex>
-      <Flex justify='center' align='end' className='w-full'>
-        <JoinClass />
+      <Flex
+        justify='center'
+        direction='column'
+        gap='2'
+        align='center'
+        className='w-full'
+      >
+        <CreateClass />
+        <JoinClass title='Join a Class' />
+        <Button
+          className='hover:cursor-pointer'
+          variant='outline'
+          onClick={onLogout}
+        >
+          Logout
+        </Button>
       </Flex>
     </Flex>
   );

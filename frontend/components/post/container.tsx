@@ -27,9 +27,18 @@ import { fetchPosts } from '@/api/post';
 import PostCard from '../cards/post';
 import { Crosshair2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
 import InfiniteScroll from 'react-infinite-scroller';
+import PostSkeleton from './skeleton';
+
+interface PostContainerProps {
+  forumId: string;
+  mainLoading?: boolean;
+}
 
 // will be the virtualized list that contains all of the posts
-export default function PostContainer() {
+export default function PostContainer({
+  forumId,
+  mainLoading = false,
+}: PostContainerProps) {
   const filterData = {
     all: { label: 'All' },
     unanswered: { label: 'Unanswered' },
@@ -38,16 +47,34 @@ export default function PostContainer() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all' as keyof typeof filterData);
 
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+
   const [isNextPageLoading, setIsNextPageLoading] = useState(false);
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [search]);
+
   const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery({
-    queryKey: ['posts', search, filter],
-    queryFn: ({ pageParam }) => fetchPosts({ pageParam, search, filter }),
-    getNextPageParam: (lastPage) => lastPage.nextPage,
+    queryKey: ['posts', debouncedSearch, filter, forumId],
+    queryFn: ({ pageParam }) =>
+      fetchPosts({
+        pageParam,
+        search: debouncedSearch,
+        filter,
+        forumId: Number(forumId),
+      }),
+    getNextPageParam: (lastPage) => lastPage.next_page,
     initialPageParam: 1,
   });
 
-  const allRecords = data ? data.pages.map((page) => page.records) : [];
+  const allRecords = data ? data.pages.map((page) => page.post_infos) : [];
   const posts = allRecords.flat();
 
   const loadMoreRows = async () => {
@@ -62,7 +89,7 @@ export default function PostContainer() {
 
   return (
     // <Card size='5'>
-    <Flex gap='2' direction='column' justify='center' className='w-full'>
+    <Flex gap='4' direction='column' justify='center' className='w-full'>
       <Flex direction='row' justify='between' className='w-full' gap='2'>
         <TextField.Root
           placeholder='Search for a specific post...'
@@ -96,6 +123,9 @@ export default function PostContainer() {
           <Text>No posts found. Be the first to create one!</Text>
         </Flex>
       )}
+      {((isLoading && posts.length === 0) || mainLoading) && (
+        <PostSkeleton forumId={forumId} preview={true} />
+      )}
       <InfiniteScroll
         pageStart={1}
         loadMore={loadMoreRows}
@@ -107,8 +137,8 @@ export default function PostContainer() {
         }
       >
         {posts.map((post) => (
-          <Flex mb='5' key={post.id}>
-            <PostCard post={post} preview={true} />
+          <Flex mb='5' key={post.post_id} className='w-full'>
+            <PostCard classId={forumId} post={post} preview={true} />
           </Flex>
         ))}
       </InfiniteScroll>

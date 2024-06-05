@@ -695,15 +695,24 @@ class db:
         #TODO filter by tags
         search = query.get("search", '.*')
 
+        filter = query.get("filter", 'all')
+        if filter == "all":
+            filter = '>= 0'
+        elif filter == "unanswered":
+            filter = '= 0'
+        else:
+            raise Exception("invalid filter, must be: all, unanswered")
+
         query = sql.SQL('SELECT pid, uid, title, date, last_activity, '
                         'views, answers, instructor_answered, tags, '
                         'anonymous, alias, score, full_text '
                          'FROM posts '
-                         'WHERE fid = %s AND (title ~* %s OR full_text ~* %s) '
+                         'WHERE fid = %s AND (title ~* %s OR full_text ~* %s) AND answers {filter} '
                          'ORDER BY {sortby} {asc} '
                          'LIMIT %s OFFSET %s').format(
                                  sortby=sql.SQL(sortby),
                                  asc=sql.SQL(ascending),
+                                 filter=sql.SQL(filter)
                                  )
         try:
             self.cur.execute(query, (forum_id, search, search, count, offset))

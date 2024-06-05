@@ -130,6 +130,7 @@ Get Posts
  | tags        | string[] | tags to filter by          | y        | []        |
  | ascending   | bool     | ascending order            | y        | false     |
  | sortby      | string   | post_date, activity, votes | y        | post_date |
+ | filter      | string   | all, unanswered            | y        | all       |
 
 - JSON Response
 

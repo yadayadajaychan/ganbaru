@@ -19,17 +19,20 @@ export default function Classes() {
     <Flex direction='column' gap='4' className='w-full'>
       <Flex direction='column' gap='4'>
         {isLoading ?? <ClassesSkeleton />}
-        {data &&
+        {data ? (
           data.map((classData: Class) => (
             <ClassCard
               classData={classData}
               key={classData.forum_id}
               loading={true}
             />
-          ))}
+          ))
+        ) : (
+          <Text>No classes found</Text>
+        )}
       </Flex>
       <Flex justify='center' align='end' className='w-full'>
-        <JoinClass />
+        <JoinClass title='Join a Class' />
       </Flex>
     </Flex>
   );

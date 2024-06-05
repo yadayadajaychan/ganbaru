@@ -1,3 +1,5 @@
+import { GetCommentsResponse } from '@/types';
+
 export const fetchComments = async ({
   pageParam = 0,
   classId,
@@ -20,7 +22,7 @@ export const fetchComments = async ({
     throw new Error(data.error || 'Failed to fetch comments');
   }
 
-  return data;
+  return data as GetCommentsResponse;
 };
 
 export const createComment = async ({

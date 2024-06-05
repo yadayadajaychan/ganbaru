@@ -26,10 +26,6 @@ export interface Post {
   score: number;
   vote: number;
 
-  // user related
-  // isLiked?: boolean;
-  // isDisliked?: boolean;
-
   preview?: boolean;
 }
 
@@ -43,16 +39,12 @@ export interface Class {
   unanswered: number;
 }
 
-export interface GetPostResponse {
-  post: Post;
-}
-
 export interface GetPostsResponse {
   posts: Post[];
   nextPage: number | undefined;
 }
 
 export interface GetCommentsResponse {
-  comments: Comment[];
+  answers: Comment[];
   nextPage: number | undefined;
 }

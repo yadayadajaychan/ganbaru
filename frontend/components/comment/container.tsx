@@ -54,7 +54,7 @@ export default function CommentContainer({
     initialPageParam: 1,
   });
 
-  const allRecords = data ? data.pages.map((page) => page.records) : [];
+  const allRecords = data ? data.pages.map((page) => page.answers) : [];
   const comments = allRecords.flat() as CommentType[];
 
   const [isNextPageLoading, setIsNextPageLoading] = useState(false);

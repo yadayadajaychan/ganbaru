@@ -29,8 +29,16 @@ import { Crosshair2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
 import InfiniteScroll from 'react-infinite-scroller';
 import PostSkeleton from './skeleton';
 
+interface PostContainerProps {
+  forumId: string;
+  mainLoading?: boolean;
+}
+
 // will be the virtualized list that contains all of the posts
-export default function PostContainer({ forumId }: { forumId: string }) {
+export default function PostContainer({
+  forumId,
+  mainLoading = false,
+}: PostContainerProps) {
   const filterData = {
     all: { label: 'All' },
     unanswered: { label: 'Unanswered' },
@@ -49,7 +57,7 @@ export default function PostContainer({ forumId }: { forumId: string }) {
     initialPageParam: 1,
   });
 
-  const allRecords = data ? data.pages.map((page) => page.records) : [];
+  const allRecords = data ? data.pages.map((page) => page.posts) : [];
   const posts = allRecords.flat();
 
   const loadMoreRows = async () => {
@@ -98,7 +106,9 @@ export default function PostContainer({ forumId }: { forumId: string }) {
           <Text>No posts found. Be the first to create one!</Text>
         </Flex>
       )}
-      {isLoading && posts.length === 0 && <PostSkeleton preview={true} />}
+      {((isLoading && posts.length === 0) || mainLoading) && (
+        <PostSkeleton preview={true} />
+      )}
       <InfiniteScroll
         pageStart={1}
         loadMore={loadMoreRows}
@@ -110,7 +120,7 @@ export default function PostContainer({ forumId }: { forumId: string }) {
         }
       >
         {posts.map((post) => (
-          <Flex mb='5' key={post.id}>
+          <Flex mb='5' key={post.post_id}>
             <PostCard post={post} preview={true} />
           </Flex>
         ))}

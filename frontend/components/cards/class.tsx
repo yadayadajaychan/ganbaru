@@ -19,12 +19,8 @@ export default function ClassCard({
             <Text size='2' weight='bold'>
               <Skeleton loading={loading}>{classData.name}</Skeleton>
             </Text>
-            {/* <Flex direction='row' gap='1'>
-              <Badge color='yellow'>{classData.unanswered}</Badge>
-            </Flex> */}
           </Flex>
           <Text size='1'>
-            {' '}
             <Skeleton loading={loading}>{classData.description}</Skeleton>
           </Text>
         </Flex>

@@ -1,3 +1,5 @@
+import { GetPostsResponse } from '@/types';
+
 export const fetchPosts = async ({
   pageParam = 1,
   search,
@@ -22,7 +24,7 @@ export const fetchPosts = async ({
     throw new Error(data.error || 'Failed to fetch posts');
   }
 
-  return data;
+  return data as GetPostsResponse;
 };
 
 export const fetchPost = async ({

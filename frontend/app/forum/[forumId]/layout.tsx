@@ -1,4 +1,5 @@
 import NavBar from '@/components/nav/navbar';
+import { QueryClient, useQuery } from '@tanstack/react-query';
 
 export default function ForumLayout({
   children,

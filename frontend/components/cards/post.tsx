@@ -163,6 +163,7 @@ export default function PostCard({
                   height: preview ? '80px' : undefined,
                   overflow: 'hidden',
                 }}
+                direction='column'
               >
                 {loading ? (
                   <Skeleton loading={true}>

@@ -77,11 +77,13 @@ export default function NavBar({ classId }: { classId: string }) {
         <Box id='user'>
           <Flex className='flex flex-row gap-2 ml-auto'>
             <Flex justify='center' align='center' direction='row' gap='2'>
-              <Text size='2' className='hidden md:inline '>
+              <Text size='2' className='hidden md:inline'>
                 {session['username']}
               </Text>
               {!!!moderatorError && !isModeratorLoading && (
-                <Badge color='green'>Moderator</Badge>
+                <Badge className='hidden md:inline' color='green'>
+                  Moderator
+                </Badge>
               )}
             </Flex>
             <DropdownMenu.Root>

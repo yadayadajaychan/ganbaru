@@ -73,7 +73,7 @@ Set User Info
 |   field   |  type  | optional |   description    |
 |-----------|--------|----------|------------------|
 | full_name | string | y        | user's full name |
-| alias     | string | y        | user's alias     |
+| username  | string | y        | user's alias     |
 
 Create Forum
 =========================
@@ -87,6 +87,11 @@ Create Forum
  | name        | string | name of the forum        |
  | description | string | description of the forum |
 
+- JSON Response
+
+ |  field   | type |
+ |----------|------|
+ | forum_id | int  |
 
 Get Forums (classes)
 =========================
@@ -114,6 +119,17 @@ Get Forums (classes)
  |-------|--------|--------------|
  | uid   | int    | user id      |
  | name  | string | display name |
+
+Get Forum Info
+==============
+- `GET /forums/info/<forum_id>`
+- get forum information
+- `session_id` cookie required
+- JSON Response
+
+ | field |     type     |
+ |-------|--------------|
+ | forum | forum object |
 
 Get Posts
 =========================
@@ -179,6 +195,12 @@ Create Post
  | anonymous | bool             | if post is anonymous  | y        | false   |
  | alias     | bool             | if post uses alias    | y        | false   |
 
+- JSON Response
+
+ |  field  | type |
+ |---------|------|
+ | post_id | int  |
+
 View Post
 =========================
 - `GET /forums/<forum_id>/<post_id>`
@@ -224,10 +246,10 @@ Get Answers
 
 - JSON Response
 
- |       field       |          type           |
- |-------------------|-------------------------|
- | instructor_answer | answer object           |
- | student_answers   | student answers object  |
+ |  field   |          type           |
+ |----------|-------------------------|
+ | answers  | array of answer objects |
+ | nextPage | int                     |
 
 - Answer Object
 
@@ -239,13 +261,6 @@ Get Answers
  | answer    | string   | full text of the answer |
  | score     | int      | sum of votes by users   |
  | vote      | int      | user's own vote         |
-
-- Student Answers Object
-
-|  field   |          type           |
-|----------|-------------------------|
-| answers  | array of answer objects |
-| nextPage | int                     |
 
 - user_obj
 
@@ -347,8 +362,27 @@ Refresh Moderator Join Code
 - requires moderator privileges
 - `session_id` cookie required
 
-Join Forum
-==========
+Join Forum (POST)
+=================
 - `POST /forums/join/<join_code>`
 - join a forum using its join code
 - `session_id` cookie required
+- JSON Response
+
+|  field   | type |
+|----------|------|
+| forum_id | int  |
+
+Join Forum (GET)
+================
+- `GET /forums/join/<join_code>`
+- join a forum using its join code
+- `session_id` cookie required
+- redirects to forum page
+
+Check If Moderator
+==================
+- `GET /forums/<forum_id>/is_mod`
+- check if moderator in a forum
+- `session_id` cookie required
+- returns error if not moderator

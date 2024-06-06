@@ -1,7 +1,10 @@
-from flask import Flask, jsonify, request, abort, make_response
+from flask import Flask, jsonify, request, make_response, redirect
+from flask_cors import CORS
 import Database
 
 app = Flask(__name__)
+CORS(app, origins="http://localhost:3000", headers='Content-Type', supports_credentials=True)
+
 db = Database.db()
 db.init()
 
@@ -25,11 +28,30 @@ def create_user():
         return jsonify({"error": "missing password"}), 400
 
     try:
-        db.create_user(data["username"], data["password"])
+        data["email"]
+    except:
+        return jsonify({"error": "missing email"}), 400
+
+    try:
+        db.create_user(data["email"], data["password"], data["username"])
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return "", 200
+    timeout = int(data.get("timeout", 86400))
+
+    try:
+        session_id = db.login(data["email"], data["password"], timeout)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    resp = make_response(jsonify({}))
+    resp.set_cookie("session_id",
+                    value=session_id,
+                    max_age=timeout,
+                    #domain=".nijika.org",
+                    samesite='None',
+                    secure=True)
+    return resp, 200
 
 @app.route("/user/delete", methods=["POST"])
 def delete_user():
@@ -41,9 +63,9 @@ def delete_user():
         return jsonify({"error": "invalid json"}), 400
 
     try:
-        data["username"]
+        data["email"]
     except:
-        return jsonify({"error": "missing username"}), 400
+        return jsonify({"error": "missing email"}), 400
 
     try:
         data["password"]
@@ -51,11 +73,11 @@ def delete_user():
         return jsonify({"error": "missing password"}), 400
 
     try:
-        db.delete_user(data["username"], data["password"])
+        db.delete_user(data["email"], data["password"])
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return "", 200
+    return jsonify({}), 200
 
 @app.route("/user/login", methods=["POST"])
 def login():
@@ -67,34 +89,40 @@ def login():
         return jsonify({"error": "invalid json"}), 400
 
     try:
-        data["username"]
+        data["email"]
     except:
-        return jsonify({"error": "missing username"}), 400
+        return jsonify({"error": "missing email"}), 400
 
     try:
         data["password"]
     except:
         return jsonify({"error": "missing password"}), 400
 
-    try:
-        timeout = data["timeout"]
-        cookie_timeout = timeout
-    except:
-        # defaults to 1 day
-        timeout = 86400
-        cookie_timeout = None
+    timeout = int(data.get("timeout", 86400))
 
     try:
-        session_id = db.login(data["username"], data["password"], timeout)
+        session_id = db.login(data["email"], data["password"], timeout)
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    resp = make_response()
+    resp = make_response(jsonify({}))
     resp.set_cookie("session_id",
                     value=session_id,
-                    max_age=cookie_timeout,
+                    max_age=timeout,
                     #domain=".nijika.org",
+                    samesite='None',
                     secure=True)
+    return resp, 200
+
+@app.route("/user/logout", methods=["POST"])
+def logout():
+    resp = make_response(jsonify({}))
+    resp.set_cookie("session_id",
+                    value='',
+                    max_age=0,
+                    samesite='None',
+                    secure=True)
+
     return resp, 200
 
 @app.route("/user/check_session", methods=["GET"])
@@ -109,7 +137,7 @@ def check_session():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return "", 200
+    return jsonify({}), 200
 
 @app.route("/forums/create", methods=["POST"])
 def create_forum():
@@ -130,11 +158,25 @@ def create_forum():
     description = data.get("description")
 
     try:
-        db.create_forum(session_id, name, description)
+        fid = db.create_forum(session_id, name, description)
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return "", 200
+    return jsonify(fid), 200
+
+@app.route("/forums/info/<forum_id>", methods=["GET"])
+def get_forum_info(forum_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        forum = db.get_forum_info(session_id, forum_id)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify(forum), 200
 
 @app.route("/forums", methods=["GET"])
 def get_forums():
@@ -176,7 +218,7 @@ def refresh_join_code(forum_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return "", 200
+    return jsonify({}), 200
 
 @app.route("/forums/<forum_id>/mod_join_code", methods=["GET"])
 def get_mod_join_code(forum_id):
@@ -204,9 +246,9 @@ def refresh_mod_join_code(forum_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return "", 200
+    return jsonify({}), 200
 
-@app.route("/forums/join/<join_code>", methods=["GET"])
+@app.route("/forums/join/<join_code>", methods=["POST"])
 def join_forum(join_code):
     try:
         session_id = request.cookies['session_id']
@@ -219,6 +261,22 @@ def join_forum(join_code):
         return jsonify({"error": str(e)}), 400
 
     return jsonify(fid), 200
+
+@app.route("/forums/join/<join_code>", methods=["GET"])
+def join_forum_and_redirect(join_code):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        fid = db.join_forum(session_id, join_code)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    fid = fid["forum_id"]
+
+    return redirect(f"/forum/{fid}", code=302)
 
 @app.route("/forums/<forum_id>/create", methods=["POST"])
 def create_post(forum_id):
@@ -248,11 +306,11 @@ def create_post(forum_id):
     alias = data.get("alias", False)
 
     try:
-        db.create_post(session_id, forum_id, title, full_text, tags, anonymous, alias)
+        pid = db.create_post(session_id, forum_id, title, full_text, tags, anonymous, alias)
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return "", 200
+    return jsonify(pid), 200
 
 @app.route("/forums/<forum_id>", methods=["GET"])
 def get_posts(forum_id):
@@ -312,7 +370,7 @@ def create_answer(forum_id, post_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return "", 200
+    return jsonify({}), 200
 
 @app.route("/forums/<forum_id>/<post_id>/answers", methods=["GET"])
 def get_answers(forum_id, post_id):
@@ -366,7 +424,7 @@ def vote_on_post(forum_id, post_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return jsonify(vote), 200
+    return jsonify({}), 200
 
 @app.route("/forums/<forum_id>/<post_id>/<answer_id>/get_vote", methods=["GET"])
 def get_answer_vote(forum_id, post_id, answer_id):
@@ -404,7 +462,21 @@ def vote_on_answer(forum_id, post_id, answer_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    return jsonify(vote), 200
+    return jsonify({}), 200
+
+@app.route("/forums/<forum_id>/is_mod", methods=["GET"])
+def is_mod(forum_id):
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        db.is_mod(session_id, forum_id)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return jsonify({}), 200
 
 if __name__ == "__main__":
     app.run(debug=True)

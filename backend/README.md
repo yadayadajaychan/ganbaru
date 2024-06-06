@@ -15,7 +15,8 @@
 ## Environment
 Copy the file `example.env` to `.env` and modify the variables
 to allow access to the postgres database.
-The database shouldn't have any tables in it before running the back-end server.
+The database shouldn't have any tables in it before starting the
+back-end server for the first time.
 
 A pair of RSA keys is also required for authentication using JWTs.
 They can be generated using openssl:

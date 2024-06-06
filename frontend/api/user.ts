@@ -37,3 +37,10 @@ export const logout = async () =>
     method: 'POST',
     credentials: 'include',
   });
+
+export const updateUsername = async ({ username }: { username: string }) =>
+  fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/username`, {
+    method: 'POST',
+    body: JSON.stringify({ username }),
+    credentials: 'include',
+  });

@@ -478,5 +478,37 @@ def is_mod(forum_id):
 
     return jsonify({}), 200
 
+@app.route("/user/profile/set_info", methods=["POST"])
+def set_info():
+    try:
+        session_id = request.cookies['session_id']
+    except:
+        return jsonify({"error": "missing session_id cookie"}), 400
+
+    try:
+        data = request.get_json(force=True)
+    except:
+        return jsonify({"error": "invalid json"}), 400
+
+    full_name = data.get("full_name", None)
+    username = data.get("username", None)
+
+    resp = make_response(jsonify({}))
+    try:
+        if username is not None:
+            token, timeout = db.set_username(session_id, username)
+            resp.set_cookie("session_id",
+                            value=token,
+                            max_age=timeout,
+                            #domain=".nijika.org",
+                            samesite='None',
+                            secure=True)
+        if full_name is not None:
+            db.set_full_name(session_id, full_name)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    return resp, 200
+
 if __name__ == "__main__":
     app.run(debug=True)

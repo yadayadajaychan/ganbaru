@@ -62,7 +62,7 @@ Get User Info
 |   field   |  type  |   description    |
 |-----------|--------|------------------|
 | full_name | string | user's full name |
-| alias     | string | user's alias     |
+| username  | string | user's username  |
 
 Set User Info
 =============
@@ -73,7 +73,7 @@ Set User Info
 |   field   |  type  | optional |   description    |
 |-----------|--------|----------|------------------|
 | full_name | string | y        | user's full name |
-| username  | string | y        | user's alias     |
+| username  | string | y        | user's username  |
 
 Create Forum
 =========================
@@ -153,7 +153,7 @@ Get Posts
  |   field    |            type            |
  |------------|----------------------------|
  | post_infos | array of post_info objects |
- | nextPage   | int                        |
+ | next_page  | int                        |
 
 - Post_info Object
 
@@ -246,10 +246,10 @@ Get Answers
 
 - JSON Response
 
- |  field   |          type           |
- |----------|-------------------------|
- | answers  | array of answer objects |
- | nextPage | int                     |
+ |   field   |          type           |
+ |-----------|-------------------------|
+ | answers   | array of answer objects |
+ | next_page | int                     |
 
 - Answer Object
 

@@ -154,22 +154,15 @@ class db:
     def create_user(self, email, password, username):
         if not email.isascii():
             raise Exception("non-ascii email not allowed")
-        if not username.isascii():
-            raise Exception("non-ascii username not allowed")
 
         if len(email) < 1:
             raise Exception("empty email")
-        if len(username) < 1:
-            raise Exception("empty username")
 
-        r = re.compile('[^A-Za-z0-9_]')
-        if r.search(username):
-            raise Exception("only alphanumeric characters and underscore allowed in username")
         r = re.compile('@')
         if not r.search(email):
             raise Exception("email requires @ symbol")
 
-        username = username.lower()
+        username = self.__check_valid_username(username)
         email = email.lower()
 
         if len(password) < 8:
@@ -406,18 +399,46 @@ class db:
 
     def set_username(self, session_id, alias):
         uid = self.check_session(session_id)
-
-        if len(alias) == 0:
-            alias = None
+        alias = self.__check_valid_username(alias)
 
         try:
             self.cur.execute('UPDATE users '
                              'SET alias = %s '
                              'WHERE uid = %s', (alias, uid))
+        except psycopg2.errors.UniqueViolation:
+            raise Exception("username taken")
         finally:
             self.conn.commit()
 
-        return
+        return self.refresh_jwt(session_id)
+
+    def refresh_jwt(self, session_id):
+        try:
+            payload = jwt.decode(session_id, self.pubkey, algorithms=["RS512"])
+        except:
+            raise Exception("invalid session_id")
+
+        token = jwt.encode({"exp": payload["exp"],
+                            "email": payload["email"],
+                            "username": self.get_username(payload["uid"]),
+                            "uid": payload["uid"]},
+                           self.privkey, algorithm="RS512")
+
+        timeout = int(payload["exp"] - time.time())
+
+        return token, timeout
+
+    def __check_valid_username(self, username):
+        if not username.isascii():
+            raise Exception("non-ascii username not allowed")
+        if len(username) < 1:
+            raise Exception("empty username")
+
+        r = re.compile('[^A-Za-z0-9_]')
+        if r.search(username):
+            raise Exception("only alphanumeric characters and underscore allowed in username")
+
+        return username.lower()
 
     def get_user_obj(self, uid, mod, anonymous, alias):
             if mod:
@@ -694,7 +715,7 @@ class db:
         except:
             mod = False
 
-        count = int(query.get("count", 50))
+        count = int(query.get("count", 10))
         if count < 0:
             raise Exception("count can't be less than 0")
 
@@ -752,7 +773,7 @@ class db:
         records = self.cur.fetchall()
 
         if records is None:
-            return {"post_infos": [], "nextPage": None}
+            return {"post_infos": [], "next_page": None}
 
         for record in records:
             anonymous = record[9]
@@ -781,11 +802,11 @@ class db:
             self.conn.commit()
         records = self.cur.fetchall()
         if len(records) == 0:
-            nextPage = None
+            next_page = None
         else:
-            nextPage = page+1
+            next_page = page+1
 
-        return {"post_infos": post_infos, "nextPage": nextPage}
+        return {"post_infos": post_infos, "next_page": next_page}
 
     def view_post(self, session_id, forum_id, post_id):
         uid = self.check_session(session_id)
@@ -894,7 +915,7 @@ class db:
         except:
             mod = False
 
-        count = int(query.get("count", 50))
+        count = int(query.get("count", 10))
         if count < 0:
             raise Exception("count can't be less than 0")
 
@@ -951,12 +972,12 @@ class db:
             self.conn.commit()
         records = self.cur.fetchall()
         if len(records) == 0:
-            nextPage = None
+            next_page = None
         else:
-            nextPage = page+1
+            next_page = page+1
 
         return {"answers": answer_infos,
-                "nextPage": nextPage,
+                "next_page": next_page,
                 }
 
     def __refresh_join_code(self, forum_id):

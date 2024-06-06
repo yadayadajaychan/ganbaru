@@ -29,7 +29,7 @@ class db:
         self.pubkey = file.read()
         file.close()
 
-    def init(self):
+   def init(self):
         self.__create_auth_table()
         self.__create_users_table()
         self.__create_admin("admin@nijika.org", "12345678", "admin")
@@ -154,22 +154,15 @@ class db:
     def create_user(self, email, password, username):
         if not email.isascii():
             raise Exception("non-ascii email not allowed")
-        if not username.isascii():
-            raise Exception("non-ascii username not allowed")
 
         if len(email) < 1:
             raise Exception("empty email")
-        if len(username) < 1:
-            raise Exception("empty username")
 
-        r = re.compile('[^A-Za-z0-9_]')
-        if r.search(username):
-            raise Exception("only alphanumeric characters and underscore allowed in username")
         r = re.compile('@')
         if not r.search(email):
             raise Exception("email requires @ symbol")
 
-        username = username.lower()
+        username = self.__check_valid_username(username)
         email = email.lower()
 
         if len(password) < 8:
@@ -406,18 +399,30 @@ class db:
 
     def set_username(self, session_id, alias):
         uid = self.check_session(session_id)
-
-        if len(alias) == 0:
-            alias = None
+        alias = self.__check_valid_username(alias)
 
         try:
             self.cur.execute('UPDATE users '
                              'SET alias = %s '
                              'WHERE uid = %s', (alias, uid))
+        except psycopg2.errors.UniqueViolation:
+            raise Exception("username taken")
         finally:
             self.conn.commit()
 
         return
+
+    def __check_valid_username(self, username):
+        if not username.isascii():
+            raise Exception("non-ascii username not allowed")
+        if len(username) < 1:
+            raise Exception("empty username")
+
+        r = re.compile('[^A-Za-z0-9_]')
+        if r.search(username):
+            raise Exception("only alphanumeric characters and underscore allowed in username")
+
+        return username.lower()
 
     def get_user_obj(self, uid, mod, anonymous, alias):
             if mod:

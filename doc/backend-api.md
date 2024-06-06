@@ -62,7 +62,7 @@ Get User Info
 |   field   |  type  |   description    |
 |-----------|--------|------------------|
 | full_name | string | user's full name |
-| alias     | string | user's alias     |
+| username  | string | user's username  |
 
 Set User Info
 =============
@@ -73,7 +73,7 @@ Set User Info
 |   field   |  type  | optional |   description    |
 |-----------|--------|----------|------------------|
 | full_name | string | y        | user's full name |
-| username  | string | y        | user's alias     |
+| username  | string | y        | user's username  |
 
 Create Forum
 =========================

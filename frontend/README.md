@@ -1,15 +1,4 @@
-
-# Ganbaru
-
-## Overview
-Ganbaru is a web application designed to provide a platform for teachers and students to interact in a forum. The web version is available at: [https://eggert.nijika.org/](https://eggert.nijika.org/)
-
-## Contributors
-- **Ben Chen (2005benchen)**: 2005benchen@gmail.com
-- **Ethan Cheng (yadayadajaychan)**: ethan@nijika.org
-- **Valerie So (valeriethekitty)**: valerieso@gmail.com
-- **Edwin Jiang (pristine)**: ucnebula@gmail.com
-- **Evan Aceves (BlueTheseus)**: evanm.aceves@gmail.com
+# Front-end Server
 
 ## Prerequisites
 Before you begin, ensure you have met the following requirements:

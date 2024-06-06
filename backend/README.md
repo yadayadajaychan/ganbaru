@@ -28,9 +28,9 @@ Don't forget to set the `PRIVKEY_FILE` and `PUBKEY_FILE` variables
 in the `.env` file.
 
 ## Running
-After ensuring you have the postgres database set up, all the python libraries
-installed, and gunicorn installed, you can run the server on localhost:5000
-by running the command:
+After ensuring you have the postgres database set up, all the environment
+variables set, all the python libraries installed, and gunicorn installed, you
+can run the server on localhost:5000 by running the command:
 ```
 $ gunicorn -b 127.0.0.1:5000 app:app
 ```

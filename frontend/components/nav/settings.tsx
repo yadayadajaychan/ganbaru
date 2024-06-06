@@ -1,6 +1,6 @@
 'use client';
 
-import { updateUsername } from '@/api/user';
+import { updateInfo } from '@/api/user';
 import { useSession } from '@/util/session';
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
 import { Button, Flex, Spinner, Text, TextField } from '@radix-ui/themes';
@@ -15,7 +15,7 @@ export default function Settings() {
 
   const onSubmit = async () => {
     setIsLoading(true);
-    const resp = await updateUsername({ username: user });
+    const resp = await updateInfo({ username: user });
     if (!resp.ok) {
       if (resp.status === 400) {
         const res = await resp.json();

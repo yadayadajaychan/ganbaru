@@ -694,7 +694,7 @@ class db:
         except:
             mod = False
 
-        count = int(query.get("count", 50))
+        count = int(query.get("count", 10))
         if count < 0:
             raise Exception("count can't be less than 0")
 
@@ -752,7 +752,7 @@ class db:
         records = self.cur.fetchall()
 
         if records is None:
-            return {"post_infos": [], "nextPage": None}
+            return {"post_infos": [], "next_page": None}
 
         for record in records:
             anonymous = record[9]
@@ -781,11 +781,11 @@ class db:
             self.conn.commit()
         records = self.cur.fetchall()
         if len(records) == 0:
-            nextPage = None
+            next_page = None
         else:
-            nextPage = page+1
+            next_page = page+1
 
-        return {"post_infos": post_infos, "nextPage": nextPage}
+        return {"post_infos": post_infos, "next_page": next_page}
 
     def view_post(self, session_id, forum_id, post_id):
         uid = self.check_session(session_id)
@@ -894,7 +894,7 @@ class db:
         except:
             mod = False
 
-        count = int(query.get("count", 50))
+        count = int(query.get("count", 10))
         if count < 0:
             raise Exception("count can't be less than 0")
 
@@ -951,12 +951,12 @@ class db:
             self.conn.commit()
         records = self.cur.fetchall()
         if len(records) == 0:
-            nextPage = None
+            next_page = None
         else:
-            nextPage = page+1
+            next_page = page+1
 
         return {"answers": answer_infos,
-                "nextPage": nextPage,
+                "next_page": next_page,
                 }
 
     def __refresh_join_code(self, forum_id):

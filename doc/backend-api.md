@@ -153,7 +153,7 @@ Get Posts
  |   field    |            type            |
  |------------|----------------------------|
  | post_infos | array of post_info objects |
- | nextPage   | int                        |
+ | next_page  | int                        |
 
 - Post_info Object
 
@@ -246,10 +246,10 @@ Get Answers
 
 - JSON Response
 
- |  field   |          type           |
- |----------|-------------------------|
- | answers  | array of answer objects |
- | nextPage | int                     |
+ |   field   |          type           |
+ |-----------|-------------------------|
+ | answers   | array of answer objects |
+ | next_page | int                     |
 
 - Answer Object
 

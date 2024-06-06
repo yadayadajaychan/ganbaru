@@ -29,7 +29,7 @@ class db:
         self.pubkey = file.read()
         file.close()
 
-   def init(self):
+    def init(self):
         self.__create_auth_table()
         self.__create_users_table()
         self.__create_admin("admin@nijika.org", "12345678", "admin")
@@ -410,7 +410,23 @@ class db:
         finally:
             self.conn.commit()
 
-        return
+        return self.refresh_jwt(session_id)
+
+    def refresh_jwt(self, session_id):
+        try:
+            payload = jwt.decode(session_id, self.pubkey, algorithms=["RS512"])
+        except:
+            raise Exception("invalid session_id")
+
+        token = jwt.encode({"exp": payload["exp"],
+                            "email": payload["email"],
+                            "username": self.get_username(payload["uid"]),
+                            "uid": payload["uid"]},
+                           self.privkey, algorithm="RS512")
+
+        timeout = int(payload["exp"] - time.time())
+
+        return token, timeout
 
     def __check_valid_username(self, username):
         if not username.isascii():

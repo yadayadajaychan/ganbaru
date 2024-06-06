@@ -32,7 +32,7 @@ class db:
     def init(self):
         self.__create_auth_table()
         self.__create_users_table()
-        self.__create_admin("admin@nijika.org", "12345678", "admin")
+        self.__create_admin(os.getenv('ADMIN_EMAIL'), os.getenv('ADMIN_PASSWORD'), "admin")
         self.__create_forums_table()
         self.__create_posts_table()
         self.__create_post_votes_table()

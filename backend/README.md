@@ -24,8 +24,13 @@ $ openssl genrsa -out privkey.pem 2048
 $ openssl rsa -in privkey.pem -pubout -out pubkey.pem
 ```
 
-Don't forget to set the `PRIVKEY_FILE` and `PUBKEY_FILE` variables
-in the `.env` file.
+Set the `PRIVKEY_FILE` and `PUBKEY_FILE` variables in the `.env` file to
+the file name of each key.
+
+Finally, set `ADMIN_EMAIL` and `ADMIN_PASSWORD` so that the admin account will
+have an email and password.
+
+**ALL ENVIRONMENT VARIABLES MUST BE SET.**
 
 ## Running
 After ensuring you have the postgres database set up, all the environment
